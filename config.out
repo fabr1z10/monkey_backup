@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+from distutils.core import setup
+
+setup (name = 'monkey',
+       version = '0.1',
+       author = "Nobody",
+       description = """Install precompiled extension""",
+       packages=[''],
+       package_data={'': ['$<TARGET_FILE_NAME:monkey>']},
+       )
