@@ -2,22 +2,60 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Include GLEW
-#include <GL/glew.h>
 
-// Include GLFW
-#include <GLFW/glfw3.h>
-GLFWwindow* window;
+#include "engine.h"
+#include "room.h"
+#include "camera.h"
+
+//GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
 using namespace glm;
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
+namespace py = pybind11;
 
 PYBIND11_MODULE(monkey, m) {
-	m.doc() = "prova prova"; // optional module docstring
+	m.doc() = "prova prova2"; // optional module docstring
+	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
+
+
+	py::class_<Engine>(m, "Engine")
+		//.def(py::init<>())
+		.def("start", &Engine::start)
+		.def("shutdown", &Engine::shutdown)
+		.def("load",&Engine::load);
+		//.def("instance", &Engine::instance, py::return_value_policy::reference);
+
+	py::class_<Node, std::shared_ptr<Node>>(m, "Node")
+		.def(py::init<>())
+		.def("children_count", &Node::getChildrenCount)
+		.def("set_model", &Node::setModel)
+		.def("set_camera", &Node::setCamera)
+		.def("set_position", &Node::setPosition)
+		.def("add", &Node::add);
+
+	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
+		.def(py::init<>());
+
+	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
+		.def(py::init<py::array_t<float>>());
+
+	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
+		.def(py::init<const py::kwargs&>());
+
+	py::class_<OrthoCamera, Camera, std::shared_ptr<OrthoCamera>>(m, "camera_ortho")
+		.def(py::init<float, float, const py::kwargs&>());
+
+
+
+	py::class_<Room, std::shared_ptr<Room>>(m, "Room")
+	    .def(py::init<const std::string&>())
+	    .def("root", &Room::getRoot, py::return_value_policy::reference);
+
 }
 //int main( void )
 //{

@@ -83,6 +83,11 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 	}
 	m_programId = progId;
+
+
+	//
+	std::cout << " --- creating vao\n";
+	glGenVertexArrays(1, &m_vao);
 }
 
 Shader::~Shader() {
@@ -91,4 +96,21 @@ Shader::~Shader() {
 
 void Shader::use() {
 	glUseProgram(m_programId);
+	glBindVertexArray(m_vao);
+	setupVertices();
+}
+
+VCShader::VCShader(const char* vertex, const char* fragment) : Shader(vertex, fragment) {}
+
+void VCShader::setupVertices() {
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, (void*)nullptr);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 28, (void*)12);
+}
+
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
+{
+	auto pippo = glGetUniformLocation(m_programId, name.c_str());
+	glUniformMatrix4fv(glGetUniformLocation(m_programId, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }

@@ -1,0 +1,166 @@
+#include "engine.h"
+#include <iostream>
+
+#include "pyhelper.h"
+
+
+
+GLFWwindow* window;
+
+Engine& getEngine() {
+	auto& engine = Engine::instance();
+	return engine;
+}
+
+Engine::Engine() : m_room(nullptr) {
+
+
+
+}
+
+void Engine::load(pybind11::object obj) {
+	m_game = obj;
+
+	m_title = m_game.attr("pippo").attr("title").cast<std::string>();
+	m_windowSize = as<glm::ivec2>(m_game.attr("pippo").attr("window_size"));
+	m_deviceSize = as<glm::ivec2>(m_game.attr("pippo").attr("device_size"));
+	m_deviceAspectRatio = static_cast<float>(m_deviceSize[0]) / m_deviceSize[1];
+	m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
+
+}
+
+void Engine::start() {
+	// Initialise GLFW
+	if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		getchar();
+		exit(1);
+	}
+
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Open a window and create its OpenGL context
+	window = glfwCreateWindow( m_windowSize[0], m_windowSize[1], m_title.c_str(), NULL, NULL);
+	if( window == NULL ){
+		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+		getchar();
+		glfwTerminate();
+		exit(1);
+	}
+	glfwMakeContextCurrent(window);
+	// note: we are setting a callback for the frame buffer resize event,
+	// so the dimensions we will get will be in pixels and NOT screen coordinates!
+	glfwSetFramebufferSizeCallback(window, Engine::WindowResizeCallback);
+
+	// Initialize GLEW
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		getchar();
+		glfwTerminate();
+		exit(1);
+	}
+
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	Engine::WindowResizeCallback(window, m_windowSize[0], m_windowSize[1]);
+	// Dark blue background
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	loadShaders();
+	loadRoom();
+
+	do{
+		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
+		glClear( GL_COLOR_BUFFER_BIT );
+
+		// Draw nothing, see you in tutorial 2 !
+		//m_room->update();
+
+		for (const auto& shader : m_shaders) {
+			shader->use();
+			m_room->draw(shader.get());
+		}
+		//m_room->draw();
+
+		// Swap buffers
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+
+	} // Check if the ESC key was pressed or the window was closed
+	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+		   glfwWindowShouldClose(window) == 0 );
+
+	glfwTerminate();
+}
+
+
+void Engine::shutdown() {
+	//	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
+}
+
+void Engine::loadRoom() {
+	m_title = m_game.attr("pippo").attr("title").cast<std::string>();
+	//pybind11::object obj = m_game.attr("rooms").attr(m_roomId.c_str())();
+	//m_room = obj.cast<std::shared_ptr<Room>>();
+	m_room = m_game.attr("rooms").attr(m_roomId.c_str())().cast<std::shared_ptr<Room>>();
+	//m_room = obj.cast<Room*>();
+//	std::cout << room << "\n";
+//	std::cout << "cane!\n";
+//	std::cout << room->id() << "\n";
+	//exit(1);
+	std::cout << "qui\n";
+}
+
+void Engine::loadShaders() {
+	auto shader = std::make_shared<VCShader>("shaders/color.vs", "shaders/color.fs");
+	m_shaders.push_back(shader);
+	m_shaders.push_back(shader);
+}
+
+// width and height will be pixels!!
+void Engine::WindowResizeCallback(GLFWwindow* win, int width, int height) {
+	// notify cameras
+	if (height == 0) height = 1;
+	std::cout << "(" << width << ", " << height << ")\n";
+	float winAspectRatio = static_cast<float>(width) / height;
+
+	auto& engine = Engine::instance();
+	auto deviceSize = engine.getDeviceSize();
+	auto dar = engine.getDeviceAspectRatio();
+	int vx, vy, vw, vh;
+	if (winAspectRatio > dar) {
+		// vertical bands
+		vw = (int) (height * dar);
+		vh = height;
+		vx = (int) ((width - vw) / 2);
+		vy = 0;
+	} else {
+		// horizontal bands
+		vw = width;
+		vh = (int) (width / dar);
+		vx = 0;
+		vy = (int) ((height - vh) / 2);
+	}
+	engine.setActualDeviceViewport(glm::vec4(vx, vy, static_cast<float>(vw) / deviceSize[0], static_cast<float>(vh) / deviceSize[1]));
+}
+
+float Engine::getDeviceAspectRatio() const {
+	return m_deviceAspectRatio;
+}
+
+glm::vec2 Engine::getDeviceSize() const {
+	return m_deviceSize;
+}
+
+glm::vec4 Engine::getActualDeviceViewport() const {
+	return m_actualDeviceViewport;
+}
+
+void Engine::setActualDeviceViewport(glm::vec4 viewport) {
+	m_actualDeviceViewport = viewport;
+}
