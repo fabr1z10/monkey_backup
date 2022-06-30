@@ -8,17 +8,20 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
+find_package(PNG REQUIRED)
+find_package(JPEG REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(pybind11)
 
 include_directories(${PYBIND_INCLUDE_DIR})
 
 #add_executable(pino main.cpp shader.cpp)
-pybind11_add_module(monkey main.cpp camera.cpp model.cpp shader.cpp engine.cpp room.cpp)
+pybind11_add_module(monkey main.cpp tex.cpp asset_manager.cpp pyfunc.cpp sprite.cpp camera.cpp model.cpp shader.cpp engine.cpp room.cpp)
 
-include_directories(${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS})
+include_directories(${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${YAML_INCLUDE_DIRS})
 
-target_link_libraries(monkey PUBLIC ${OPENGL_LIBRARIES} glfw GLEW::GLEW)
+target_link_libraries(monkey PUBLIC ${OPENGL_LIBRARIES}  ${PNG_LIBRARY} ${JPEG_LIBRARIES} ${YAML_CPP_LIBRARIES} glfw GLEW::GLEW)
 
 #add_custom_command(
 #        TARGET monkey POST_BUILD

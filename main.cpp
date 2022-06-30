@@ -6,6 +6,7 @@
 #include "engine.h"
 #include "room.h"
 #include "camera.h"
+#include "sprite.h"
 
 //GLFWwindow* window;
 
@@ -15,13 +16,14 @@ using namespace glm;
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "pyfunc.h"
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(monkey, m) {
 	m.doc() = "prova prova2"; // optional module docstring
 	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
-
+	m.def("get_sprite", &getSprite);
 
 	py::class_<Engine>(m, "Engine")
 		//.def(py::init<>())
@@ -43,6 +45,10 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
 		.def(py::init<py::array_t<float>>());
+
+	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite")
+		.def(py::init<const std::string&>());
+
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
 		.def(py::init<const py::kwargs&>());
