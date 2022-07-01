@@ -7,6 +7,7 @@
 #include "room.h"
 #include "camera.h"
 #include "sprite.h"
+#include "symbols.h"
 
 //GLFWwindow* window;
 
@@ -24,6 +25,10 @@ PYBIND11_MODULE(monkey, m) {
 	m.doc() = "prova prova2"; // optional module docstring
 	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
 	m.def("get_sprite", &getSprite);
+	m.attr("TRIANGLES") = GL_TRIANGLES;
+	m.attr("LINES") = GL_LINES;
+	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
+	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
 
 	py::class_<Engine>(m, "Engine")
 		//.def(py::init<>())
@@ -41,10 +46,10 @@ PYBIND11_MODULE(monkey, m) {
 		.def("add", &Node::add);
 
 	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
-		.def(py::init<>());
+		.def(py::init<int>());
 
 	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
-		.def(py::init<py::array_t<float>>());
+		.def(py::init<int, py::array_t<float>, py::array_t<unsigned>, const py::kwargs&>());
 
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite")
 		.def(py::init<const std::string&>());

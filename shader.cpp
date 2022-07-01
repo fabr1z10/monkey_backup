@@ -4,7 +4,7 @@
 #include "shader.h"
 
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+Shader::Shader(ShaderType type, const char* vertexPath, const char* fragmentPath) : m_shaderType(type) {
 	std::string vertexCode;
 	std::string fragmentCode;
 
@@ -99,14 +99,39 @@ void Shader::use() {
 	glBindVertexArray(m_vao);
 	setupVertices();
 }
+void Shader::setup() {
+	glUseProgram(m_programId);
+	glBindVertexArray(m_vao);
 
-VCShader::VCShader(const char* vertex, const char* fragment) : Shader(vertex, fragment) {}
+}
+VCShader::VCShader(ShaderType type, const char* vertex, const char* fragment) : Shader(type, vertex, fragment) {}
 
 void VCShader::setupVertices() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, (void*)nullptr);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 28, (void*)12);
+}
+
+VTCShader::VTCShader(ShaderType type, const char* vertex, const char* fragment) : Shader(type, vertex, fragment) {}
+
+void VTCShader::setupVertices() {
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, (void*)nullptr);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 36, (void*)12);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 36, (void*)20);
+}
+// ------------------------------------------------------------------------
+void Shader:: setInt(const std::string &name, int value) const
+{
+	glUniform1i(glGetUniformLocation(m_programId, name.c_str()), value);
+}
+
+void Shader::bind() {
+	glBindVertexArray(m_vao);
+
 }
 
 void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const

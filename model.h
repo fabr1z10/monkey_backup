@@ -9,11 +9,15 @@ namespace py = pybind11;
 
 class Model {
 public:
-	Model();
+	Model(int);
 	virtual void draw(Shader*) {}
 	virtual ~Model();
 protected:
+	int m_shaderType;
 	GLuint m_vbo;
+	GLuint m_ebo;
+	GLuint m_primitive;
+	GLuint m_elementSize;
 };
 
 
@@ -21,5 +25,8 @@ class RawModel : public Model {
 public:
 	void draw(Shader*) override;
 
-	RawModel(py::array_t<float> input1);
+	RawModel(int, py::array_t<float> input1, py::array_t<unsigned> elements, const py::kwargs& kwargs);
+private:
+	GLuint m_texId;
+
 };

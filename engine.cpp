@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "pyhelper.h"
-
+#include "symbols.h"
 
 
 GLFWwindow* window;
@@ -14,6 +14,8 @@ Engine& getEngine() {
 
 Engine::Engine() : m_room(nullptr) {
 
+	m_shaderBuilders[0] = [&] () { add_shader<VCShader>(ShaderType::SHADER_COLOR, "shaders/color.vs", "shaders/color.fs"); };
+	m_shaderBuilders[1] = [&] () { add_shader<VTCShader>(ShaderType::SHADER_TEXTURE, "shaders/tex.vs", "shaders/tex.fs"); };
 
 
 }
@@ -117,9 +119,17 @@ void Engine::loadRoom() {
 }
 
 void Engine::loadShaders() {
-	auto shader = std::make_shared<VCShader>("shaders/color.vs", "shaders/color.fs");
-	m_shaders.push_back(shader);
-	m_shaders.push_back(shader);
+	auto shaders = m_game.attr("pippo").attr("shaders").cast<std::vector<int>>();
+	for (auto sh : shaders) {
+		m_shaderBuilders[sh]();
+	}
+
+
+
+//	exit(1);
+//	auto shader = std::make_shared<VCShader>("shaders/color.vs", "shaders/color.fs");
+//	m_shaders.push_back(shader);
+//	m_shaders.push_back(shader);
 }
 
 // width and height will be pixels!!
@@ -163,4 +173,8 @@ glm::vec4 Engine::getActualDeviceViewport() const {
 
 void Engine::setActualDeviceViewport(glm::vec4 viewport) {
 	m_actualDeviceViewport = viewport;
+}
+
+std::shared_ptr<Shader> Engine::getShader(ShaderType type) {
+	return m_shaders[m_shaderTypeToIndex.at(type)];
 }

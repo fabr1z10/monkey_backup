@@ -22,12 +22,14 @@ public:
 	void start();
 	void load(pybind11::object obj);
 	void shutdown();
-	Shader* getShader(int);
+	//Shader* getShader(int);
 	float getDeviceAspectRatio() const;
 	glm::vec2 getDeviceSize() const;
 	glm::vec4 getActualDeviceViewport() const;
 	void setActualDeviceViewport(glm::vec4) ;
 	static void WindowResizeCallback(GLFWwindow* win, int width, int height);
+	std::shared_ptr<Shader> getShader(ShaderType type);
+
 private:
 	Engine();
 	void loadRoom();
@@ -43,7 +45,20 @@ private:
 	// the current room
 	std::shared_ptr<Room> m_room;
 	std::vector<std::shared_ptr<Shader>> m_shaders;
+
+	template<typename T>
+	void add_shader(ShaderType type, const char* vertex, const char* fragment) {
+		auto shader = std::make_shared<T>(type, vertex, fragment);
+		m_shaderTypeToIndex[type] = m_shaders.size();
+		m_shaders.push_back(shader);
+
+
+	}
+	std::unordered_map<ShaderType, int> m_shaderTypeToIndex;
+	std::unordered_map<int, std::function<void()>> m_shaderBuilders;
 };
 
 Engine& getEngine();
+
+
 

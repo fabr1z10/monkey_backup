@@ -17,7 +17,7 @@ add_subdirectory(pybind11)
 include_directories(${PYBIND_INCLUDE_DIR})
 
 #add_executable(pino main.cpp shader.cpp)
-pybind11_add_module(monkey main.cpp tex.cpp asset_manager.cpp pyfunc.cpp sprite.cpp camera.cpp model.cpp shader.cpp engine.cpp room.cpp)
+pybind11_add_module(monkey main.cpp node.cpp tex.cpp asset_manager.cpp pyfunc.cpp sprite.cpp camera.cpp model.cpp shader.cpp engine.cpp room.cpp)
 
 include_directories(${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${YAML_INCLUDE_DIRS})
 
