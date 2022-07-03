@@ -6,7 +6,9 @@
 #include "engine.h"
 #include "room.h"
 #include "camera.h"
-#include "sprite.h"
+#include "models/sprite.h"
+#include "models/rawmodel.h"
+#include "models/text.h"
 #include "symbols.h"
 
 //GLFWwindow* window;
@@ -53,6 +55,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite")
 		.def(py::init<const std::string&>());
+
+	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
+		.def(py::init<const py::kwargs&>());
 
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")

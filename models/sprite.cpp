@@ -1,8 +1,8 @@
 #include "sprite.h"
-#include "asset_manager.h"
+#include "../asset_manager.h"
 #include <iostream>
 #include <yaml-cpp/yaml.h>
-#include "symbols.h"
+#include "../symbols.h"
 
 Sprite::Sprite(const std::string& id) : Model(ShaderType::SHADER_TEXTURE) {
 	// strip spritename

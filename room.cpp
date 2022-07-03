@@ -1,5 +1,6 @@
 #include <iostream>
 #include "room.h"
+#include "components/renderer.h"
 #include <glm/glm.hpp>
 
 Room::Room(const std::string& id) : m_id(id) {
@@ -10,7 +11,7 @@ Room::~Room() {
 	std::cout << "destroy room\n";
 }
 
-Node::Node() : m_model(nullptr), m_camera(nullptr), m_modelMatrix(1.0f) {}
+Node::Node() : /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f) {}
 
 void Node::setPosition(float x, float y, float z) {
 	m_modelMatrix[3][0] = x;
@@ -22,12 +23,12 @@ Node::~Node() {
 	std::cout << "destroy node\n";
 }
 
-void Node::draw(Shader* s) {
-	if (m_model != nullptr) {
-		m_model->draw(s);
-	}
-	//std::cout << "drawing " << this << "\n";
-}
+//void Node::draw(Shader* s) {
+//	if (m_model != nullptr) {
+//		m_model->draw(s);
+//	}
+//	//std::cout << "drawing " << this << "\n";
+//}
 
 void Node::pop() {
 	std::cout << " popping...\n";
@@ -40,9 +41,7 @@ void Node::add(std::shared_ptr<Node> node) {
 	m_children.push_back(node);
 }
 
-void Node::setModel(std::shared_ptr<Model> model) {
-	m_model = model;
-}
+
 
 void Room::update() {
 	std::vector<Node*> li;
@@ -94,9 +93,12 @@ void Room::draw(Shader* s) {
 		li.pop_back();
 
 		// setup modelview
-		glm::mat4 mvm = viewMatrix * current->getModelMatrix();
-		s->setMat4("modelview", mvm);
-		current->draw(s);
+		auto renderer = current->getComponent<Renderer>();
+		if (renderer != nullptr) {
+			glm::mat4 mvm = viewMatrix * current->getModelMatrix();
+			s->setMat4("modelview", mvm);
+			renderer->draw(s);
+		}
 		for (const auto& child : current->children()) {
 			li.push_back(child.get());
 		}

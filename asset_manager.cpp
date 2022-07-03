@@ -23,3 +23,14 @@ std::shared_ptr<Tex> AssetManager::getTex(const std::string & id) {
 	}
 	return it->second;
 }
+
+std::shared_ptr<Font> AssetManager::getFont(const std::string & id) {
+	auto it = m_fonts.find(id);
+	if (it == m_fonts.end()) {
+		std::cout << " --- not cached. Create new!\n";
+		auto font = std::make_shared<Font>(id);
+		m_fonts[id] = font;
+		return font;
+	}
+	return it->second;
+}
