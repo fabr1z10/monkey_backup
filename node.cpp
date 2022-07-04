@@ -8,3 +8,9 @@ void Node::setModel(std::shared_ptr<Model> model) {
 
 	//m_model = model;
 }
+
+void Node::start() {
+	for (auto& c : m_components){
+		c.second->start();
+	}
+}

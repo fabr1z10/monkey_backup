@@ -3,8 +3,7 @@
 #include "util.h"
 #include <fstream>
 #include <iostream>
-#include <locale>
-#include <codecvt>
+#include "util.h"
 
 Font::Font(const std::string& fontId) {
 	std::string filepath = "assets/" + fontId + ".desc";
@@ -21,6 +20,8 @@ Font::Font(const std::string& fontId) {
 	auto tex = am.getTex(textureFilepath);
 	float tw = tex->getWidth();
 	float th = tex->getHeight();
+	m_texId = tex->getTexId();
+
 
 	std::getline(infile, referenceSize);
 	auto refSize = strToVec<float>(referenceSize);
@@ -30,7 +31,7 @@ Font::Font(const std::string& fontId) {
 		auto colon = line.find(':');
 		std::string chars = line.substr(0, colon);
 		auto data = strToVec<int>(line.substr(colon + 1));
-		auto sss = std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t >().from_bytes(chars.c_str());
+		auto sss = getString32(chars);
 		int u = 0;
 		for (char32_t w : sss) {
 			if (u % 2 == 0) {
@@ -40,4 +41,12 @@ Font::Font(const std::string& fontId) {
 			u++;
 		}
 	}
+}
+
+const CharInfo & Font::getCharInfo(char32_t c) {
+	return m_info.at(c);
+}
+
+bool Font::hasCharInfo(char32_t c) {
+	return m_info.count(c) > 0;
 }

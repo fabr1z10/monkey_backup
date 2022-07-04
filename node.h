@@ -14,6 +14,7 @@ public:
 	void setPosition(float x, float y, float z);
 	int getChildrenCount() const;
 	const std::vector<std::shared_ptr<Node>>& children() const;
+	void start();
 	void update() {}
 	//void draw(Shader*);
 	void pop();

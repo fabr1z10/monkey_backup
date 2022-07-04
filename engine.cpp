@@ -74,7 +74,8 @@ void Engine::start() {
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	loadShaders();
 	loadRoom();
-
+	// start up all nodes and components
+	m_room->iterate_dfs([] (Node* n) { n->start(); });
 	do{
 		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
 		glClear( GL_COLOR_BUFFER_BIT );

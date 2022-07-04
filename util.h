@@ -21,3 +21,6 @@ std::vector<T> strToVec(const std::string& s, char delim=',') {
 
 }
 
+
+std::u32string getString32(const std::string&);
+

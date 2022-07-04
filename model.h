@@ -25,7 +25,6 @@ public:
 
 	ShaderType getShaderType() const;
 
-
 protected:
 	ShaderType m_shaderType;
 	GLuint m_size;

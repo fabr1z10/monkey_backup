@@ -12,6 +12,7 @@ public:
 	void draw(Shader*);
 	std::string id() const;
 	std::shared_ptr<Node> getRoot();
+	void iterate_dfs(std::function<void(Node*)> f);
 private:
 
 	std::string m_id;

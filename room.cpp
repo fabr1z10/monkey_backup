@@ -41,12 +41,23 @@ void Node::add(std::shared_ptr<Node> node) {
 	m_children.push_back(node);
 }
 
-
+void Room::iterate_dfs(std::function<void(Node*)> f) {
+	std::vector<Node*> li;
+	li.push_back(m_root.get());
+	while (!li.empty()) {
+		auto current = li.back();
+		li.pop_back();
+		f(current);
+		for (const auto& child : current->children()) {
+			li.push_back(child.get());
+		}
+	}
+}
 
 void Room::update() {
 	std::vector<Node*> li;
 	li.push_back(m_root.get());
-	while (li.empty()) {
+	while (!li.empty()) {
 		auto current = li.back();
 		li.pop_back();
 		current->update();
