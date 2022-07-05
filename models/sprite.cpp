@@ -52,8 +52,8 @@ Sprite::Sprite(const std::string& id) : Model(ShaderType::SHADER_TEXTURE), m_def
 					float ty = quad[1].as<float>() / texh;
 					float tw = static_cast<float>(width_px) / texw;
 					float th = static_cast<float>(height_px) / texh;
-					float ox = (n > 4) ? quad[4].as<float>() : 0.f;
-					float oy = (n > 5) ? quad[5].as<float>() : 0.f;
+					float ox = (n > 4) ? -quad[4].as<float>() : 0.f;
+					float oy = (n > 5) ? -quad[5].as<float>() : 0.f;
 					float width_actual = static_cast<float>(width_px) / ppu;
 					float height_actual = static_cast<float>(height_px) / ppu;
 					// TODO add flip

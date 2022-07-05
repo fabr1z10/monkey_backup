@@ -39,6 +39,7 @@ std::shared_ptr<Node> Room::getRoot() {
 
 void Node::add(std::shared_ptr<Node> node) {
 	m_children.push_back(node);
+	node->setParent(this);
 }
 
 void Room::iterate_dfs(std::function<void(Node*)> f) {
@@ -61,6 +62,7 @@ void Room::update() {
 		auto current = li.back();
 		li.pop_back();
 		current->update();
+		// update world transform
 		for (const auto& child : current->children()) {
 			li.push_back(child.get());
 		}

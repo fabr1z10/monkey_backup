@@ -5,7 +5,11 @@ void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
 		return;
 	}
+	innerDraw(s);
 
+}
+
+void Renderer::innerDraw(Shader * s) {
 	m_model->draw(s, 0, 0);
 }
 
@@ -28,7 +32,7 @@ void SpriteRenderer::start() {
 }
 
 
-void SpriteRenderer::draw(Shader * s) {
+void SpriteRenderer::innerDraw(Shader * s) {
 	const auto& a = m_sprite->getFrameInfo(m_animation, m_frame);
 	m_sprite->draw(s, a.offset, a.count);
 	// time to update frame?

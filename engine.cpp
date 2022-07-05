@@ -179,3 +179,7 @@ void Engine::setActualDeviceViewport(glm::vec4 viewport) {
 std::shared_ptr<Shader> Engine::getShader(ShaderType type) {
 	return m_shaders[m_shaderTypeToIndex.at(type)];
 }
+
+std::shared_ptr<Room> Engine::getRoom() {
+	return m_room;
+}

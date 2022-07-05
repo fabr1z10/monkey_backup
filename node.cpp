@@ -14,3 +14,7 @@ void Node::start() {
 		c.second->start();
 	}
 }
+
+void Node::setParent(Node * node) {
+	m_parent = node;
+}

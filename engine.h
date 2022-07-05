@@ -29,7 +29,7 @@ public:
 	void setActualDeviceViewport(glm::vec4) ;
 	static void WindowResizeCallback(GLFWwindow* win, int width, int height);
 	std::shared_ptr<Shader> getShader(ShaderType type);
-
+	std::shared_ptr<Room> getRoom();
 private:
 	Engine();
 	void loadRoom();

@@ -10,6 +10,9 @@
 #include "models/rawmodel.h"
 #include "models/text.h"
 #include "symbols.h"
+#include "shapes/convexpoly.h"
+#include "components/collider.h"
+#include "runners/collisionengine.h"
 
 //GLFWwindow* window;
 
@@ -45,6 +48,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_model", &Node::setModel)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
+		.def("add_component", &Node::addComponent)
 		.def("add", &Node::add);
 
 	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
@@ -59,17 +63,39 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
 		.def(py::init<const py::kwargs&>());
 
-
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
 		.def(py::init<const py::kwargs&>());
 
 	py::class_<OrthoCamera, Camera, std::shared_ptr<OrthoCamera>>(m, "camera_ortho")
 		.def(py::init<float, float, const py::kwargs&>());
 
+	py::class_<Shape, std::shared_ptr<Shape>>(m, "shape")
+		.def(py::init<>());
+
+	py::class_<ConvexPoly, Shape, std::shared_ptr<ConvexPoly>>(m, "convex_poly")
+		.def(py::init<const py::array_t<float>&>());
+
+	py::class_<Rect, ConvexPoly, std::shared_ptr<Rect>>(m, "rect")
+		.def(py::init<float, float, const py::kwargs&>());
+
+	/// --- components ---
+	py::class_<Component, std::shared_ptr<Component>>(m, "component");
+
+	py::class_<Collider, Component, std::shared_ptr<Collider>>(m, "icollider");
+
+	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
+		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
+
+	/// --- runners ---
+	py::class_<Runner, std::shared_ptr<Runner>>(m, "runner");
+
+	py::class_<CollisionEngine, Runner, std::shared_ptr<CollisionEngine>>(m, "collision_engine")
+		.def(py::init<float, float>());
 
 
 	py::class_<Room, std::shared_ptr<Room>>(m, "Room")
 	    .def(py::init<const std::string&>())
+		.def("add_runner", &Room::addRunner)
 	    .def("root", &Room::getRoot, py::return_value_policy::reference);
 
 }

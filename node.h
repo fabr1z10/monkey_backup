@@ -3,7 +3,7 @@
 #include "model.h"
 #include "camera.h"
 #include "component.h"
-
+#include "event.h"
 
 class Node {
 public:
@@ -21,10 +21,11 @@ public:
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
 	const glm::mat4& getModelMatrix() const;
-
-	template <typename C>
-	void addComponent(std::shared_ptr<C> c) {
+	const glm::mat4& getWorldMatrix() const;
+	//template <typename C>
+	void addComponent(std::shared_ptr<Component> c) {
 		m_components[c->getType()] = c;
+		c->setNode(this);
 	}
 
 	template <typename T>
@@ -35,13 +36,19 @@ public:
 		}
 		return nullptr;
 	}
+
+	Event<Node*> onMove;						// fires when this node moves
+
+	void setParent(Node*);
+
 private:
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
 	//std::shared_ptr<Model> m_model;
 	std::vector<std::shared_ptr<Node>> m_children;
+	Node* m_parent;
 	std::unordered_map<std::type_index, std::shared_ptr<Component> > m_components;
-
+	glm::mat4 m_worldMatrix;
 };
 
 inline const glm::mat4 & Node::getModelMatrix() const {
