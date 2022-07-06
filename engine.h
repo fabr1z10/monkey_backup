@@ -56,6 +56,8 @@ private:
 	}
 	std::unordered_map<ShaderType, int> m_shaderTypeToIndex;
 	std::unordered_map<int, std::function<void()>> m_shaderBuilders;
+	double m_frameTime;
+	double m_timeLastUpdate;
 };
 
 Engine& getEngine();

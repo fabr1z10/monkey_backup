@@ -1,6 +1,6 @@
 #include "component.h"
 
-Component::Component() : m_active(true) {]}
+Component::Component() : m_active(true) {}
 
 std::type_index Component::getType() {
 	return std::type_index(typeid(*this));

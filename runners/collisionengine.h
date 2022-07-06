@@ -5,11 +5,18 @@
 #include "../runner.h"
 #include "../components/collider.h"
 #include "../hashpair.h"
+#include "../shapes/intersector.h"
+#include "collisionresponse.h"
 
 
 struct CollisionEngineCell {
 	bool dirty;
 	std::unordered_set<Collider*> colliders;
+};
+
+struct CollisionInfo {
+	CollisionReport report;
+	glm::ivec3 pos;
 };
 
 class CollisionEngine : public Runner {
@@ -28,7 +35,9 @@ private:
 	glm::vec3 m_size;
 
 	// TODO add intersector --> that is the object that does the actual shape intersection
+	std::shared_ptr<Intersector> m_intersector;
 
 	// TODO add response manager --> object that holds the callback for collision
+	std::shared_ptr<CollisionResponse> m_responseManager;
 };
 

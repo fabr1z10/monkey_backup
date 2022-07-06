@@ -9,7 +9,7 @@ class Room {
 public:
 	Room(const std::string& id);
 	~Room();
-	void update();
+	void update(double);
 	void draw(Shader*);
 	std::string id() const;
 	std::shared_ptr<Node> getRoot();

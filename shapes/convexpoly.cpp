@@ -37,14 +37,18 @@ Rect::Rect(float w, float h, const py::kwargs& kwargs) {
 			oy = kwargs["oy"].cast<float>();
 		}
 	}
-	m_points.emplace_back(ox, oy);
-	m_points.emplace_back(ox + w, oy);
-	m_points.emplace_back(ox + w, oy + h);
-	m_points.emplace_back(ox, oy + h);
+	m_points.emplace_back(-ox, -oy);
+	m_points.emplace_back(-ox + w, -oy);
+	m_points.emplace_back(-ox + w, -oy + h);
+	m_points.emplace_back(-ox, -oy + h);
 	m_edges.emplace_back(w, 0);
 	m_edges.emplace_back(0, h);
 	m_edges.emplace_back(-w, 0);
 	m_edges.emplace_back(0, -h);
 
 
+}
+
+const std::vector<glm::vec2> & ConvexPoly::getPoints() const {
+	return m_points;
 }

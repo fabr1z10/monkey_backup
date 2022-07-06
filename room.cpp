@@ -11,7 +11,7 @@ Room::~Room() {
 	std::cout << "destroy room\n";
 }
 
-Node::Node() : /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f) {}
+Node::Node() : /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {}
 
 void Node::setPosition(float x, float y, float z) {
 	m_modelMatrix[3][0] = x;
@@ -55,13 +55,13 @@ void Room::iterate_dfs(std::function<void(Node*)> f) {
 	}
 }
 
-void Room::update() {
+void Room::update(double dt) {
 	std::vector<Node*> li;
 	li.push_back(m_root.get());
 	while (!li.empty()) {
 		auto current = li.back();
 		li.pop_back();
-		current->update();
+		current->update(dt);
 		// update world transform
 		for (const auto& child : current->children()) {
 			li.push_back(child.get());
@@ -108,7 +108,7 @@ void Room::draw(Shader* s) {
 		// setup modelview
 		auto renderer = current->getComponent<Renderer>();
 		if (renderer != nullptr) {
-			glm::mat4 mvm = viewMatrix * current->getModelMatrix();
+			glm::mat4 mvm = viewMatrix * current->getWorldMatrix();
 			s->setMat4("modelview", mvm);
 			renderer->draw(s);
 		}

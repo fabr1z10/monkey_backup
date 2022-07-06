@@ -2,12 +2,29 @@
 #include "../engine.h"
 #include "../asset_manager.h"
 
-RawModel::RawModel(int shaderType, py::array_t<float> vertices, py::array_t<unsigned> elements, const py::kwargs& kwargs) : Model(shaderType),
+RawModel::RawModel(int shaderType, GLuint primitive, const std::vector<float>& input1, const std::vector<unsigned>& elements) : Model(shaderType) {
+	m_primitive = (primitive);
+	m_texId = GL_INVALID_VALUE;
+
+	auto& engine = Engine::instance();
+
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * input1.size(), &input1[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &m_ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), &elements[0], GL_STATIC_DRAW);
+
+	m_size = elements.size();
+}
+
+
+
+RawModel::RawModel(int shaderType, const py::array_t<float>& vertices, const py::array_t<unsigned>& elements, const py::kwargs& kwargs) : Model(shaderType),
 																															m_texId(GL_INVALID_VALUE) {
 
 	auto& engine = Engine::instance();
-	//auto shader = engine.getShader(static_cast<ShaderType>(shaderType));
-	//shader->setup();
 
 	glGenBuffers(1, &m_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);

@@ -15,13 +15,14 @@ public:
 	int getChildrenCount() const;
 	const std::vector<std::shared_ptr<Node>>& children() const;
 	void start();
-	void update() {}
+	void update(double) ;
 	//void draw(Shader*);
 	void pop();
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
 	const glm::mat4& getModelMatrix() const;
 	const glm::mat4& getWorldMatrix() const;
+	void setModelMatrix(glm::mat4);
 	//template <typename C>
 	void addComponent(std::shared_ptr<Component> c) {
 		m_components[c->getType()] = c;
@@ -49,10 +50,19 @@ private:
 	Node* m_parent;
 	std::unordered_map<std::type_index, std::shared_ptr<Component> > m_components;
 	glm::mat4 m_worldMatrix;
+	bool m_active;
 };
 
 inline const glm::mat4 & Node::getModelMatrix() const {
 	return m_modelMatrix;
+}
+
+inline void Node::setModelMatrix(glm::mat4 m) {
+	m_modelMatrix = m;
+}
+
+inline const glm::mat4 & Node::getWorldMatrix() const {
+	return m_worldMatrix;
 }
 
 

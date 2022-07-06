@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bounds.h"
+#include <typeindex>
 
 enum class ShapeType {
 	SEGMENT, RECT, CIRCLE, PLANE, SPHERE, AABB, CONVEXPOLY, COMPOUND, POLY, POLYLINE, PRISM, PSEUDO3D
@@ -10,7 +11,10 @@ enum class ShapeType {
 class Shape {
 public:
 	Shape() = default;
-
+	virtual std::type_index get_type_index( ) const
+	{
+		return std::type_index( typeid(*this) );
+	}
 	glm::vec3 getOffset() const;
 	void setOffset(float x, float y, float z);
 

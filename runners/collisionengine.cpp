@@ -50,7 +50,7 @@ void CollisionEngine::update(double) {
 				}
 
 				// if no response is provided for these tags, then skip it
-				if (m_responseManager == nullptr || !m_responseManager->HasCollision(c1, c2)) {
+				if (m_responseManager == nullptr || !m_responseManager->hasCollision(c1, c2)) {
 					continue;
 				}
 
@@ -71,7 +71,7 @@ void CollisionEngine::update(double) {
 
 
 				// bounding boxes intersect, so let's make a proper collision test
-				auto report = m_intersector->intersect(c1->getShape(), c2->getShape(), t1, t2);
+				auto report = m_intersector->intersect(c1->getShape().get(), c2->getShape().get(), t1, t2);
 				if (report.collide) {
 					CollisionInfo ci;
 					ci.report = report;

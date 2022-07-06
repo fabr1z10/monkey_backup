@@ -23,6 +23,7 @@ using namespace glm;
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "pyfunc.h"
+#include "components/move.h"
 
 namespace py = pybind11;
 
@@ -30,6 +31,7 @@ PYBIND11_MODULE(monkey, m) {
 	m.doc() = "prova prova2"; // optional module docstring
 	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
 	m.def("get_sprite", &getSprite);
+	m.def("make_model", &makeModel);
 	m.attr("TRIANGLES") = GL_TRIANGLES;
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
@@ -55,7 +57,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<int>());
 
 	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
-		.def(py::init<int, py::array_t<float>, py::array_t<unsigned>, const py::kwargs&>());
+		.def(py::init<int, const py::array_t<float>&, const py::array_t<unsigned>&, const py::kwargs&>());
 
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite")
 		.def(py::init<const std::string&>());
@@ -85,6 +87,10 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
+
+	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
+		.def(py::init<py::function>());
+
 
 	/// --- runners ---
 	py::class_<Runner, std::shared_ptr<Runner>>(m, "runner");

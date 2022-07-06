@@ -13,7 +13,7 @@ public:
 	explicit ConvexPoly(const py::array_t<float>& input);
 
 	glm::vec2 project(glm::vec2, const glm::mat4&) const override;
-
+	const std::vector<glm::vec2>& getPoints() const;
 protected:
 	std::vector<glm::vec2> m_points;
 	std::vector<glm::vec2> m_edges;

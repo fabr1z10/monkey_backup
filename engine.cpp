@@ -28,7 +28,8 @@ void Engine::load(pybind11::object obj) {
 	m_deviceSize = as<glm::ivec2>(m_game.attr("pippo").attr("device_size"));
 	m_deviceAspectRatio = static_cast<float>(m_deviceSize[0]) / m_deviceSize[1];
 	m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
-
+	m_frameTime = 1.0 / 60.0;
+	m_timeLastUpdate = 0.0;
 }
 
 void Engine::start() {
@@ -77,21 +78,28 @@ void Engine::start() {
 	// start up all nodes and components
 	m_room->iterate_dfs([] (Node* n) { n->start(); });
 	do{
-		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
-		glClear( GL_COLOR_BUFFER_BIT );
+		double currentTime = glfwGetTime();
+		/// note: if I run the update only every frame time CPU goes to 100%. If I run it on
+		/// every iter, it doesn't. Tried move the glfwSwapBuffers call (and successive) out of the loop
+		/// and that seems to work.
+		if (currentTime - m_timeLastUpdate >= m_frameTime) {
+			m_timeLastUpdate = currentTime;
+			// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
+			glClear(GL_COLOR_BUFFER_BIT);
 
-		// Draw nothing, see you in tutorial 2 !
-		//m_room->update();
+			// Draw nothing, see you in tutorial 2 !
+			m_room->update(m_frameTime);
 
-		for (const auto& shader : m_shaders) {
-			shader->use();
-			m_room->draw(shader.get());
+			for (const auto &shader : m_shaders) {
+				shader->use();
+				m_room->draw(shader.get());
+			}
+			//m_room->draw();
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+
+			// Swap buffers
 		}
-		//m_room->draw();
-
-		// Swap buffers
-		glfwSwapBuffers(window);
-		glfwPollEvents();
 
 	} // Check if the ESC key was pressed or the window was closed
 	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
