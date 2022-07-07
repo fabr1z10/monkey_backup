@@ -20,6 +20,7 @@ public:
 	void pop();
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
+	glm::vec3 getWorldPosition() const;
 	const glm::mat4& getModelMatrix() const;
 	const glm::mat4& getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);

@@ -29,3 +29,7 @@ void Node::update(double dt) {
 void Node::setParent(Node * node) {
 	m_parent = node;
 }
+
+glm::vec3 Node::getWorldPosition() const {
+	return glm::vec3(m_worldMatrix[3]);
+}

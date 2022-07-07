@@ -24,6 +24,7 @@ using namespace glm;
 #include <pybind11/stl.h>
 #include "pyfunc.h"
 #include "components/move.h"
+#include "components/controller.h"
 
 namespace py = pybind11;
 
@@ -91,6 +92,10 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
 
+	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller");
+
+	py::class_<Controller2D, Controller, std::shared_ptr<Controller2D>>(m, "controller_2d")
+		.def(py::init<py::kwargs&>());
 
 	/// --- runners ---
 	py::class_<Runner, std::shared_ptr<Runner>>(m, "runner");

@@ -19,12 +19,23 @@ struct CollisionInfo {
 	glm::ivec3 pos;
 };
 
+struct RayCastHit {
+	RayCastHit() : collide(false), length(std::numeric_limits<float>::infinity()), entity(nullptr), segmentIndex(-1) {}
+	RayCastHit(bool collide, float l, glm::vec3 normal) : collide(collide), length(l), entity(nullptr), normal(normal), segmentIndex(-1) {}
+	bool collide;
+	float length;
+	Collider* entity;
+	glm::vec3 normal;
+	int segmentIndex;
+};
+
 class CollisionEngine : public Runner {
 public:
 	CollisionEngine(float, float);
 	virtual void add (Collider*);
 	virtual void move (Collider*) ;
 	void update(double) override;
+	virtual RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
 
 	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b);
 private:

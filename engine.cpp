@@ -22,7 +22,6 @@ Engine::Engine() : m_room(nullptr) {
 
 void Engine::load(pybind11::object obj) {
 	m_game = obj;
-
 	m_title = m_game.attr("pippo").attr("title").cast<std::string>();
 	m_windowSize = as<glm::ivec2>(m_game.attr("pippo").attr("window_size"));
 	m_deviceSize = as<glm::ivec2>(m_game.attr("pippo").attr("device_size"));
@@ -71,6 +70,8 @@ void Engine::start() {
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	Engine::WindowResizeCallback(window, m_windowSize[0], m_windowSize[1]);
+	glfwSetKeyCallback(window, key_callback );
+
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	loadShaders();
@@ -190,4 +191,10 @@ std::shared_ptr<Shader> Engine::getShader(ShaderType type) {
 
 std::shared_ptr<Room> Engine::getRoom() {
 	return m_room;
+}
+
+void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	// don't handle key events for disable keys until mods==16 (programmatically for demo-mode)
+	std::cout << key << ", " << scancode << ", " << action << ", " << mods << "\n";
+	//Engine::get().m_keyboard.key_callback(window, key, scancode, action, mods);
 }

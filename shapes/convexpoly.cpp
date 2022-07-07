@@ -26,6 +26,12 @@ glm::vec2 ConvexPoly::project(glm::vec2 axis, const glm::mat4 & t) const {
 	return out;
 }
 
+Segment::Segment(float x0, float y0, float x1, float y1) {
+	m_points.emplace_back(x0, y0);
+	m_points.emplace_back(x1, y1);
+	m_edges.emplace_back(x1 - x0, y1 - y0);
+}
+
 Rect::Rect(float w, float h, const py::kwargs& kwargs) {
 	float ox{0.0f};
 	float oy{0.0f};

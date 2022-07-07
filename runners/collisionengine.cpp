@@ -1,5 +1,6 @@
 #include "collisionengine.h"
 #include "../node.h"
+#include "../shapes/convexpoly.h"
 
 CollisionEngine::CollisionEngine(float width, float height) : m_size(width, height, 0.0f) {}
 
@@ -111,4 +112,91 @@ std::pair<glm::ivec3, glm::ivec3> CollisionEngine::getLocation(const Bounds &b) 
 
 int CollisionEngine::getIndex(float x, float s) {
 	return -1 * (x < 0) + static_cast<int>(x / s);
+}
+
+RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask) {
+	glm::vec3 P = rayOrigin;
+	glm::vec3 P1 = P;
+	float z = rayOrigin.z;
+
+	// initialize current cell
+	int i = getIndex(P.x, m_size[0]);
+	int j = getIndex(P.y, m_size[1]);
+	//int k = (m_3d ? static_cast<int>(P.z / m_size.z) : 0);
+
+	int n = (rayDir.x > 0 ? 1 : 0);
+	int m = (rayDir.y > 0 ? 1 : 0);
+
+	float l = 0.0f;
+	bool endReached = false;
+	int id = 0, jd = 0, kd = 0;
+	RayCastHit out;
+	out.length = length;
+
+	// we can (and we MUST) exit the loop as soon as we find a collision
+	while (!endReached && !out.collide) {
+		// get the next point into this cell
+		// compute how much distance you need to cover to hit the cell boundary,
+		// and what boundary you hit first (x, y or z)
+		float tx = (rayDir.x == 0.0f) ? std::numeric_limits<float>::infinity() : ((i+n) * m_size.x - P.x) / rayDir.x;
+		float ty = (rayDir.y == 0.0f) ? std::numeric_limits<float>::infinity() : ((j+m) * m_size.y - P.y) / rayDir.y;
+		float tm {0.0f};
+		id = 0;
+		jd = 0;
+		if (tx <= ty) {
+			tm = tx;
+			id = rayDir.x > 0 ? 1 : -1;
+		} else {
+			tm = ty;
+			jd = rayDir.y > 0 ? 1 : -1;
+		}
+
+		// advance by tm
+		if (l + tm < length) {
+			// need to add a tiny extra bit in case the colliding object is a line that lies exactly at the border
+			// of two neighboring cell!
+			P1 = P + (tm+0.01f) * rayDir;
+			// add tm to the cumulated length done
+			l += tm;
+		} else {
+			P1 = P + (length - l) * rayDir;
+			endReached = true;
+		}
+
+		// get the colliders at the current cell
+		auto it = m_cells.find(glm::ivec3(i, j, 0));
+		Segment line(P.x, P.y, P1.x, P1.y);
+		auto lineBounds = line.getBounds();
+		if (it != m_cells.end()) {
+			for (auto& c : it->second.colliders) {
+				if (!c->isActive())
+					continue;
+				// aabb check
+				int flag = c->getCollisionFlag();
+				int fm = flag & mask;
+				if (fm != 0) {
+					auto shapeBounds = c->getBounds();
+					if (lineBounds.intersect2D(shapeBounds)) {
+						const auto& t = c->getNode()->getWorldMatrix();
+						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)
+						/// TODO restore following code
+//						auto report = m_raycast->run(rayOrigin, rayDir, length, c->GetShape(), t);
+//						if (report.collide && (!out.collide || out.length > report.length)) {
+//							out.entity = c;
+//							out.length = report.length;
+//							out.collide = true;
+//							out.normal = report.normal;
+//						}
+					}
+				}
+			}
+		}
+		P = P1;
+		i += id;
+		j += jd;
+	}
+
+	return out;
+
+
 }

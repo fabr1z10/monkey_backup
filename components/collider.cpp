@@ -2,11 +2,16 @@
 #include "../engine.h"
 #include "../error.h"
 #include "../runners/collisionengine.h"
+#include "../pyhelper.h"
+#include "../pyfunc.h"
+#include "../node.h"
 
 Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr) {}
 
 void Collider::start() {
-	auto room = Engine::instance().getRoom();
+	auto& engine = Engine::instance();
+	auto collDebug = pyget<bool>(engine.getConfig().attr("pippo"),"debug_collision", false);
+	auto room = engine.getRoom();
 	m_engine = room->getRunner<CollisionEngine>();
 	//m_engine = Engine::get().GetRunner<ICollisionEngine>();
 	if (m_engine == nullptr) {
@@ -16,7 +21,9 @@ void Collider::start() {
 
 	// register to move. When the object moves, we notify the collision engine
 	m_callbackHandle = m_node->onMove.reg([&] (Node* e) { m_engine->move(this); } );
-
+	if (collDebug) {
+		generateDebugMesh();
+	}
 }
 
 Bounds Collider::getBounds() const {
@@ -32,3 +39,9 @@ SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask,
  m_mask(mask), m_tag(tag) {
 }
 
+void SimpleCollider::generateDebugMesh() {
+	auto model = makeModel(m_shape);
+	auto node = std::make_shared<Node>();
+	node->setModel(model);
+	m_node->add(node);
+}

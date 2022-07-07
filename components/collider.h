@@ -17,6 +17,7 @@ public:
 	virtual int getCollisionMask() const = 0;
 	void start() override;
 private:
+	virtual void generateDebugMesh() {}
 	int m_callbackHandle;
 	CollisionEngine* m_engine;
 };
@@ -29,6 +30,7 @@ public:
 	int getCollisionFlag() const override;
 	int getCollisionMask() const override;
 private:
+	void generateDebugMesh() override;
 	std::shared_ptr<Shape> m_shape;
 	int m_flag;
 	int m_mask;
