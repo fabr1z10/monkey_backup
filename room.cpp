@@ -40,6 +40,9 @@ std::shared_ptr<Node> Room::getRoot() {
 void Node::add(std::shared_ptr<Node> node) {
 	m_children.push_back(node);
 	node->setParent(this);
+
+	// TODO call start if engine is running (node added on the fly)
+
 }
 
 void Room::iterate_dfs(std::function<void(Node*)> f) {

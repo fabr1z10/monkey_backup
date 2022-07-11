@@ -15,6 +15,7 @@ public:
 	int getChildrenCount() const;
 	const std::vector<std::shared_ptr<Node>>& children() const;
 	void start();
+	void setFlipX(bool);
 	void update(double) ;
 	//void draw(Shader*);
 	void pop();
@@ -24,6 +25,7 @@ public:
 	const glm::mat4& getModelMatrix() const;
 	const glm::mat4& getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);
+	void move(glm::mat4);
 	//template <typename C>
 	void addComponent(std::shared_ptr<Component> c) {
 		m_components[c->getType()] = c;
@@ -61,6 +63,7 @@ inline const glm::mat4 & Node::getModelMatrix() const {
 inline void Node::setModelMatrix(glm::mat4 m) {
 	m_modelMatrix = m;
 }
+
 
 inline const glm::mat4 & Node::getWorldMatrix() const {
 	return m_worldMatrix;

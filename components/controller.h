@@ -32,7 +32,7 @@ class Controller2D : public Controller {
 public:
 	Controller2D(const pybind11::kwargs&);
 	void move(glm::vec3&) override;
-
+	std::type_index getType() override;
 	void updateRaycastOrigins();
 private:
 	struct CollisionDetails {

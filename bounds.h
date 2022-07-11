@@ -8,7 +8,7 @@ struct Bounds {
 	Bounds();
 
 	bool isVoid() const;
-
+	void transform(const glm::mat4& m);
 	bool intersect2D(Bounds& other) const;
 
 

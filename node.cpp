@@ -15,6 +15,15 @@ void Node::start() {
 	}
 }
 
+void Node::move(glm::mat4 m) {
+	m_modelMatrix *= m;
+	onMove.fire(this);
+}
+
+void Node::setFlipX(bool value) {
+	m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
+}
+
 void Node::update(double dt) {
 	if (!m_active) return;
 	for (auto& iter : m_components) {

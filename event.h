@@ -18,7 +18,7 @@ public:
 	// register interest in this event with context
 	// returns an id that can be used to unregister
 	int reg(std::function<void(Args)> f) {
-		m_callbacks[m_next] = Callback{f};
+		m_callbacks[m_next] = f;
 		return m_next++;
 	}
 
@@ -29,7 +29,7 @@ public:
 	void fire(Args args) {
 		if (!m_enabled)
 			return;
-		for (auto& f : m_callbacks) f(args);
+		for (auto& f : m_callbacks) f.second(args);
 	}
 
 	bool isEmpty() {
@@ -37,7 +37,7 @@ public:
 	}
 private:
 	bool m_enabled;
-	std::unordered_map<int, Callback> m_callbacks;
+	std::unordered_map<int, std::function<void(Args)>> m_callbacks;
 	int m_next;
 };
 

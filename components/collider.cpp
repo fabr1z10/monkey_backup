@@ -26,8 +26,10 @@ void Collider::start() {
 	}
 }
 
-Bounds Collider::getBounds() const {
-	return Bounds();
+Bounds Collider::getStaticBounds() const {
+	auto b = m_staticBounds;
+	b.transform(m_node->getWorldMatrix());
+	return b;
 }
 
 Collider::~Collider() {
@@ -37,6 +39,7 @@ Collider::~Collider() {
 
 SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask, int tag) : m_shape(shape), m_flag(flag),
  m_mask(mask), m_tag(tag) {
+	m_staticBounds = m_shape->getBounds();
 }
 
 void SimpleCollider::generateDebugMesh() {

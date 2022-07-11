@@ -4,6 +4,7 @@
 #include "../util.h"
 #include "../pyhelper.h"
 #include "../engine.h"
+#include <glm/gtx/transform.hpp>
 
 void Controller::start() {
 	auto& engine = Engine::instance();
@@ -50,6 +51,9 @@ void Controller2D::updateRaycastOrigins() {
 
 
 void Controller2D::move(glm::vec3& delta) {
+	m_node->move(glm::translate(delta));
+
+	return;
 	if (delta == glm::vec3(0.0f)) return;
 
 	updateRaycastOrigins();
@@ -216,6 +220,10 @@ void Controller2D::verticalCollisions(glm::vec3& velocity) {
 
 }
 
+
+std::type_index Controller2D::getType() {
+	return std::type_index(typeid(Controller));
+}
 
 
 void Controller2D::climbSlope(glm::vec3& velocity, float slopeAngle) {

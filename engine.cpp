@@ -196,5 +196,19 @@ std::shared_ptr<Room> Engine::getRoom() {
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	// don't handle key events for disable keys until mods==16 (programmatically for demo-mode)
 	std::cout << key << ", " << scancode << ", " << action << ", " << mods << "\n";
-	//Engine::get().m_keyboard.key_callback(window, key, scancode, action, mods);
+	for (auto& s : Engine::instance().m_keyboardListeners) {
+		s->keyCallback(window, key, scancode, action, mods);
+	}
 }
+
+void Engine::registerToKeyboardEvent(KeyboardListener * listener) {
+	m_keyboardListeners.insert(listener);
+
+
+}
+
+void Engine::unregisterToKeyboardEvent(KeyboardListener * listener) {
+	m_keyboardListeners.erase(listener);
+
+}
+

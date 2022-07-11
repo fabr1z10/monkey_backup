@@ -10,15 +10,16 @@ class Collider : public Component {
 public:
 	Collider();
 	virtual ~Collider();
-	Bounds getBounds() const;
+	Bounds getStaticBounds() const;
 	virtual std::shared_ptr<Shape> getShape() = 0;
 	virtual int getCollisionTag() const = 0;
 	virtual int getCollisionFlag() const = 0;
 	virtual int getCollisionMask() const = 0;
 	void start() override;
-private:
+protected:
 	virtual void generateDebugMesh() {}
 	int m_callbackHandle;
+	Bounds m_staticBounds;
 	CollisionEngine* m_engine;
 };
 

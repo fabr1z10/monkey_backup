@@ -1,3 +1,4 @@
+#include <iostream>
 #include "collisionengine.h"
 #include "../node.h"
 #include "../shapes/convexpoly.h"
@@ -7,15 +8,19 @@ CollisionEngine::CollisionEngine(float width, float height) : m_size(width, heig
 void CollisionEngine::add(Collider * c) {
 	// this is called when a new collider starts. It registers with the engine
 	// get the shape bounding box, transform it, map it
-	auto aabb = c->getBounds();
+	auto aabb = c->getStaticBounds();
 	if (!aabb.isVoid()) {
 		auto loc = getLocation(aabb);
 		pushCollider(c, loc.first, loc.second);
 	}
 }
 
-void CollisionEngine::move(Collider *) {
-
+void CollisionEngine::move(Collider * c) {
+	// TODO mark collider as DIRTY, and update collider position (cells occupied)
+	// then at update time, go thorugh each dirty collider, and test it with other colliders in cells
+	// to avoid double testing, keep track of tested pairs
+	auto aabb = c->getStaticBounds();
+	std::cout << "aabb: (" << aabb.min.x << ", " << aabb.min.y << "), (" << aabb.max.x << ", " << aabb.max.y << ")\n";
 }
 
 void CollisionEngine::update(double) {
@@ -56,8 +61,8 @@ void CollisionEngine::update(double) {
 				}
 
 				// we have a collision response, so let's calculate collision
-				auto b1 = c1->getBounds();
-				auto b2 = c2->getBounds();
+				auto b1 = c1->getStaticBounds();
+				auto b2 = c2->getStaticBounds();
 
 				// perform a aabb testing
 				if (!b1.intersect2D(b2)) {
@@ -175,7 +180,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 				int flag = c->getCollisionFlag();
 				int fm = flag & mask;
 				if (fm != 0) {
-					auto shapeBounds = c->getBounds();
+					auto shapeBounds = c->getStaticBounds();
 					if (lineBounds.intersect2D(shapeBounds)) {
 						const auto& t = c->getNode()->getWorldMatrix();
 						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)

@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include "room.h"
 #include "shader.h"
-#include "keyboard.h"
+#include "keylistener.h"
 
 namespace py = pybind11;
 
@@ -29,8 +29,10 @@ public:
 	glm::vec4 getActualDeviceViewport() const;
 	void setActualDeviceViewport(glm::vec4) ;
 	static void WindowResizeCallback(GLFWwindow* win, int width, int height);
-	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void registerToKeyboardEvent(KeyboardListener*);
+	void unregisterToKeyboardEvent(KeyboardListener*);
 	std::shared_ptr<Shader> getShader(ShaderType type);
 	std::shared_ptr<Room> getRoom();
 	pybind11::handle getConfig();
@@ -62,7 +64,8 @@ private:
 	std::unordered_map<int, std::function<void()>> m_shaderBuilders;
 	double m_frameTime;
 	double m_timeLastUpdate;
-	Keyboard m_keyboard;
+	std::unordered_set<KeyboardListener*> m_keyboardListeners;
+
 };
 
 Engine& getEngine();

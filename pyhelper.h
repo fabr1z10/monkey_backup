@@ -40,5 +40,15 @@ T pyget (pybind11::object obj, const std::string& key, T defaultValue) {
 	}
 }
 
+template<typename T>
+T dictget (pybind11::object obj, const std::string& key, T defaultValue) {
+	try {
+		auto value = obj[key.c_str()].cast<T>();
+		return value;
+	} catch (...) {
+		return defaultValue;
+	}
+}
+
 
 

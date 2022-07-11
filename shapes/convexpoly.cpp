@@ -51,7 +51,8 @@ Rect::Rect(float w, float h, const py::kwargs& kwargs) {
 	m_edges.emplace_back(0, h);
 	m_edges.emplace_back(-w, 0);
 	m_edges.emplace_back(0, -h);
-
+	m_bounds.min = glm::vec3(-ox, -oy, 0.f);
+	m_bounds.max = glm::vec3(-ox + w, -oy + h, 0.f);
 
 }
 
