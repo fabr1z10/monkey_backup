@@ -13,6 +13,8 @@ Room::~Room() {
 
 Node::Node() : /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {}
 
+
+
 void Node::setPosition(float x, float y, float z) {
 	m_modelMatrix[3][0] = x;
 	m_modelMatrix[3][1] = y;
@@ -69,6 +71,9 @@ void Room::update(double dt) {
 		for (const auto& child : current->children()) {
 			li.push_back(child.get());
 		}
+	}
+	for (const auto& r : m_runners) {
+		r.second->update(dt);
 	}
 }
 

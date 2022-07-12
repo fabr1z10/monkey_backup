@@ -139,3 +139,8 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 	auto pippo = glGetUniformLocation(m_programId, name.c_str());
 	glUniformMatrix4fv(glGetUniformLocation(m_programId, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
+
+void Shader::setVec4(const std::string &name, const glm::vec4 &value) const
+{
+	glUniform4fv(glGetUniformLocation(m_programId, name.c_str()), 1, &value[0]);
+}

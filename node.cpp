@@ -10,6 +10,10 @@ void Node::setModel(std::shared_ptr<Model> model) {
 }
 
 void Node::start() {
+	// update world matrix
+	if (m_parent != nullptr) {
+		m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+	}
 	for (auto& c : m_components){
 		c.second->start();
 	}
@@ -41,4 +45,14 @@ void Node::setParent(Node * node) {
 
 glm::vec3 Node::getWorldPosition() const {
 	return glm::vec3(m_worldMatrix[3]);
+}
+
+pybind11::tuple Node::getPos() const {
+	return pybind11::make_tuple(m_worldMatrix[3][0], m_worldMatrix[3][1], m_worldMatrix[3][2]);
+
+}
+
+
+void Node::setMultColor(float r, float g, float b, float a) {
+	getComponent<Renderer>()->setMultColor(glm::vec4(r,g,b,a));
 }

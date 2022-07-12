@@ -37,3 +37,5 @@ template <class T>
 bool isEqual (T x, T y, T eps = epsilon) {
 	return std::abs(x-y) < eps;
 }
+
+float computeOverlap(glm::vec2& p1, glm::vec2& p2);

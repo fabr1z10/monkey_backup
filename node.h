@@ -26,6 +26,7 @@ public:
 	const glm::mat4& getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);
 	void move(glm::mat4);
+	pybind11::tuple getPos() const;
 	//template <typename C>
 	void addComponent(std::shared_ptr<Component> c) {
 		m_components[c->getType()] = c;
@@ -44,7 +45,7 @@ public:
 	Event<Node*> onMove;						// fires when this node moves
 
 	void setParent(Node*);
-
+	void setMultColor(float r, float g, float b, float a);
 private:
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
@@ -68,6 +69,7 @@ inline void Node::setModelMatrix(glm::mat4 m) {
 inline const glm::mat4 & Node::getWorldMatrix() const {
 	return m_worldMatrix;
 }
+
 
 
 inline int Node::getChildrenCount() const {

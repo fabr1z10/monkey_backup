@@ -91,6 +91,8 @@ void Engine::start() {
 			// Draw nothing, see you in tutorial 2 !
 			m_room->update(m_frameTime);
 
+
+
 			for (const auto &shader : m_shaders) {
 				shader->use();
 				m_room->draw(shader.get());

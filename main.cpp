@@ -27,6 +27,7 @@ using namespace glm;
 #include "components/controller.h"
 #include "components/statemachine.h"
 #include "components/walk2d.h"
+#include "components/car2d.h"
 
 namespace py = pybind11;
 
@@ -54,6 +55,8 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("add_component", &Node::addComponent)
+		.def("set_mult_color", &Node::setMultColor)
+		.def_property_readonly("position", &Node::getPos)
 		.def("add", &Node::add);
 
 	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
@@ -114,10 +117,14 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Walk2D, State, std::shared_ptr<Walk2D>>(m, "walk_2d")
 		.def(py::init<const std::string&, py::kwargs&>());
 
+	py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
+		.def(py::init<const std::string&, py::kwargs&>());
+
 	/// --- runners ---
 	py::class_<Runner, std::shared_ptr<Runner>>(m, "runner");
 
 	py::class_<CollisionEngine, Runner, std::shared_ptr<CollisionEngine>>(m, "collision_engine")
+		.def("add_response", &CollisionEngine::addResponse)
 		.def(py::init<float, float>());
 
 

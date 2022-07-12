@@ -7,12 +7,17 @@
 
 class Renderer : public Component {
 public:
+	Renderer();
 	void draw(Shader*);
 	virtual void setModel(std::shared_ptr<Model>);
+	void setMultColor(glm::vec4);
+	void setAddColor(glm::vec4);
 protected:
 	virtual void innerDraw(Shader*) ;
 private:
 	std::shared_ptr<Model> m_model;
+	glm::vec4 m_multColor;
+	glm::vec4 m_addColor;
 };
 
 

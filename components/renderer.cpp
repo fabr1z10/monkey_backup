@@ -1,10 +1,14 @@
 #include "renderer.h"
 #include "../models/sprite.h"
 
+Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f) {}
+
 void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
 		return;
 	}
+	s->setVec4("mult_color", m_multColor);
+	s->setVec4("add_color", m_addColor);
 	innerDraw(s);
 
 }
@@ -16,6 +20,15 @@ void Renderer::innerDraw(Shader * s) {
 void Renderer::setModel(std::shared_ptr<Model> model) {
 	m_model = model;
 }
+
+void Renderer::setMultColor(glm::vec4 multColor) {
+	m_multColor = multColor;
+}
+
+void Renderer::setAddColor(glm::vec4 addColor) {
+	m_addColor = addColor;
+}
+
 
 SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
 

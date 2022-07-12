@@ -1,9 +1,13 @@
 #include <iostream>
 #include "collisionengine.h"
 #include "../node.h"
+#include "../upair.h"
 #include "../shapes/convexpoly.h"
 
-CollisionEngine::CollisionEngine(float width, float height) : m_size(width, height, 0.0f) {}
+CollisionEngine::CollisionEngine(float width, float height) : m_size(width, height, 0.0f) {
+	m_responseManager = std::make_shared<CollisionResponseManager>();
+	m_intersector = std::make_shared<Intersector2D>();
+}
 
 void CollisionEngine::add(Collider * c) {
 	// this is called when a new collider starts. It registers with the engine
@@ -20,7 +24,9 @@ void CollisionEngine::move(Collider * c) {
 	// then at update time, go thorugh each dirty collider, and test it with other colliders in cells
 	// to avoid double testing, keep track of tested pairs
 	auto aabb = c->getStaticBounds();
-	std::cout << "aabb: (" << aabb.min.x << ", " << aabb.min.y << "), (" << aabb.max.x << ", " << aabb.max.y << ")\n";
+	auto loc = getLocation(aabb);
+	pushCollider(c, loc.first, loc.second);			// this automatically sets it to dirty
+	//std::cout << "aabb: (" << aabb.min.x << ", " << aabb.min.y << "), (" << aabb.max.x << ", " << aabb.max.y << ")\n";
 }
 
 void CollisionEngine::update(double) {
@@ -28,70 +34,85 @@ void CollisionEngine::update(double) {
 	std::unordered_map<std::pair<Collider*, Collider*>, CollisionInfo> currentlyCollidingPairs;
 	std::unordered_set<glm::ivec3> cellsExamined;
 
-	for (auto& c : m_cells) {
-		auto &cell = c.second;
-		if (!cell.dirty) {
-			continue;
-		}
-		cellsExamined.insert(c.first);
-		// skip cells that have less than 2 colliders
-		if (cell.colliders.size() < 2) {
-			cell.dirty = false;
-			continue;
-		}
+	unsigned collisionChecks = 0;
+	std::unordered_set<UPair<Collider*>, UPair<Collider*>::HashFunction> processed;
+	for (auto& c : m_colliderLocations) {
+		if (c.second.dirty) {
+			auto *c1 = c.first;
+			// loop through cells occupied by collider
+			for (auto i = c.second.min.x; i <= c.second.max.x; ++i) {
+				for (auto j = c.second.min.y; j <= c.second.max.y; ++j) {
+					// doing cell (i, j)
+					const auto &colliders = m_cells.at(glm::ivec3(i, j, 0)).colliders;
+					if (colliders.size() <= 1) {
+						continue;
+					}
+					for (const auto &c2 : colliders) {
+						// don't collide with itself
+						auto pair = UPair<Collider *>(c1, c2);
+						if (processed.find(pair) != processed.end()) continue;
+						processed.insert(UPair<Collider *>(c1, c2));
+						if (c1 == c2 || !c2->isActive()) continue;
+						if (((c1->getCollisionMask() & c2->getCollisionFlag()) == 0) ||
+							((c2->getCollisionMask() & c1->getCollisionFlag()) == 0)) {
+							continue;
+						}
+						// if no response is provided for these tags, then skip it
+						if (m_responseManager == nullptr || !m_responseManager->hasCollision(c1, c2)) {
+							continue;
+						}
+						// we have a collision response, so let's calculate collision
+						collisionChecks++;
+						auto b1 = c1->getStaticBounds();
+						auto b2 = c2->getStaticBounds();
+						if (!b1.intersect2D(b2)) {
+							continue;
+						}
 
-		for (auto iter = cell.colliders.begin(); iter != cell.colliders.end(); ++iter) {
-			auto c1 = *iter;
-			if (!c1->isActive())
-				continue;
-			auto iter2 = iter;
-			for (++iter2; iter2 != cell.colliders.end(); ++iter2) {
-				auto * c2 = *iter2;
-				if (!c2->isActive())
-					continue;
-				if ( ((c1->getCollisionMask() & c2->getCollisionFlag()) == 0) || ((c2->getCollisionMask() & c1->getCollisionFlag()) == 0)) {
-					// If at least one mask is hit, then we keep checking the collision.
-					// if both mask fail, then we skip to the next collider
-					continue;
+						// get the shape in local coordinates
+						const auto &t1 = c1->getNode()->getWorldMatrix();
+						const auto &t2 = c2->getNode()->getWorldMatrix();
+
+						auto report = m_intersector->intersect(c1->getShape().get(), c2->getShape().get(), t1, t2);
+						if (report.collide) {
+							CollisionInfo ci;
+							ci.report = report;
+							ci.pos = glm::vec3(i, j, 0);
+							currentlyCollidingPairs.insert(std::make_pair(std::make_pair(c1, c2), ci));
+						}
+					}
 				}
-
-				// if no response is provided for these tags, then skip it
-				if (m_responseManager == nullptr || !m_responseManager->hasCollision(c1, c2)) {
-					continue;
-				}
-
-				// we have a collision response, so let's calculate collision
-				auto b1 = c1->getStaticBounds();
-				auto b2 = c2->getStaticBounds();
-
-				// perform a aabb testing
-				if (!b1.intersect2D(b2)) {
-					continue;
-				}
-
-				// get the shape in local coordinates
-				const auto& t1 = c1->getNode()->getWorldMatrix();
-				const auto& t2 = c2->getNode()->getWorldMatrix();
-				//auto s1 = c1->GetShape()->transform(t1);
-				//auto s2 = c2->GetShape()->transform(t2);
-
-
-				// bounding boxes intersect, so let's make a proper collision test
-				auto report = m_intersector->intersect(c1->getShape().get(), c2->getShape().get(), t1, t2);
-				if (report.collide) {
-					CollisionInfo ci;
-					ci.report = report;
-					ci.pos = c.first;
-					currentlyCollidingPairs.insert(std::make_pair(std::make_pair(c1, c2), ci));
-				}
-
-
 			}
-			// set cell as not dirty
-			cell.dirty = false;
+		}
+
+		c.second.dirty = false;
+
+	}
+	//std::cout << "collision checks: " << collisionChecks << std::endl;
+
+	// remove pairs that were previously colliding but not now
+	for (auto iter = m_previouslyCollidingPairs.begin(); iter != m_previouslyCollidingPairs.end();) {
+		CollisionInfo& ci = iter->second;
+		// If i have examined the cell AND they are not colliding anymore ...
+		if (processed.count(UPair(iter->first.first, iter->first.second)) > 0 && currentlyCollidingPairs.count(iter->first) == 0) {
+			m_responseManager->onEnd (iter->first.first, iter->first.second);
+			m_previouslyCollidingPairs.erase(iter++);
+		}
+		else {
+			iter++;
 		}
 	}
 
+	for (auto& p : currentlyCollidingPairs) {
+		auto it = m_previouslyCollidingPairs.find(p.first);
+		if (it == m_previouslyCollidingPairs.end()) {
+			m_responseManager->onStart (p.first.first, p.first.second);
+			m_previouslyCollidingPairs.insert(std::make_pair(p.first, p.second));
+		} else {
+			m_responseManager->onStay(p.first.first, p.first.second);
+			it->second = p.second;
+		}
+	}
 }
 
 void CollisionEngine::pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M) {
@@ -102,7 +123,7 @@ void CollisionEngine::pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M) {
 			cell.dirty = true;
 		}
 	}
-	m_colliderLocations[c] = std::make_pair(m, M);
+	m_colliderLocations[c] = ColliderInfo {m, M, true};
 }
 
 std::pair<glm::ivec3, glm::ivec3> CollisionEngine::getLocation(const Bounds &b) {
@@ -117,6 +138,10 @@ std::pair<glm::ivec3, glm::ivec3> CollisionEngine::getLocation(const Bounds &b) 
 
 int CollisionEngine::getIndex(float x, float s) {
 	return -1 * (x < 0) + static_cast<int>(x / s);
+}
+
+void CollisionEngine::addResponse(int i, int j, const pybind11::kwargs& args) {
+	m_responseManager->add(i, j, args);
 }
 
 RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask) {
