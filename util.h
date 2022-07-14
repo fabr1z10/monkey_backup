@@ -4,6 +4,8 @@
 #include <sstream>
 #include <glm/glm.hpp>
 
+
+
 const float epsilon = 0.0001f;
 
 template<typename T>

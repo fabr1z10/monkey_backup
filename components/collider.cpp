@@ -43,7 +43,7 @@ SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask,
 }
 
 void SimpleCollider::generateDebugMesh() {
-	auto model = makeModel(m_shape);
+	auto model = makeModel(m_shape, pybind11::kwargs());
 	auto node = std::make_shared<Node>();
 	node->setModel(model);
 	m_node->add(node);

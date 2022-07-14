@@ -3,7 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <glm/glm.hpp>
 #include <pybind11/stl.h>
-
+#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 
@@ -48,6 +48,17 @@ T dictget (pybind11::object obj, const std::string& key, T defaultValue) {
 	} catch (...) {
 		return defaultValue;
 	}
+}
+
+template<>
+inline glm::vec4 dictget(pybind11::object obj, const std::string& key, glm::vec4 defaultValue) {
+    try {
+        auto value = obj[key.c_str()].cast<pybind11::array_t<float>>();
+        return glm::vec4(value.at(0), value.at(1), value.at(2), value.at(3));
+    } catch (...) {
+        return defaultValue;
+    }
+
 }
 
 

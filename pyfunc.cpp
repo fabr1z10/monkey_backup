@@ -9,7 +9,7 @@ std::shared_ptr<Sprite> getSprite(const std::string& id) {
 	return am.getSprite(id);
 }
 
-std::shared_ptr<Model> makeModel(std::shared_ptr<Shape> shape) {
+std::shared_ptr<Model> makeModel(std::shared_ptr<Shape> shape, const pybind11::kwargs& args) {
 	ModelMaker m;
-	return m.get(shape);
+	return m.get(shape, args);
 }

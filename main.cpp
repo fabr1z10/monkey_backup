@@ -28,6 +28,8 @@ using namespace glm;
 #include "components/statemachine.h"
 #include "components/walk2d.h"
 #include "components/car2d.h"
+#include "components/follow.h"
+#include "shapes/circle.h"
 
 namespace py = pybind11;
 
@@ -77,6 +79,9 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<OrthoCamera, Camera, std::shared_ptr<OrthoCamera>>(m, "camera_ortho")
 		.def(py::init<float, float, const py::kwargs&>());
 
+	py::class_<PerspectiveCamera, Camera, std::shared_ptr<PerspectiveCamera>>(m, "camera_perspective")
+		.def(py::init<const py::kwargs&>());
+
 	py::class_<Shape, std::shared_ptr<Shape>>(m, "shape")
 		.def(py::init<>());
 
@@ -85,6 +90,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Rect, ConvexPoly, std::shared_ptr<Rect>>(m, "rect")
 		.def(py::init<float, float, const py::kwargs&>());
+
+    py::class_<Circle, Shape, std::shared_ptr<Circle>>(m, "circle")
+        .def(py::init<float>());
 
 	/// --- components ---
 	py::class_<Component, std::shared_ptr<Component>>(m, "component");
@@ -99,6 +107,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Dynamics, Component, std::shared_ptr<Dynamics>>(m, "dynamics")
 		.def(py::init<>());
+
+	py::class_<Follow, Component, std::shared_ptr<Follow>>(m, "follow")
+		.def(py::init<std::shared_ptr<Camera>, pybind11::tuple&, pybind11::tuple&>());
 
 
 	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller");

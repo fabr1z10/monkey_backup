@@ -43,5 +43,11 @@ private:
 
 
 class PerspectiveCamera : public Camera {
-
+public:
+	PerspectiveCamera(const py::kwargs& kwargs);
+private:
+	float m_fov;
+	float m_near;
+	float m_far;
+	float m_aspectRatio;
 };

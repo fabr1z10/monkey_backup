@@ -4,4 +4,4 @@
 #include "shape.h"
 
 std::shared_ptr<Sprite> getSprite(const std::string&);
-std::shared_ptr<Model> makeModel(std::shared_ptr<Shape>);
+std::shared_ptr<Model> makeModel(std::shared_ptr<Shape>, const pybind11::kwargs&);

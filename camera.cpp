@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <pybind11/stl.h>
 #include <cassert>
+#include "pyhelper.h"
 
 // ** every ** camera needs to have a viewport. A viewport represents
 // a portion of the device size where the camera projects its image.
@@ -32,6 +33,15 @@ OrthoCamera::OrthoCamera(float width, float height, const py::kwargs& kwargs) : 
 	m_projectionMatrix = glm::ortho(-hw, hw, -hh, hh, -100.0f, 100.0f);
 
 }
+
+PerspectiveCamera::PerspectiveCamera(const py::kwargs& kwargs) : Camera(kwargs) {
+	m_fov = glm::radians(dictget(kwargs, "fov", 45.0f));
+	m_near = dictget(kwargs, "near", 0.05f);
+	m_far = dictget(kwargs, "far", 100.0f);
+	m_projectionMatrix = glm::perspective (m_fov, m_viewport[2]/m_viewport[3], m_near, m_far);
+
+}
+
 
 void Camera::setPosition(glm::vec3 eye, glm::vec3 dir, glm::vec3 up) {
 	m_fwd = dir;

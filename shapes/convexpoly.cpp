@@ -3,9 +3,14 @@
 
 ConvexPoly::ConvexPoly(const py::array_t<float>& input) {
 	glm::vec2 previous;
+	m_bounds.min.x = input.at(0);
+    m_bounds.max.x = m_bounds.min.x;
+    m_bounds.min.y = input.at(1);
+    m_bounds.max.y = m_bounds.min.y;
 	for (size_t i = 0; i < input.size(); i+=2) {
 		glm::vec2 current(input.at(i), input.at(i+1));
 		m_points.push_back(current);
+		m_bounds.addPoint(current);
 		if (i > 0) {
 			addEdge(previous, current);
 		}
