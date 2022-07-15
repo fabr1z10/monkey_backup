@@ -7,6 +7,7 @@
 #include "../hashpair.h"
 #include "../shapes/intersector.h"
 #include "collisionresponse.h"
+#include "../shapes/raycaster.h"
 #include <pybind11/pybind11.h>
 
 struct CollisionEngineCell {
@@ -19,15 +20,7 @@ struct CollisionInfo {
 	glm::ivec3 pos;
 };
 
-struct RayCastHit {
-	RayCastHit() : collide(false), length(std::numeric_limits<float>::infinity()), entity(nullptr), segmentIndex(-1) {}
-	RayCastHit(bool collide, float l, glm::vec3 normal) : collide(collide), length(l), entity(nullptr), normal(normal), segmentIndex(-1) {}
-	bool collide;
-	float length;
-	Collider* entity;
-	glm::vec3 normal;
-	int segmentIndex;
-};
+
 
 struct ColliderInfo {
 	glm::ivec3 min;
@@ -55,7 +48,9 @@ private:
 	// TODO add intersector --> that is the object that does the actual shape intersection
 	std::shared_ptr<Intersector> m_intersector;
 
-	// TODO add response manager --> object that holds the callback for collision
+    std::shared_ptr<RayCaster> m_raycast;
+
+    // TODO add response manager --> object that holds the callback for collision
 	std::shared_ptr<CollisionResponseManager> m_responseManager;
 
 	std::unordered_map<std::pair<Collider*, Collider*>, CollisionInfo> m_previouslyCollidingPairs;

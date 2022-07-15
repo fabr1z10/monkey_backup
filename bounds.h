@@ -6,6 +6,7 @@ struct Bounds {
 	glm::vec3 min;
 	glm::vec3 max;
 	Bounds();
+	Bounds(glm::vec3);
     void addPoint(glm::vec2);
     void addPoint(glm::vec3);
 	bool isVoid() const;

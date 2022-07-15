@@ -12,7 +12,12 @@ void Controller::start() {
 	m_collisionEngine = room->getRunner<CollisionEngine>();
 }
 
-Controller2D::Controller2D(const pybind11::kwargs& kwargs) : Controller() {
+Controller::Controller(const pybind11::kwargs& args) {
+    m_size = dictget<glm::vec3>(args, "size", glm::vec3(0.f));
+    m_center = dictget<glm::vec3>(args, "center", glm::vec3(0.f));
+}
+
+Controller2D::Controller2D(const pybind11::kwargs& kwargs) : Controller(kwargs) {
 	m_maxClimbAngle = glm::radians(pyget<float>(kwargs, "max_climb_angle", 80.0f));
 	m_maxDescendAngle = glm::radians(pyget<float>(kwargs, "max_descend_angle", 80.0f));
 	m_skinWidth = pyget<float>(kwargs, "skinWidth", .015f);
@@ -49,11 +54,12 @@ void Controller2D::updateRaycastOrigins() {
 	m_verticalRaySpacing = height / (m_verticalRayCount - 1);
 }
 
+void Controller::move(glm::vec3 & delta) {
+    m_node->move(glm::translate(delta));
+}
 
 void Controller2D::move(glm::vec3& delta) {
-	m_node->move(glm::translate(delta));
 
-	return;
 	if (delta == glm::vec3(0.0f)) return;
 
 	updateRaycastOrigins();
@@ -63,18 +69,25 @@ void Controller2D::move(glm::vec3& delta) {
 	m_details.reset();
 
 	if (delta.y < 0 && m_wasGnd) {
-		descendSlope(delta);
-		if (!isEqual(delta.x, 0.0f))
-			horizontalCollisions(delta);
-		if (!isEqual(delta.y, 0.0f))
-			verticalCollisions(delta);
+        descendSlope(delta);
+    }
+	if (!isEqual(delta.x, 0.0f))
+		horizontalCollisions(delta);
+	if (!isEqual(delta.y, 0.0f))
+		verticalCollisions(delta);
+    m_node->move(glm::translate(delta));
 
-	}
+
 }
 
 
 void Controller2D::CollisionDetails::reset() {
-
+    above = below = false;
+    left = right = false;
+    climbingSlope = false;
+    descendingSlope = false;
+    slopeAngleOld = slopeAngle;
+    slopeAngle = 0.0f;
 }
 
 void Controller2D::descendSlope(glm::vec3& velocity) {
@@ -237,3 +250,4 @@ void Controller2D::climbSlope(glm::vec3& velocity, float slopeAngle) {
 		m_details.slopeAngle = slopeAngle;
 	}
 }
+

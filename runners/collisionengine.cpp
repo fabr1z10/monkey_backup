@@ -7,6 +7,7 @@
 CollisionEngine::CollisionEngine(float width, float height) : m_size(width, height, 0.0f) {
 	m_responseManager = std::make_shared<CollisionResponseManager>();
 	m_intersector = std::make_shared<Intersector2D>();
+    m_raycast = std::make_shared<RayCaster>();
 }
 
 void CollisionEngine::add(Collider * c) {
@@ -210,13 +211,15 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 						const auto& t = c->getNode()->getWorldMatrix();
 						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)
 						/// TODO restore following code
-//						auto report = m_raycast->run(rayOrigin, rayDir, length, c->GetShape(), t);
-//						if (report.collide && (!out.collide || out.length > report.length)) {
-//							out.entity = c;
-//							out.length = report.length;
-//							out.collide = true;
-//							out.normal = report.normal;
-//						}
+						auto report = m_raycast->raycast(glm::vec3(P.x, P.y, 0.f), glm::vec3(P1.x, P1.y, 0.f), c->getShape().get(), c->getNode()->getWorldMatrix());
+
+                        // update output
+						if (report.collide && (!out.collide || out.length > report.length)) {
+							out.entity = c;
+							out.length = report.length;
+							out.collide = true;
+							out.normal = report.normal;
+						}
 					}
 				}
 			}

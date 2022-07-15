@@ -17,7 +17,7 @@ private:
 	float m_acceleration;
 	float m_maxSpeed;
 	float m_accelerationTime;
-	Controller* m_controller;
+	Controller2D* m_controller;
 	Dynamics* m_dynamics;
 	Node* m_node;
 };

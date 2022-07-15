@@ -46,6 +46,8 @@ glm::vec2 ConvexPoly::project(glm::vec2 axis, const glm::mat4 & t) const {
 Segment::Segment(float x0, float y0, float x1, float y1) {
 	m_points.emplace_back(x0, y0);
 	m_points.emplace_back(x1, y1);
+	m_bounds = Bounds(glm::vec3(x0, y0, 0.f));
+	m_bounds.addPoint(glm::vec3(x1, y1, 0.f));
 	addEdge(m_points.back(), m_points.front());
 }
 

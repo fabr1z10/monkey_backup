@@ -28,3 +28,35 @@ float computeOverlap(glm::vec2& p1, glm::vec2& p2) {
 		return a;
 	return -b;
 }
+
+float cross2d (glm::vec2 a, glm::vec2 b) {
+    return a.x * b.y - a.y * b.x;
+}
+
+bool seg2seg(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D, float &t) {
+    // eq for segment 1 is
+    // Ax + t(Bx - Ax) = Cx + u(Dx - Cx)
+    // Ay + t(By - Ay) = Cy + u(Dy - Cy)
+    // which is
+    // t(Bx - Ax) - u(Dx - Cx) = (Cx - Ax)
+    // t(By - Ay) - u(Dy - Cy) = (Cy - Ay)
+    // solution is
+    //      | Cx - Ax    Dx - Cx |
+    //      | Cy - Ay    Dy - Cy |
+    // t = ------------------------
+    //      | Bx - Ax    Dx - Cx |
+    //      | By - Ay    Dy - Cy |
+    glm::vec2 AB = B - A;
+    glm::vec2 DC = C - D;
+    float den = cross2d(AB, DC);
+    if (isZero(den)) {
+        return false;
+    }
+    glm::vec2 AC = C - A;
+    t = cross2d(AC, DC) / den;
+    if (t >= 0.0f && t <= 1.0f) {
+        float u = cross2d(AB, AC) / den;
+        return (u >= 0.0f && u <= 1.0f);
+    }
+    return false;
+}

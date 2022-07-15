@@ -23,7 +23,7 @@ void Walk2D::setParent(StateMachine * sm) {
 	State::setParent(sm);
 	m_node = sm->getNode();
 
-	m_controller = m_sm->getNode()->getComponent<Controller>();
+	m_controller = dynamic_cast<Controller2D*>(m_sm->getNode()->getComponent<Controller>());
 	assert(m_controller != nullptr);
 
 	m_dynamics = m_sm->getNode()->getComponent<Dynamics>();
@@ -35,6 +35,10 @@ void Walk2D::run(double dt) {
 
 	bool left = glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS;
 	bool right = glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS;
+
+    if (m_controller->grounded()) {
+        m_dynamics->m_velocity.y = 0.0f;
+    }
 
 	glm::vec3 a(0.0f);
 	a.y = -m_gravity;

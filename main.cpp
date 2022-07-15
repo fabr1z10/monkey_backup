@@ -117,7 +117,8 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<std::shared_ptr<Camera>, pybind11::tuple&, pybind11::tuple&>());
 
 
-	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller");
+	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller")
+	    .def(py::init<const py::kwargs&>());
 
 	py::class_<Controller2D, Controller, std::shared_ptr<Controller2D>>(m, "controller_2d")
 		.def(py::init<py::kwargs&>());

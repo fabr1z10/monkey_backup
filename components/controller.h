@@ -10,10 +10,10 @@
 
 class Controller : public Component {
 public:
-	Controller() = default;
+	Controller(const pybind11::kwargs&);
 	void start() override;
 
-	virtual void move(glm::vec3&) = 0;
+	virtual void move(glm::vec3&);
 protected:
 	glm::vec3 m_size;
 	glm::vec3 m_center;
@@ -34,6 +34,7 @@ public:
 	void move(glm::vec3&) override;
 	std::type_index getType() override;
 	void updateRaycastOrigins();
+	bool grounded() const;
 private:
 	struct CollisionDetails {
 		bool above, below;
@@ -68,3 +69,7 @@ private:
 	int m_maskUp;
 	int m_maskDown;
 };
+
+inline bool Controller2D::grounded() const {
+    return m_details.below;
+}

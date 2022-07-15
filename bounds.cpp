@@ -5,6 +5,8 @@ Bounds::Bounds() : min(glm::vec3(0.0f)), max(glm::vec3(0.0f)) {
 
 }
 
+Bounds::Bounds(glm::vec3 m) : min(m), max(m) {}
+
 void Bounds::addPoint(glm::vec2 P) {
 	min.x = std::min(min.x, P.x);
 	max.x = std::max(max.x, P.x);

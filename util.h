@@ -8,6 +8,17 @@
 
 const float epsilon = 0.0001f;
 
+template <class T>
+bool isEqual (T x, T y, T eps = epsilon) {
+    return std::abs(x-y) < eps;
+}
+
+template <class T>
+bool isZero (T x, T eps = epsilon) {
+    return isEqual(x, 0.0f, eps);
+}
+
+
 template<typename T>
 std::vector<T> strToVec(const std::string& s, char delim=',') {
 	std::stringstream s_stream(s); //create string stream from the string
@@ -35,9 +46,8 @@ inline int sign (float f) {
 	return f >= 0.0f ? 1 : -1;
 }
 
-template <class T>
-bool isEqual (T x, T y, T eps = epsilon) {
-	return std::abs(x-y) < eps;
-}
+
 
 float computeOverlap(glm::vec2& p1, glm::vec2& p2);
+
+bool seg2seg(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D, float &t);
