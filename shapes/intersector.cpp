@@ -2,6 +2,7 @@
 #include "../shapes/convexpoly.h"
 #include "../shapes/circle.h"
 #include "../util.h"
+#include "../shapes/compound.h"
 
 
 Intersector2D::Intersector2D() {
@@ -13,13 +14,27 @@ Intersector2D::Intersector2D() {
 	add<Rect, Segment>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SAT(s1, s2, t1, t2); });
 	add<Segment, Segment>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SAT(s1, s2, t1, t2); });
 
+	// circle
     add<ConvexPoly, Circle>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATCircle(s1, s2, t1, t2); });
     add<Rect, Circle>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATCircle(s1, s2, t1, t2); });
     add<Segment, Circle>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATCircle(s1, s2, t1, t2); });
 
-
+    add<CompoundShape, ConvexPoly> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
+    add<CompoundShape, Rect> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
+    add<CompoundShape, Segment> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
+    add<CompoundShape, Circle> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
 }
 
+CollisionReport Intersector2D::compound(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
+    const auto* cs = static_cast<const CompoundShape*>(s1);
+    for (const auto& s : cs->getShapes()) {
+        auto report = this->intersect(s.get(), s2, t1, t2);
+        if (report.collide) {
+            return report;
+        }
+    }
+    return CollisionReport();
+}
 
 CollisionReport Intersector2D::SAT(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
 	const auto* cp1 = static_cast<const ConvexPoly*>(s1);
@@ -84,10 +99,15 @@ CollisionReport Intersector2D::performSAT(const std::vector<glm::vec2>& axes, co
 	return report;
 }
 
-CollisionReport Intersector::intersect(Shape * s1, Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
+CollisionReport Intersector::intersect(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
 	auto it = m_functionMap.find(std::make_pair(s1->get_type_index(), s2->get_type_index()));
 	if (it == m_functionMap.end()) {
-		return CollisionReport();
+        auto it2 = m_functionMap.find(std::make_pair(s2->get_type_index(), s1->get_type_index()));
+        if (it2 == m_functionMap.end()) {
+            return CollisionReport();
+        }
+        return it2->second(s2, s1, t2, t1);
 	}
+
 	return it->second(s1, s2, t1, t2);
 }

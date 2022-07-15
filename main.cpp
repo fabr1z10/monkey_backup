@@ -30,6 +30,7 @@ using namespace glm;
 #include "components/car2d.h"
 #include "components/follow.h"
 #include "shapes/circle.h"
+#include "shapes/compound.h"
 
 namespace py = pybind11;
 
@@ -92,7 +93,11 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<float, float, const py::kwargs&>());
 
     py::class_<Circle, Shape, std::shared_ptr<Circle>>(m, "circle")
-        .def(py::init<float>());
+        .def(py::init<float, const py::kwargs&>());
+
+    py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
+        .def("add_shape", &CompoundShape::addShape)
+        .def(py::init<>());
 
 	/// --- components ---
 	py::class_<Component, std::shared_ptr<Component>>(m, "component");

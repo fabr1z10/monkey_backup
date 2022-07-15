@@ -61,3 +61,16 @@ void Bounds::transform(const glm::mat4& m) {
 			max.z = Pt.z;
 	}
 }
+
+
+void Bounds::expandWith(const Bounds & b) {
+    if (isVoid()) {
+        min = b.min;
+        max = b.max;
+    } else {
+        min.x = std::min(min.x, b.min.x);
+        min.y = std::min(min.y, b.min.y);
+        max.x = std::max(max.x, b.max.x);
+        max.y = std::max(max.y, b.max.y);
+    }
+}

@@ -3,13 +3,26 @@
 #include "shapes/convexpoly.h"
 #include "shapes/circle.h"
 #include "models/rawmodel.h"
+#include "shapes/compound.h"
 #include "pyhelper.h"
+#include "models/multi.h"
 #include <cmath>
 
 ModelMaker::ModelMaker() {
 	m_builders[std::type_index(typeid(Rect))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeConvexPoly(s, args); };
     m_builders[std::type_index(typeid(Circle))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCircle(s, args); };
+    m_builders[std::type_index(typeid(ConvexPoly))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeConvexPoly(s, args); };
+    m_builders[std::type_index(typeid(CompoundShape))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCompoundShape(s, args); };
 
+}
+
+std::shared_ptr<Model> ModelMaker::makeCompoundShape(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
+    auto* cs = static_cast<CompoundShape*>(s.get());
+    auto model = std::make_shared<MultiModel>();
+    for (const auto& shape : cs->getShapes()) {
+        model->addModel(this->get(shape, args));
+    }
+    return model;
 }
 
 std::shared_ptr<Model> ModelMaker::makeConvexPoly(std::shared_ptr<Shape> s, const pybind11::kwargs& args) {

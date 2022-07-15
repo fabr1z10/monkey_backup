@@ -60,18 +60,18 @@ Rect::Rect(float w, float h, const py::kwargs& kwargs) {
 			oy = kwargs["oy"].cast<float>();
 		}
 	}
-	m_points.emplace_back(-ox, -oy);
-	m_points.emplace_back(-ox + w, -oy);
-	m_points.emplace_back(-ox + w, -oy + h);
-	m_points.emplace_back(-ox, -oy + h);
+	m_points.emplace_back(ox, oy);
+	m_points.emplace_back(ox + w, oy);
+	m_points.emplace_back(ox + w, oy + h);
+	m_points.emplace_back(ox, oy + h);
 	m_edges.emplace_back(w, 0);
 	m_edges.emplace_back(0, h);
 	m_edges.emplace_back(-w, 0);
 	m_edges.emplace_back(0, -h);
-	m_normals.push_back(glm::vec2(1.0f, 0.0f));
-	m_normals.push_back(glm::vec2(0.0f, 1.0f));
-	m_bounds.min = glm::vec3(-ox, -oy, 0.f);
-	m_bounds.max = glm::vec3(-ox + w, -oy + h, 0.f);
+	m_normals.emplace_back(1.0f, 0.0f);
+	m_normals.emplace_back(0.0f, 1.0f);
+	m_bounds.min = glm::vec3(ox, oy, 0.f);
+	m_bounds.max = glm::vec3(ox + w, oy + h, 0.f);
 
 }
 

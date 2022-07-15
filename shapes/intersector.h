@@ -10,7 +10,7 @@
 class Intersector {
 public:
 	Intersector() {}
-	CollisionReport intersect(Shape*, Shape*, const glm::mat4&, const glm::mat4&) ;
+	CollisionReport intersect(const Shape*, const Shape*, const glm::mat4&, const glm::mat4&) ;
 
 	template<typename T, typename S>
 	void add(std::function<CollisionReport(const Shape*, const Shape*, const glm::mat4&, const glm::mat4&)> f) {
@@ -32,5 +32,6 @@ private:
 
 	CollisionReport SAT(const Shape*, const Shape*, const glm::mat4&, const glm::mat4&);
     CollisionReport SATCircle(const Shape *, const Shape*, const glm::mat4&, const glm::mat4& );
+    CollisionReport compound(const Shape *, const Shape*, const glm::mat4&, const glm::mat4& );
 
 };

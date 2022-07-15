@@ -15,6 +15,7 @@ public:
 private:
 	std::shared_ptr<Model> makeConvexPoly(std::shared_ptr<Shape> s, const pybind11::kwargs& args);
     std::shared_ptr<Model> makeCircle(std::shared_ptr<Shape> s, const pybind11::kwargs& args);
+    std::shared_ptr<Model> makeCompoundShape(std::shared_ptr<Shape> s, const pybind11::kwargs& args);
 
     std::unordered_map<std::type_index, std::function<std::shared_ptr<Model>(std::shared_ptr<Shape>, const pybind11::kwargs& args)>> m_builders;
 };

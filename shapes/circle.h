@@ -9,7 +9,7 @@ namespace py = pybind11;
 
 class Circle : public Shape2D {
 public:
-    explicit Circle(float radius);
+    explicit Circle(float radius, const py::kwargs&);
     glm::vec2 project(glm::vec2, const glm::mat4&) const override;
     float getRadius() const;
 protected:
