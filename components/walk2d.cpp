@@ -35,9 +35,15 @@ void Walk2D::run(double dt) {
 
 	bool left = glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS;
 	bool right = glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS;
+    bool up = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
+
 
     if (m_controller->grounded()) {
-        m_dynamics->m_velocity.y = 0.0f;
+        if (up) {
+            m_dynamics->m_velocity.y = 10.f;
+        } else {
+            m_dynamics->m_velocity.y = 0.0f;
+        }
     }
 
 	glm::vec3 a(0.0f);

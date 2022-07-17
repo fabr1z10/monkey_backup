@@ -48,6 +48,8 @@ void Controller2D::updateRaycastOrigins() {
 		m_raycastOrigins.xMax = m_raycastOrigins.topBack.x;
 		m_raycastOrigins.xMin = m_raycastOrigins.topForward.x;
 	}
+	m_raycastOrigins.yMin = m_raycastOrigins.bottomForward.y;
+    m_raycastOrigins.yMax = m_raycastOrigins.topForward.y;
 	float width = fabs(m_raycastOrigins.topForward.x - m_raycastOrigins.topBack.x);
 	float height = m_raycastOrigins.topForward.y - m_raycastOrigins.bottomForward.y;
 	m_horizontalRaySpacing = width / (m_horizontalRayCount - 1);
@@ -116,7 +118,7 @@ void Controller2D::descendSlope(glm::vec3& velocity) {
 
 void Controller2D::horizontalCollisions(glm::vec3& velocity) {
 	bool goingForward = velocity.x > 0.0f;
-	float directionX = !(goingForward != m_faceRight);
+	float directionX = (goingForward == m_faceRight) ? 1.f : -1.f;
 	float rayLength = fabs(velocity.x) + m_skinWidth;
 	float sgnx = sign(velocity.x);
 	auto r0 = goingForward ? m_raycastOrigins.bottomForward : m_raycastOrigins.bottomBack;
@@ -161,20 +163,21 @@ void Controller2D::horizontalCollisions(glm::vec3& velocity) {
 void Controller2D::verticalCollisions(glm::vec3& velocity) {
 	float directionY = sign(velocity.y);
 	bool goingForward = velocity.x > 0.0f;
-	float directionX = !(goingForward != m_faceRight);
+	float directionX = (goingForward == m_faceRight) ? 1.f : -1.f;
 	float rayLength = std::abs(velocity.y) + m_skinWidth;
 	float obstacleDistance = std::numeric_limits<float>::max();
 	std::unordered_set<Node*> obstacles;
 
 	float speedX = fabs(velocity.x);
-
+    bool atleast = false;
 	glm::vec3 r0(m_raycastOrigins.xMin, 0.f, 0.f);
 	r0.y = directionY > 0 ? m_raycastOrigins.topForward.y : m_raycastOrigins.bottomForward.y;
 	for (int i = 0; i < m_verticalRayCount; i++) {
-		auto rayOrigin = r0 + glm::vec3(directionX, 0.f, 0.f) * (speedX + i * m_verticalRaySpacing);
+		auto rayOrigin = r0 + glm::vec3(i * m_verticalRaySpacing + directionX * speedX, 0.f, 0.f) ;
 		int collMask = (directionY == -1 ? (m_maskDown) : m_maskUp);
 		RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, directionY, 0.f), rayLength, collMask);
 		if (hit.collide) {
+		    atleast = true;
 			velocity.y = (hit.length - m_skinWidth) * directionY;
 			rayLength = hit.length;
 			if (m_details.climbingSlope) {
@@ -190,6 +193,10 @@ void Controller2D::verticalCollisions(glm::vec3& velocity) {
 				obstacles.insert(hit.entity->getNode());
 			}
 		}
+	}
+
+	if (!atleast) {
+	    std::cerr << "ciao\n";
 	}
 
 	// TODO for tomorrow
