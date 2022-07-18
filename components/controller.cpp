@@ -4,6 +4,7 @@
 #include "../util.h"
 #include "../pyhelper.h"
 #include "../engine.h"
+#include "platform.h"
 #include <glm/gtx/transform.hpp>
 
 void Controller::start() {
@@ -63,7 +64,8 @@ void Controller::move(glm::vec3 & delta) {
 void Controller2D::move(glm::vec3& delta) {
 
 	if (delta == glm::vec3(0.0f)) return;
-
+	if (fabs(delta.x) != 0.f)
+        std::cerr << "pino: " << delta.x << "\n";
 	updateRaycastOrigins();
 
 	// check if character was grounded at last iteration
@@ -95,9 +97,9 @@ void Controller2D::CollisionDetails::reset() {
 void Controller2D::descendSlope(glm::vec3& velocity) {
 	if (velocity.x == 0.0f) return;
 	bool goingForward = velocity.x > 0.0f;
-	float directionX = !(goingForward != m_faceRight);
+	float directionX = (goingForward == m_faceRight) ? 1.f : -1.f;
 	auto r0 = goingForward ? m_raycastOrigins.bottomBack : m_raycastOrigins.bottomForward;
-	RayCastHit hit = m_collisionEngine->rayCast(r0, glm::vec3(0.f, 0.f, -1.f), 100.0f, m_maskDown);
+	RayCastHit hit = m_collisionEngine->rayCast(r0, glm::vec3(0.f, -1.0f, 0.f), 100.0f, m_maskDown);
 	if (hit.collide) {
 		float slopeAngle = angle(hit.normal, glm::vec3(0.f, 1.f, 0.f));
 		if (slopeAngle != 0 && slopeAngle <= m_maxDescendAngle) {
@@ -228,15 +230,15 @@ void Controller2D::verticalCollisions(glm::vec3& velocity) {
 //		}
 //	}
 //
-//	// register to new platforms
-//	for (const auto& o : obstacles) {
-//		auto platformController = o->GetComponent<PlatformComponent>();
-//		if (platformController != nullptr) {
+	// register to new platforms -- needed for moving platforms
+	for (const auto& o : obstacles) {
+		auto platformController = o->getComponent<Platform>();
+		if (platformController != nullptr) {
 //			platformController->Register(this);
 //			m_platforms.push_back(o);
-//		}
-//
-//	}
+		}
+
+	}
 
 }
 

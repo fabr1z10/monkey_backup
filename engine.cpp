@@ -75,38 +75,42 @@ void Engine::start() {
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	loadShaders();
-	loadRoom();
-	// start up all nodes and components
-	m_room->iterate_dfs([] (Node* n) { n->start(); });
-	do{
-		double currentTime = glfwGetTime();
-		/// note: if I run the update only every frame time CPU goes to 100%. If I run it on
-		/// every iter, it doesn't. Tried move the glfwSwapBuffers call (and successive) out of the loop
-		/// and that seems to work.
-		if (currentTime - m_timeLastUpdate >= m_frameTime) {
-			m_timeLastUpdate = currentTime;
-			// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
-			glClear(GL_COLOR_BUFFER_BIT);
+    m_shutdown = false;
+    while (!m_shutdown) {
+        loadRoom();
+        // start up all nodes and components
+        m_room->iterate_dfs([](Node *n) { n->start(); });
+        m_run = true;
+        do {
+            double currentTime = glfwGetTime();
+            /// note: if I run the update only every frame time CPU goes to 100%. If I run it on
+            /// every iter, it doesn't. Tried move the glfwSwapBuffers call (and successive) out of the loop
+            /// and that seems to work.
+            if (currentTime - m_timeLastUpdate >= m_frameTime) {
+                m_timeLastUpdate = currentTime;
+                // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
+                glClear(GL_COLOR_BUFFER_BIT);
 
-			// Draw nothing, see you in tutorial 2 !
-			m_room->update(m_frameTime);
+                // Draw nothing, see you in tutorial 2 !
+                m_room->update(m_frameTime);
 
 
+                for (const auto &shader : m_shaders) {
+                    shader->use();
+                    m_room->draw(shader.get());
+                }
+                //m_room->draw();
+                glfwSwapBuffers(window);
+                glfwPollEvents();
 
-			for (const auto &shader : m_shaders) {
-				shader->use();
-				m_room->draw(shader.get());
-			}
-			//m_room->draw();
-			glfwSwapBuffers(window);
-			glfwPollEvents();
+                // Swap buffers
+            }
+            m_shutdown = !(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+                         glfwWindowShouldClose(window) == 0);
 
-			// Swap buffers
-		}
-
-	} // Check if the ESC key was pressed or the window was closed
-	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-		   glfwWindowShouldClose(window) == 0 );
+        } // Check if the ESC key was pressed or the window was closed
+        while (m_run && !m_shutdown);
+    }
 
 	glfwTerminate();
 }
@@ -114,7 +118,12 @@ void Engine::start() {
 
 void Engine::shutdown() {
 	//	// Close OpenGL window and terminate GLFW
-	glfwTerminate();
+	m_shutdown = true;
+	//glfwTerminate();
+}
+
+void Engine::closeRoom() {
+    m_run = false;
 }
 
 void Engine::loadRoom() {

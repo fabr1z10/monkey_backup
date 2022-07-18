@@ -21,11 +21,19 @@ void Node::start() {
 
 void Node::move(glm::mat4 m) {
 	m_modelMatrix *= m;
+    m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
 	onMove.fire(this);
+}
+
+void Node::setModelMatrix(glm::mat4 m) {
+    m_modelMatrix = m;
+    m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+    onMove.fire(this);
 }
 
 void Node::setFlipX(bool value) {
 	m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
+	m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
 }
 
 void Node::update(double dt) {

@@ -61,9 +61,7 @@ inline const glm::mat4 & Node::getModelMatrix() const {
 	return m_modelMatrix;
 }
 
-inline void Node::setModelMatrix(glm::mat4 m) {
-	m_modelMatrix = m;
-}
+
 
 
 inline const glm::mat4 & Node::getWorldMatrix() const {

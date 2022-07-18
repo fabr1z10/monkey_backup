@@ -14,8 +14,8 @@ void Move::update(double dt) {
 	m_time += dt;
 
 	auto obj = m_func(m_time).cast<pybind11::array_t<float>>();
-
-	glm::mat4 m = glm::rotate(obj.at(3), glm::vec3(0, 0, 1));
+    glm::mat4 t = glm::translate(glm::vec3(obj.at(0), obj.at(1), obj.at(2)));
+	glm::mat4 m = t * glm::rotate(obj.at(3), glm::vec3(0, 0, 1));
 	//std::cout << m_time << ", " << obj.at(3)<< "\n";
 	m_node->setModelMatrix(m);
 

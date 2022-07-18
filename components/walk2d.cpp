@@ -12,9 +12,13 @@ void Walk2D::init() {
 
 Walk2D::Walk2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id) {
 	m_gravity = dictget<float>(kwargs, "gravity", 0.0f);
+	m_jumpHeight = kwargs["jump_height"].cast<float>();
+    m_timeToJumpApex = kwargs["time_to_jump_apex"].cast<float>();
+    m_jumpVelocity = (m_jumpHeight + 0.5f * m_gravity * m_timeToJumpApex * m_timeToJumpApex) / m_timeToJumpApex;
 	m_maxSpeed = kwargs["speed"].cast<float>();
 	m_accelerationTime = dictget<float>(kwargs, "acc_time", 0.1f);
 	m_acceleration = m_maxSpeed / m_accelerationTime;
+
 	std::cout << "gravity = " << m_gravity << "\n";
 }
 
@@ -40,7 +44,7 @@ void Walk2D::run(double dt) {
 
     if (m_controller->grounded()) {
         if (up) {
-            m_dynamics->m_velocity.y = 10.f;
+            m_dynamics->m_velocity.y = m_jumpVelocity;
         } else {
             m_dynamics->m_velocity.y = 0.0f;
         }

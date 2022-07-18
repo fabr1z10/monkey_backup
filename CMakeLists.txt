@@ -16,11 +16,10 @@ add_subdirectory(pybind11)
 
 include_directories(${PYBIND_INCLUDE_DIR})
 
+file(GLOB MONKEY_SOURCE *.cpp components/*.cpp models/*.cpp shapes/*.cpp runners/*.cpp)
+
 #add_executable(pino main.cpp shader.cpp)
-pybind11_add_module(monkey main.cpp node.cpp component.cpp components/renderer.cpp components/collider.cpp tex.cpp asset_manager.cpp pyfunc.cpp models/sprite.cpp
-        models/rawmodel.cpp models/text.cpp util.cpp shapes/convexpoly.cpp shapes/circle.cpp shapes/compound.cpp font.cpp camera.cpp model.cpp shader.cpp engine.cpp room.cpp
-        runners/collisionengine.cpp runners/collisionresponse.cpp bounds.cpp modelmake.cpp components/move.cpp components/controller.cpp models/multi.cpp
-        components/statemachine.cpp keylistener.cpp components/walk2d.cpp components/car2d.cpp shapes/intersector.cpp components/follow.cpp shapes/raycaster.cpp)
+pybind11_add_module(monkey ${MONKEY_SOURCE})
 
 include_directories(${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${YAML_INCLUDE_DIRS})
 

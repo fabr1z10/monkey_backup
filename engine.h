@@ -21,6 +21,7 @@ public:
 	}
 	//Engine();
 	void start();
+	void closeRoom();
 	void load(pybind11::object obj);
 	void shutdown();
 	//Shader* getShader(int);
@@ -65,7 +66,8 @@ private:
 	double m_frameTime;
 	double m_timeLastUpdate;
 	std::unordered_set<KeyboardListener*> m_keyboardListeners;
-
+    bool m_run;
+    bool m_shutdown;
 };
 
 Engine& getEngine();

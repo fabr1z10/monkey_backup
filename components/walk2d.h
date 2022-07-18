@@ -14,6 +14,9 @@ public:
 	void run(double) override;
 private:
 	float m_gravity;
+	float m_jumpHeight;
+	float m_timeToJumpApex;
+	float m_jumpVelocity;           // calculated
 	float m_acceleration;
 	float m_maxSpeed;
 	float m_accelerationTime;

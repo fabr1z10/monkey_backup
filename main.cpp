@@ -31,6 +31,7 @@ using namespace glm;
 #include "components/follow.h"
 #include "shapes/circle.h"
 #include "shapes/compound.h"
+#include "components/keyboard.h"
 
 namespace py = pybind11;
 
@@ -48,6 +49,7 @@ PYBIND11_MODULE(monkey, m) {
 		//.def(py::init<>())
 		.def("start", &Engine::start)
 		.def("shutdown", &Engine::shutdown)
+		.def("close_room", &Engine::closeRoom)
 		.def("load",&Engine::load);
 		//.def("instance", &Engine::instance, py::return_value_policy::reference);
 
@@ -102,6 +104,8 @@ PYBIND11_MODULE(monkey, m) {
 	/// --- components ---
 	py::class_<Component, std::shared_ptr<Component>>(m, "component");
 
+    py::class_<KeyboardListener, std::shared_ptr<KeyboardListener>>(m, "keyboard_listener");
+
 	py::class_<Collider, Component, std::shared_ptr<Collider>>(m, "icollider");
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
@@ -127,6 +131,11 @@ PYBIND11_MODULE(monkey, m) {
 		.def("add", &StateMachine::addState)
 		.def("set_initial_state", &StateMachine::setInitialState)
 		.def(py::init<>());
+
+    py::class_<Keyboard, Component, KeyboardListener, std::shared_ptr<Keyboard>>(m, "keyboard")
+        .def("add", &Keyboard::addFunction)
+        .def(py::init<>());
+
 
 	/// --- states ---
 	py::class_<State, std::shared_ptr<State>>(m, "state");
