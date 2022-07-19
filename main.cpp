@@ -32,6 +32,7 @@ using namespace glm;
 #include "shapes/circle.h"
 #include "shapes/compound.h"
 #include "components/keyboard.h"
+#include "components/platform.h"
 
 namespace py = pybind11;
 
@@ -97,6 +98,10 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Circle, Shape, std::shared_ptr<Circle>>(m, "circle")
         .def(py::init<float, const py::kwargs&>());
 
+    py::class_<Segment, Shape, std::shared_ptr<Segment>>(m, "segment")
+        .def(py::init<float, float, float, float>());
+
+
     py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
         .def("add_shape", &CompoundShape::addShape)
         .def(py::init<>());
@@ -136,6 +141,8 @@ PYBIND11_MODULE(monkey, m) {
         .def("add", &Keyboard::addFunction)
         .def(py::init<>());
 
+    py::class_<Platform, Component, std::shared_ptr<Platform>>(m, "platform")
+        .def(py::init<>());
 
 	/// --- states ---
 	py::class_<State, std::shared_ptr<State>>(m, "state");

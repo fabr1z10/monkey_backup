@@ -3,6 +3,7 @@
 #include "../component.h"
 #include <glm/glm.hpp>
 #include "../runners/collisionengine.h"
+#include "platform.h"
 /// a controller is a class that checks if node movements are valid
 
 #include <pybind11/pybind11.h>
@@ -22,9 +23,9 @@ protected:
 };
 
 struct RaycastOrigins {
-	glm::vec3 topForward, topBack;
-	glm::vec3 bottomForward, bottomBack;
-	float xMin, xMax, yMin, yMax;
+	glm::vec3 topRight, topLeft;
+	glm::vec3 bottomRight, bottomLeft;
+	//float xMin, xMax, yMin, yMax;
 };
 
 // this is for 2D platformers
@@ -35,6 +36,7 @@ public:
 	std::type_index getType() override;
 	void updateRaycastOrigins();
 	bool grounded() const;
+	void setGrounded(bool);
 private:
 	struct CollisionDetails {
 		bool above, below;
@@ -68,8 +70,14 @@ private:
 	float m_verticalRaySpacing;
 	int m_maskUp;
 	int m_maskDown;
+    // platforms on which I registered
+    Platform* m_platforms;
 };
 
 inline bool Controller2D::grounded() const {
     return m_details.below;
+}
+
+inline void Controller2D::setGrounded(bool value) {
+    m_details.below = value;
 }

@@ -36,6 +36,10 @@ void Node::setFlipX(bool value) {
 	m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
 }
 
+bool Node::getFilpX() const {
+    return m_modelMatrix[0][0] < 0.f;
+}
+
 void Node::update(double dt) {
 	if (!m_active) return;
 	for (auto& iter : m_components) {

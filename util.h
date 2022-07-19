@@ -42,11 +42,15 @@ std::u32string getString32(const std::string&);
 // returns the angle (in radians) between two vectors
 float angle(glm::vec3 v1, glm::vec3 v2) ;
 
+// returns 1 if f >= 0, -1 otherwise
 inline int sign (float f) {
 	return f >= 0.0f ? 1 : -1;
 }
 
-
+// returns 1 if f >= 0, -1 otherwise
+inline float signf (float f) {
+    return f >= 0.0f ? 1.f : -1.f;
+}
 
 float computeOverlap(glm::vec2& p1, glm::vec2& p2);
 

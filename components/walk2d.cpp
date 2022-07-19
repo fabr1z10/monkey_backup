@@ -54,12 +54,11 @@ void Walk2D::run(double dt) {
 	a.y = -m_gravity;
 
 	if (left || right) {
-		a.x = m_acceleration;
-		m_node->setFlipX(left);
+		a.x = (left ? -1.f : 1.f) * m_acceleration;
 	} else {
 		// apply deceleration only if velocity above threshold
 		if (fabs(m_dynamics->m_velocity.x) > 0.1f) {
-			a.x = -m_acceleration;
+			a.x = -signf(m_dynamics->m_velocity.x) * m_acceleration;
 		} else {
 			a.x = 0.0f;
 			m_dynamics->m_velocity.x = 0.0f;
@@ -67,10 +66,11 @@ void Walk2D::run(double dt) {
 	}
 
 	m_dynamics->m_velocity += a * dtf;
+
 	// limit horizontal vel to max speed
 	if (left || right) {
-		if (fabs(m_dynamics->m_velocity.x > m_maxSpeed)) {
-			m_dynamics->m_velocity.x = sign(m_dynamics->m_velocity.x) * m_maxSpeed;
+		if (fabs(m_dynamics->m_velocity.x) > m_maxSpeed) {
+			m_dynamics->m_velocity.x = signf(m_dynamics->m_velocity.x) * m_maxSpeed;
 		}
 	}
 

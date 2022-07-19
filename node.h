@@ -16,6 +16,7 @@ public:
 	const std::vector<std::shared_ptr<Node>>& children() const;
 	void start();
 	void setFlipX(bool);
+	bool getFilpX() const;
 	void update(double) ;
 	//void draw(Shader*);
 	void pop();
