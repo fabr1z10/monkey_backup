@@ -48,11 +48,11 @@ void Controller2D::updateRaycastOrigins() {
 	m_verticalRaySpacing = height / (m_verticalRayCount - 1.f);
 }
 
-void Controller::move(glm::vec3 & delta) {
+void Controller::move(glm::vec3 & delta, bool) {
     m_node->move(glm::translate(delta));
 }
 
-void Controller2D::move(glm::vec3& delta) {
+void Controller2D::move(glm::vec3& delta, bool forced) {
 
 	if (delta == glm::vec3(0.0f)) return;
 
@@ -61,6 +61,9 @@ void Controller2D::move(glm::vec3& delta) {
 	// check if character was grounded at last iteration
 	m_wasGnd = m_details.below;
 	m_details.reset();
+	if (forced) {
+	    m_details.below = true;
+	}
 
 	if (delta.y < 0 && m_wasGnd) {
         descendSlope(delta);
@@ -68,7 +71,7 @@ void Controller2D::move(glm::vec3& delta) {
 	if (!isEqual(delta.x, 0.0f))
 		horizontalCollisions(delta);
 	if (!isEqual(delta.y, 0.0f))
-		verticalCollisions(delta);
+		verticalCollisions(delta, forced);
     m_node->move(glm::translate(delta));
 
 
@@ -143,7 +146,7 @@ void Controller2D::horizontalCollisions(glm::vec3& velocity) {
 	}
 }
 
-void Controller2D::verticalCollisions(glm::vec3& velocity) {
+void Controller2D::verticalCollisions(glm::vec3& velocity, bool forced) {
 	auto directionY = signf(velocity.y);
 	bool goingForward = velocity.x > 0.0f;
 	float directionX = (goingForward == m_faceRight) ? 1.f : -1.f;
@@ -222,7 +225,7 @@ void Controller2D::verticalCollisions(glm::vec3& velocity) {
 			m_platforms = platformController;
 		}
 	} else {
-	    if (m_platforms != nullptr) {
+	    if (m_platforms != nullptr && !forced) {
             m_platforms->unregisterComponent(this);
             m_platforms = nullptr;
 	    }
@@ -230,6 +233,13 @@ void Controller2D::verticalCollisions(glm::vec3& velocity) {
 
 }
 
+void Controller2D::setPlatform(Platform * p) {
+    m_details.below = true;
+    if (m_platforms != nullptr) {
+        m_platforms->unregisterComponent(this);
+    }
+    m_platforms = p;
+}
 
 std::type_index Controller2D::getType() {
 	return std::type_index(typeid(Controller));

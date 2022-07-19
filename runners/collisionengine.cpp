@@ -186,7 +186,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 		if (l + tm < length) {
 			// need to add a tiny extra bit in case the colliding object is a line that lies exactly at the border
 			// of two neighboring cell!
-			P1 = P + (tm+0.01f) * rayDir;
+			P1 = P + (tm-0.01f) * rayDir;
 			// add tm to the cumulated length done
 			l += tm;
 		} else {
@@ -231,5 +231,13 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 
 	return out;
 
+
+}
+
+const CollisionEngineCell* CollisionEngine::getColliders(glm::ivec3 pos) {
+    auto it = m_cells.find(pos);
+    if (it == m_cells.end())
+        return nullptr;
+    return &it->second;
 
 }

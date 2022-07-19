@@ -13,5 +13,10 @@ struct Bounds {
 	void transform(const glm::mat4& m);
 	bool intersect2D(Bounds& other) const;
     void expandWith(const Bounds&);
+    glm::vec3 getSize() const;
 
 };
+
+inline glm::vec3 Bounds::getSize() const {
+    return max-min;
+}

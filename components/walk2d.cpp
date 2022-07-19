@@ -77,5 +77,5 @@ void Walk2D::run(double dt) {
 
 	auto delta = m_dynamics->m_velocity * dtf;
 
-	m_controller->move(delta);
+	m_controller->move(delta, false);
 }

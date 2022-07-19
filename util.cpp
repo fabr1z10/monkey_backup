@@ -60,3 +60,17 @@ bool seg2seg(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D, float &t) {
     }
     return false;
 }
+
+// Solve using Cramer's rule
+int solve2x2(float a11, float a12, float b1, float a21, float a22, float b2, float& x, float& y) {
+    auto det = (a11 * a22 - a12 * a21);
+    if (det == 0.f) {
+        return 1;
+    }
+    auto dx = b1 * a22 - a12 * b2;
+    auto dy = a11 * b2 - b1 * a21;
+    auto idet = 1.0f / det;
+    x = dx * idet;
+    y = dy * idet;
+    return 0;
+}

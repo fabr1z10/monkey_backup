@@ -14,7 +14,7 @@ public:
 	Controller(const pybind11::kwargs&);
 	void start() override;
 
-	virtual void move(glm::vec3&);
+	virtual void move(glm::vec3&, bool forced);
 protected:
 	glm::vec3 m_size;
 	glm::vec3 m_center;
@@ -32,11 +32,12 @@ struct RaycastOrigins {
 class Controller2D : public Controller {
 public:
 	Controller2D(const pybind11::kwargs&);
-	void move(glm::vec3&) override;
+	void move(glm::vec3&, bool forced) override;
 	std::type_index getType() override;
 	void updateRaycastOrigins();
 	bool grounded() const;
 	void setGrounded(bool);
+	void setPlatform(Platform*);
 private:
 	struct CollisionDetails {
 		bool above, below;
@@ -51,7 +52,7 @@ private:
 	void climbSlope(glm::vec3& velocity, float slopeAngle);
 	void descendSlope(glm::vec3&);
 	void horizontalCollisions(glm::vec3& velocity);
-	void verticalCollisions(glm::vec3& velocity);
+	void verticalCollisions(glm::vec3& velocity, bool);
 
 	RaycastOrigins m_raycastOrigins;
 	glm::vec3 m_localTopFwd;

@@ -32,6 +32,10 @@ Bounds Collider::getStaticBounds() const {
 	return b;
 }
 
+std::type_index Collider::getType() {
+    return std::type_index(typeid(Collider));
+}
+
 Collider::~Collider() {
 	if (m_callbackHandle != -1)
 		m_node->onMove.unreg(m_callbackHandle);

@@ -11,7 +11,8 @@ public:
 	Collider();
 	virtual ~Collider();
 	Bounds getStaticBounds() const;
-	virtual std::shared_ptr<Shape> getShape() = 0;
+    std::type_index getType() final override;
+    virtual std::shared_ptr<Shape> getShape() = 0;
 	virtual int getCollisionTag() const = 0;
 	virtual int getCollisionFlag() const = 0;
 	virtual int getCollisionMask() const = 0;

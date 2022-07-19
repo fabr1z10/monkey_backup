@@ -36,7 +36,7 @@ public:
 	void update(double) override;
 	virtual RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
 	void addResponse(int, int, const pybind11::kwargs&);
-
+    const CollisionEngineCell* getColliders(glm::ivec3);
 	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b);
 private:
 	std::unordered_map<glm::ivec3, CollisionEngineCell> m_cells;
