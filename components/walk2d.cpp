@@ -32,6 +32,21 @@ void Walk2D::setParent(StateMachine * sm) {
 
 	m_dynamics = m_sm->getNode()->getComponent<Dynamics>();
 	assert(m_dynamics != nullptr);
+
+	m_spriteRenderer = dynamic_cast<SpriteRenderer*>(m_node->getComponent<Renderer>());
+}
+
+void Walk2D::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods) {
+    if (m_spriteRenderer && action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_LEFT:
+                m_spriteRenderer->flipHorizontal(true);
+                break;
+            case GLFW_KEY_RIGHT:
+                m_spriteRenderer->flipHorizontal(false);
+                break;
+        }
+    }
 }
 
 void Walk2D::run(double dt) {
@@ -78,4 +93,18 @@ void Walk2D::run(double dt) {
 	auto delta = m_dynamics->m_velocity * dtf;
 
 	m_controller->move(delta, false);
+
+	// update animation, if we have a sprite renderer
+	if (m_spriteRenderer) {
+	    if (m_controller->grounded()) {
+	        if (fabs(m_dynamics->m_velocity.x) < 0.1f) {
+	            m_spriteRenderer->setAnimation("idle");
+	        } else {
+                m_spriteRenderer->setAnimation("walk");
+	        }
+	    } else {
+            m_spriteRenderer->setAnimation("jump");
+	    }
+
+	}
 }

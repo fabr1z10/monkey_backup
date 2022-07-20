@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../model.h"
+#include <yaml-cpp/yaml.h>
 
 struct AnimInfo {
 	bool loop;
@@ -16,7 +17,7 @@ struct FrameInfo {
 
 class Sprite : public Model {
 public:
-	Sprite(const std::string& id);
+	Sprite(const YAML::Node& node);
 	void draw(Shader*, int, int) override;
 	virtual std::shared_ptr<Renderer> getRenderer() const;
 	const FrameInfo& getFrameInfo(const std::string& anim, int frame);

@@ -1,7 +1,7 @@
 #include "renderer.h"
 #include "../models/sprite.h"
 
-Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f) {}
+Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f) {}
 
 void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
@@ -29,6 +29,9 @@ void Renderer::setAddColor(glm::vec4 addColor) {
 	m_addColor = addColor;
 }
 
+void Renderer::flipHorizontal(bool value) {
+	m_rendererTransform[0] = abs(m_rendererTransform[0]) * (value ? -1.f : 1.f);
+}
 
 SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
 
@@ -39,6 +42,17 @@ void SpriteRenderer::setModel(std::shared_ptr<Model> model) {
 	m_sprite = std::dynamic_pointer_cast<Sprite>(model);
 }
 
+void SpriteRenderer::setAnimation(const std::string& anim) {
+	if (anim == m_animation) {
+		return;
+	}
+
+	//m_complete = false;
+	m_animInfo = m_sprite->getAnimInfo(anim);
+	m_frame = 0;
+	m_animation = anim;
+
+}
 
 void SpriteRenderer::start() {
 	m_animInfo = m_sprite->getAnimInfo(m_animation);

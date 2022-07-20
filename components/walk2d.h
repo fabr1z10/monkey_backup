@@ -3,6 +3,7 @@
 #include "statemachine.h"
 #include "controller.h"
 #include "dynamics.h"
+#include "renderer.h"
 
 class Node;
 
@@ -12,6 +13,7 @@ public:
 	void init() override;
 	void setParent(StateMachine*) override;
 	void run(double) override;
+    void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override;
 private:
 	float m_gravity;
 	float m_jumpHeight;
@@ -23,6 +25,7 @@ private:
 	Controller2D* m_controller;
 	Dynamics* m_dynamics;
 	Node* m_node;
+	SpriteRenderer* m_spriteRenderer;
 };
 
 

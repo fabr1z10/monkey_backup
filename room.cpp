@@ -116,7 +116,7 @@ void Room::draw(Shader* s) {
 		// setup modelview
 		auto renderer = current->getComponent<Renderer>();
 		if (renderer != nullptr) {
-			glm::mat4 mvm = viewMatrix * current->getWorldMatrix();
+			glm::mat4 mvm =  viewMatrix * current->getWorldMatrix() * renderer->getRendererTransform();
 			s->setMat4("modelview", mvm);
 			renderer->draw(s);
 		}

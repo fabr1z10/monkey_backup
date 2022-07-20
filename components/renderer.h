@@ -12,14 +12,20 @@ public:
 	virtual void setModel(std::shared_ptr<Model>);
 	void setMultColor(glm::vec4);
 	void setAddColor(glm::vec4);
+	const glm::mat4& getRendererTransform() const;
+	void flipHorizontal(bool);
 protected:
 	virtual void innerDraw(Shader*) ;
 private:
 	std::shared_ptr<Model> m_model;
 	glm::vec4 m_multColor;
 	glm::vec4 m_addColor;
+	glm::mat4 m_rendererTransform;
 };
 
+inline const glm::mat4 & Renderer::getRendererTransform() const {
+    return m_rendererTransform;
+}
 
 class Sprite;
 struct AnimInfo;
@@ -30,6 +36,7 @@ public:
 	void setModel(std::shared_ptr<Model>) override;
 	std::type_index getType() override;
 	void start() override;
+	void setAnimation(const std::string&);
 private:
 	void innerDraw(Shader*) override;
 	const AnimInfo* m_animInfo;

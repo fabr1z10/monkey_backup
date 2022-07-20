@@ -33,6 +33,7 @@ using namespace glm;
 #include "shapes/compound.h"
 #include "components/keyboard.h"
 #include "components/platform.h"
+#include "models/tiled.h"
 
 namespace py = pybind11;
 
@@ -71,8 +72,11 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
 		.def(py::init<int, const py::array_t<float>&, const py::array_t<unsigned>&, const py::kwargs&>());
 
-	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite")
-		.def(py::init<const std::string&>());
+	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite");
+
+    py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(m, "tiled")
+        .def(py::init<int, const py::list&>());
+
 
 	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
 		.def(py::init<const py::kwargs&>());
