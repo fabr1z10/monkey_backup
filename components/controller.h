@@ -36,6 +36,7 @@ public:
 	std::type_index getType() override;
 	void updateRaycastOrigins();
 	bool grounded() const;
+	bool ceiling() const;
 	void setGrounded(bool);
 	void setPlatform(Platform*);
 private:
@@ -77,6 +78,10 @@ private:
 
 inline bool Controller2D::grounded() const {
     return m_details.below;
+}
+
+inline bool Controller2D::ceiling () const {
+    return m_details.above;
 }
 
 inline void Controller2D::setGrounded(bool value) {

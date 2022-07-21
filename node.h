@@ -43,10 +43,12 @@ public:
 		return nullptr;
 	}
 
+	void setAnimation(const std::string& animId);
 	Event<Node*> onMove;						// fires when this node moves
 
 	void setParent(Node*);
 	void setMultColor(float r, float g, float b, float a);
+	Node* getParent() ;
 private:
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
@@ -69,7 +71,9 @@ inline const glm::mat4 & Node::getWorldMatrix() const {
 	return m_worldMatrix;
 }
 
-
+inline Node * Node::getParent() {
+    return m_parent;
+}
 
 inline int Node::getChildrenCount() const {
 	return m_children.size();

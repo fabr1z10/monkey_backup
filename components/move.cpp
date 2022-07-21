@@ -22,3 +22,44 @@ void Move::update(double dt) {
 
 
 }
+
+MoveDynamics::MoveDynamics(float mass) : Component(), m_velocity(0.f), m_mass(mass), m_force(0.f), m_elasticCenter(0.f), m_k(0.f) {
+    m_min = glm::vec3(-std::numeric_limits<float>::infinity());
+    m_max = glm::vec3(std::numeric_limits<float>::infinity());
+    m_inverseMass = 1.0f / mass;
+}
+
+void MoveDynamics::addElasticForce(float ox, float oy, float oz, float k) {
+    m_elasticCenter = glm::vec3(ox, oy, oz);
+    m_k = k;
+}
+
+void MoveDynamics::setVelocity(float vx, float vy, float vz) {
+    m_velocity = glm::vec3(vx, vy, vz);
+}
+void MoveDynamics::setMaxY(float m) {
+    m_max.y = m;
+}
+void MoveDynamics::setMinY(float m) {
+    m_min.y = m;
+}
+
+void MoveDynamics::update(double dt) {
+    auto currentPos = m_node->getWorldPosition();
+    m_force = -m_k * (currentPos - m_elasticCenter);
+    auto dtf = static_cast<float>(dt);
+    m_velocity += m_force * m_inverseMass * dtf;
+    auto delta = m_velocity * dtf;
+
+    auto newPos = currentPos + delta;
+    if (newPos.x < m_min.x)
+        delta.x = m_min.x - currentPos.x;
+    else if (newPos.x > m_max.x)
+        delta.x = m_max.x - currentPos.x;
+    if (newPos.y < m_min.y)
+        delta.y = m_min.y - currentPos.y;
+    else if (newPos.y > m_max.y)
+        delta.y = m_max.y - currentPos.y;
+    m_node->move(glm::translate(delta));
+
+}

@@ -2,6 +2,27 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
+std::shared_ptr<TiledModel> AssetManager::getTiled(const std::string & id) {
+    auto it = m_tiled.find(id);
+    if (it == m_tiled.end()) {
+        auto u = id.find_last_of('/');
+        auto tiledName = id.substr(u + 1);
+        std::string file = "assets/" + id.substr(0, u) + ".yaml";
+        auto f = YAML::LoadFile(file);
+        for(YAML::const_iterator it=f.begin();it!=f.end();++it) {
+            auto currId = it->first.as<std::string>();
+            std::string cspr = id.substr(0, u+1) + currId;
+            if (currId == tiledName) {
+                m_tiled[cspr] = std::make_shared<TiledModel>(it->second.as<std::string>());
+            }
+        }
+        return m_tiled.at(id);
+    } else {
+        return it->second;
+    }
+
+}
+
 std::shared_ptr<Sprite> AssetManager::getSprite(const std::string & id) {
 	auto it = m_sprites.find(id);
 	if (it == m_sprites.end()) {

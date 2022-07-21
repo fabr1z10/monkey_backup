@@ -4,7 +4,7 @@
 
 class TiledModel : public Model {
 public:
-    TiledModel(int tilesetId, const pybind11::list& l);
+    TiledModel(const std::string&);
 private:
     GLuint m_texId;
 };

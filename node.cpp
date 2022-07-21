@@ -68,3 +68,10 @@ pybind11::tuple Node::getPos() const {
 void Node::setMultColor(float r, float g, float b, float a) {
 	getComponent<Renderer>()->setMultColor(glm::vec4(r,g,b,a));
 }
+
+void Node::setAnimation(const std::string &animId) {
+    auto sr = dynamic_cast<SpriteRenderer*>(getComponent<Renderer>());
+    if (sr) {
+        sr->setAnimation(animId);
+    }
+}

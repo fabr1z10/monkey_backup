@@ -63,7 +63,14 @@ void Walk2D::run(double dt) {
         } else {
             m_dynamics->m_velocity.y = 0.0f;
         }
+    } else {
+        // bump head
+        if (m_controller->ceiling()) {
+            m_dynamics->m_velocity.y = 0;
+        }
+
     }
+
 
 	glm::vec3 a(0.0f);
 	a.y = -m_gravity;

@@ -41,6 +41,7 @@ PYBIND11_MODULE(monkey, m) {
 	m.doc() = "prova prova2"; // optional module docstring
 	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
 	m.def("get_sprite", &getSprite);
+    m.def("get_tiled", &getTiled);
 	m.def("make_model", &makeModel);
 	m.attr("TRIANGLES") = GL_TRIANGLES;
 	m.attr("LINES") = GL_LINES;
@@ -61,8 +62,11 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_model", &Node::setModel)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
+		.def("set_animation", &Node::setAnimation)
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
+		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
+        .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
 		.def("add", &Node::add);
 
@@ -75,8 +79,7 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite");
 
     py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(m, "tiled")
-        .def(py::init<int, const py::list&>());
-
+        .def(py::init<const std::string&>());
 
 	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
 		.def(py::init<const py::kwargs&>());
@@ -122,6 +125,14 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
+
+    py::class_<MoveDynamics, Component, std::shared_ptr<MoveDynamics>>(m, "move_dynamics")
+        .def("set_velocity", &MoveDynamics::setVelocity)
+        .def("set_min_y", &MoveDynamics::setMinY)
+        .def("set_max_y", &MoveDynamics::setMaxY)
+        .def("add_elastic_force", &MoveDynamics::addElasticForce)
+        .def(py::init<float>());
+
 
 	py::class_<Dynamics, Component, std::shared_ptr<Dynamics>>(m, "dynamics")
 		.def(py::init<>());
