@@ -148,6 +148,7 @@ void CollisionEngine::addResponse(int i, int j, const pybind11::kwargs& args) {
 RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask) {
 	glm::vec3 P = rayOrigin;
 	glm::vec3 P1 = P;
+	glm::vec3 P2 = P;
 	float z = rayOrigin.z;
 
 	// initialize current cell
@@ -186,7 +187,8 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 		if (l + tm < length) {
 			// need to add a tiny extra bit in case the colliding object is a line that lies exactly at the border
 			// of two neighboring cell!
-			P1 = P + (tm-0.01f) * rayDir;
+			P1 = P + (tm + 0.01f) * rayDir;
+			P2 = P + (tm - 0.01f) * rayDir;
 			// add tm to the cumulated length done
 			l += tm;
 		} else {
@@ -224,7 +226,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 				}
 			}
 		}
-		P = P1;
+		P = P2;
 		i += id;
 		j += jd;
 	}

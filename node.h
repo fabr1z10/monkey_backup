@@ -5,16 +5,20 @@
 #include "component.h"
 #include "event.h"
 
+
 class Node {
 public:
 	Node();
 	~Node();
+	long getId() const;
 	void add(std::shared_ptr<Node> node);
+	void remove();
 	void setModel(std::shared_ptr<Model> model);
 	void setPosition(float x, float y, float z);
 	int getChildrenCount() const;
-	const std::vector<std::shared_ptr<Node>>& children() const;
-	void start();
+    const std::unordered_map<long, std::shared_ptr<Node>>& children() const;
+    void start();
+	void removeChild(long);
 	void setFlipX(bool);
 	bool getFilpX() const;
 	void update(double) ;
@@ -49,15 +53,24 @@ public:
 	void setParent(Node*);
 	void setMultColor(float r, float g, float b, float a);
 	Node* getParent() ;
+	pybind11::object getUserData();
+	void setUserData(pybind11::object);
+
 private:
+
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
 	//std::shared_ptr<Model> m_model;
-	std::vector<std::shared_ptr<Node>> m_children;
+	std::unordered_map<long, std::shared_ptr<Node>> m_children;
 	Node* m_parent;
 	std::unordered_map<std::type_index, std::shared_ptr<Component> > m_components;
 	glm::mat4 m_worldMatrix;
 	bool m_active;
+	pybind11::object m_userData;
+	long _id;
+
+
+
 };
 
 inline const glm::mat4 & Node::getModelMatrix() const {
@@ -79,7 +92,7 @@ inline int Node::getChildrenCount() const {
 	return m_children.size();
 }
 
-inline const std::vector<std::shared_ptr<Node>> & Node::children() const {
+inline const std::unordered_map<long, std::shared_ptr<Node>> & Node::children() const {
 	return m_children;
 
 }
@@ -92,4 +105,6 @@ inline void Node::setCamera(std::shared_ptr<Camera> cam) {
 	m_camera = cam;
 }
 
-
+inline long Node::getId() const {
+    return _id;
+}

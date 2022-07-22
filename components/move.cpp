@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include "../node.h"
+#include "../util.h"
 
 Move::Move(pybind11::function f) : Component(), m_func(f), m_time(0.0f) {
 	std::cout << "qui\n";
@@ -23,7 +24,7 @@ void Move::update(double dt) {
 
 }
 
-MoveDynamics::MoveDynamics(float mass) : Component(), m_velocity(0.f), m_mass(mass), m_force(0.f), m_elasticCenter(0.f), m_k(0.f) {
+MoveDynamics::MoveDynamics(float mass) : Component(), m_velocity(0.f), m_mass(mass), m_force(0.f), m_elasticCenter(0.f), m_constantForce(0.f), m_k(0.f) {
     m_min = glm::vec3(-std::numeric_limits<float>::infinity());
     m_max = glm::vec3(std::numeric_limits<float>::infinity());
     m_inverseMass = 1.0f / mass;
@@ -32,6 +33,10 @@ MoveDynamics::MoveDynamics(float mass) : Component(), m_velocity(0.f), m_mass(ma
 void MoveDynamics::addElasticForce(float ox, float oy, float oz, float k) {
     m_elasticCenter = glm::vec3(ox, oy, oz);
     m_k = k;
+}
+
+void MoveDynamics::setConstantForce(float fx, float fy, float fz) {
+    m_constantForce = glm::vec3(fx, fy, fz);
 }
 
 void MoveDynamics::setVelocity(float vx, float vy, float vz) {
@@ -46,7 +51,7 @@ void MoveDynamics::setMinY(float m) {
 
 void MoveDynamics::update(double dt) {
     auto currentPos = m_node->getWorldPosition();
-    m_force = -m_k * (currentPos - m_elasticCenter);
+    m_force = m_constantForce - m_k * (currentPos - m_elasticCenter);
     auto dtf = static_cast<float>(dt);
     m_velocity += m_force * m_inverseMass * dtf;
     auto delta = m_velocity * dtf;
@@ -60,6 +65,8 @@ void MoveDynamics::update(double dt) {
         delta.y = m_min.y - currentPos.y;
     else if (newPos.y > m_max.y)
         delta.y = m_max.y - currentPos.y;
-    m_node->move(glm::translate(delta));
-
+    if (!isZero(fabs(delta.x*delta.x + delta.y*delta.y))) {
+        m_node->move(glm::translate(delta));
+        if (m_func) m_func(this, this->m_node);
+    }
 }

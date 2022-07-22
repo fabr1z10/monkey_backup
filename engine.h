@@ -20,6 +20,7 @@ public:
 		return instance;
 	}
 	//Engine();
+	long getNextId();
 	void start();
 	void closeRoom();
 	void load(pybind11::object obj);
@@ -37,6 +38,8 @@ public:
 	std::shared_ptr<Shader> getShader(ShaderType type);
 	std::shared_ptr<Room> getRoom();
 	pybind11::handle getConfig();
+	bool isRunning() const;
+	void scheduleForRemoval(Node*);
 private:
 	Engine();
 	void loadRoom();
@@ -68,11 +71,21 @@ private:
 	std::unordered_set<KeyboardListener*> m_keyboardListeners;
     bool m_run;
     bool m_shutdown;
+    std::vector<Node*> m_scheduledForRemoval;
+    long m_nextId;
 };
 
 Engine& getEngine();
 
+inline bool Engine::isRunning() const {
+    return m_run;
+}
+
 inline pybind11::handle Engine::getConfig() {
 	return m_game;
+}
+
+inline long Engine::getNextId() {
+    return m_nextId++;
 }
 

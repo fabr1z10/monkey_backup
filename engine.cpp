@@ -12,7 +12,7 @@ Engine& getEngine() {
 	return engine;
 }
 
-Engine::Engine() : m_room(nullptr) {
+Engine::Engine() : m_room(nullptr), m_nextId(0) {
 
 	m_shaderBuilders[0] = [&] () { add_shader<VCShader>(ShaderType::SHADER_COLOR, "shaders/color.vs", "shaders/color.fs"); };
 	m_shaderBuilders[1] = [&] () { add_shader<VTCShader>(ShaderType::SHADER_TEXTURE, "shaders/tex.vs", "shaders/tex.fs"); };
@@ -88,6 +88,16 @@ void Engine::start() {
             /// and that seems to work.
             if (currentTime - m_timeLastUpdate >= m_frameTime) {
                 m_timeLastUpdate = currentTime;
+
+                // remove all entities scheduled for removal
+                if (!m_scheduledForRemoval.empty()) {
+                    for (auto & g : m_scheduledForRemoval) {
+                        g->getParent()->removeChild(g->getId());
+                    }
+                    m_scheduledForRemoval.clear();
+                }
+
+
                 // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
                 glClear(GL_COLOR_BUFFER_BIT);
 
@@ -223,3 +233,6 @@ void Engine::unregisterToKeyboardEvent(KeyboardListener * listener) {
 
 }
 
+void Engine::scheduleForRemoval(Node * node) {
+    m_scheduledForRemoval.push_back(node);
+}

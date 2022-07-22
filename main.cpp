@@ -65,10 +65,12 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_animation", &Node::setAnimation)
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
+		.def_property("user_data", &Node::getUserData, &Node::setUserData)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
-		.def("add", &Node::add);
+		.def("add", &Node::add)
+	    .def("remove", &Node::remove);
 
 	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
 		.def(py::init<int>());
@@ -128,8 +130,11 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<MoveDynamics, Component, std::shared_ptr<MoveDynamics>>(m, "move_dynamics")
         .def("set_velocity", &MoveDynamics::setVelocity)
+        .def("set_callback", &MoveDynamics::setCallback)
         .def("set_min_y", &MoveDynamics::setMinY)
         .def("set_max_y", &MoveDynamics::setMaxY)
+        .def("add_elastic_force", &MoveDynamics::addElasticForce)
+        .def("set_constant_force", &MoveDynamics::setConstantForce)
         .def("add_elastic_force", &MoveDynamics::addElasticForce)
         .def(py::init<float>());
 

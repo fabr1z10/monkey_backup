@@ -1,6 +1,7 @@
 #include <iostream>
 #include "room.h"
 #include "components/renderer.h"
+#include "engine.h"
 #include <glm/glm.hpp>
 
 Room::Room(const std::string& id) : m_id(id) {
@@ -11,7 +12,10 @@ Room::~Room() {
 	std::cout << "destroy room\n";
 }
 
-Node::Node() : /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {}
+Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {
+
+
+}
 
 
 
@@ -40,12 +44,15 @@ std::shared_ptr<Node> Room::getRoot() {
 }
 
 void Node::add(std::shared_ptr<Node> node) {
-	m_children.push_back(node);
+	m_children.insert(std::make_pair(node->getId(), node));
 	node->setParent(this);
 
-	// TODO call start if engine is running (node added on the fly)
-
+	// call start if engine is running (node added on the fly)
+    if (Engine::instance().isRunning()) {
+        node->start();
+    }
 }
+
 
 void Room::iterate_dfs(std::function<void(Node*)> f) {
 	std::vector<Node*> li;
@@ -54,8 +61,8 @@ void Room::iterate_dfs(std::function<void(Node*)> f) {
 		auto current = li.back();
 		li.pop_back();
 		f(current);
-		for (const auto& child : current->children()) {
-			li.push_back(child.get());
+		for (auto const &[k, v] : current->children()) {
+			li.push_back(v.get());
 		}
 	}
 }
@@ -68,8 +75,8 @@ void Room::update(double dt) {
 		li.pop_back();
 		current->update(dt);
 		// update world transform
-		for (const auto& child : current->children()) {
-			li.push_back(child.get());
+		for (auto const & [k, v] : current->children()) {
+			li.push_back(v.get());
 		}
 	}
 	for (const auto& r : m_runners) {
@@ -120,8 +127,8 @@ void Room::draw(Shader* s) {
 			s->setMat4("modelview", mvm);
 			renderer->draw(s);
 		}
-		for (const auto& child : current->children()) {
-			li.push_back(child.get());
+		for (const auto& [k, v] : current->children()) {
+			li.push_back(v.get());
 		}
 
 	}

@@ -1,5 +1,6 @@
 #include "node.h"
 #include "components/renderer.h"
+#include "engine.h"
 
 void Node::setModel(std::shared_ptr<Model> model) {
 	auto renderer = model->getRenderer();
@@ -55,6 +56,13 @@ void Node::setParent(Node * node) {
 	m_parent = node;
 }
 
+void Node::remove() {
+    Engine::instance().scheduleForRemoval(this);
+}
+void Node::removeChild(long id) {
+    m_children.erase(id);
+}
+
 glm::vec3 Node::getWorldPosition() const {
 	return glm::vec3(m_worldMatrix[3]);
 }
@@ -74,4 +82,12 @@ void Node::setAnimation(const std::string &animId) {
     if (sr) {
         sr->setAnimation(animId);
     }
+}
+
+pybind11::object Node::getUserData() {
+    return m_userData;
+}
+
+void Node::setUserData(pybind11::object userData) {
+    m_userData = userData;
 }
