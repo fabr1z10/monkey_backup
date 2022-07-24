@@ -56,6 +56,18 @@ void Node::setParent(Node * node) {
 	m_parent = node;
 }
 
+void Node::add(std::shared_ptr<Node> node) {
+    m_children.insert(std::make_pair(node->getId(), node));
+    node->setParent(this);
+
+    auto& engine = Engine::instance();
+    engine.addNode(node);
+    // call start if engine is running (node added on the fly)
+    if (engine.isRunning()) {
+        node->start();
+    }
+}
+
 void Node::remove() {
     Engine::instance().scheduleForRemoval(this);
 }

@@ -25,6 +25,8 @@ public:
 	void closeRoom();
 	void load(pybind11::object obj);
 	void shutdown();
+	std::shared_ptr<Node> getNode(int);
+	void addNode(std::shared_ptr<Node>);
 	//Shader* getShader(int);
 	float getDeviceAspectRatio() const;
 	glm::vec2 getDeviceSize() const;
@@ -73,6 +75,7 @@ private:
     bool m_shutdown;
     std::vector<Node*> m_scheduledForRemoval;
     long m_nextId;
+    std::unordered_map<int, std::weak_ptr<Node>> m_allNodes;
 };
 
 Engine& getEngine();

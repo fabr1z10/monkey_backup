@@ -34,6 +34,8 @@ using namespace glm;
 #include "components/keyboard.h"
 #include "components/platform.h"
 #include "models/tiled.h"
+#include "runners/scheduler.h"
+#include "runners/actions.h"
 
 namespace py = pybind11;
 
@@ -43,6 +45,7 @@ PYBIND11_MODULE(monkey, m) {
 	m.def("get_sprite", &getSprite);
     m.def("get_tiled", &getTiled);
 	m.def("make_model", &makeModel);
+	m.def("play", &playScript);
 	m.attr("TRIANGLES") = GL_TRIANGLES;
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
@@ -69,6 +72,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
+		.def_property_readonly("id", &Node::getId)
 		.def("add", &Node::add)
 	    .def("remove", &Node::remove);
 
@@ -164,6 +168,16 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Platform, Component, std::shared_ptr<Platform>>(m, "platform")
         .def(py::init<>());
 
+
+    /// --- actions ---
+    py::class_<Action, std::shared_ptr<Action>>(m, "action");
+    py::class_<MoveBy, Action, std::shared_ptr<MoveBy>>(m, "move_by")
+        .def(py::init<const pybind11::kwargs&>());
+
+    py::class_<Script, std::shared_ptr<Script>>(m, "script")
+        .def("add", &Script::add)
+        .def(py::init<const pybind11::args&>());
+
 	/// --- states ---
 	py::class_<State, std::shared_ptr<State>>(m, "state");
 
@@ -179,6 +193,10 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<CollisionEngine, Runner, std::shared_ptr<CollisionEngine>>(m, "collision_engine")
 		.def("add_response", &CollisionEngine::addResponse)
 		.def(py::init<float, float>());
+
+    py::class_<Scheduler, Runner, std::shared_ptr<Scheduler>>(m, "scheduler")
+        .def("add", &Scheduler::add)
+        .def(py::init<>());
 
 
 	py::class_<Room, std::shared_ptr<Room>>(m, "Room")

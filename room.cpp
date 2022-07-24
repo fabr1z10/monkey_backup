@@ -43,15 +43,7 @@ std::shared_ptr<Node> Room::getRoot() {
 	return m_root;
 }
 
-void Node::add(std::shared_ptr<Node> node) {
-	m_children.insert(std::make_pair(node->getId(), node));
-	node->setParent(this);
 
-	// call start if engine is running (node added on the fly)
-    if (Engine::instance().isRunning()) {
-        node->start();
-    }
-}
 
 
 void Room::iterate_dfs(std::function<void(Node*)> f) {

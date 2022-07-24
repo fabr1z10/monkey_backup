@@ -31,6 +31,20 @@ void Engine::load(pybind11::object obj) {
 	m_timeLastUpdate = 0.0;
 }
 
+void Engine::addNode(std::shared_ptr<Node> node) {
+    m_allNodes[node->getId()] = node;
+}
+
+std::shared_ptr<Node> Engine::getNode(int id) {
+    auto it = m_allNodes.find(id);
+    if (it != m_allNodes.end()) {
+        if (auto d = it->second.lock()) {
+            return d;
+        }
+    }
+    return nullptr;
+}
+
 void Engine::start() {
 	// Initialise GLFW
 	if( !glfwInit() )
@@ -93,6 +107,7 @@ void Engine::start() {
                 if (!m_scheduledForRemoval.empty()) {
                     for (auto & g : m_scheduledForRemoval) {
                         g->getParent()->removeChild(g->getId());
+                        m_allNodes.erase(g->getId());
                     }
                     m_scheduledForRemoval.clear();
                 }
