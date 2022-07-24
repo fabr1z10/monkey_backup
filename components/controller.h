@@ -37,8 +37,11 @@ public:
 	void updateRaycastOrigins();
 	bool grounded() const;
 	bool ceiling() const;
+	bool left() const;
+    bool right() const;
 	void setGrounded(bool);
 	void setPlatform(Platform*);
+	bool isFalling(float);
 private:
 	struct CollisionDetails {
 		bool above, below;
@@ -83,6 +86,14 @@ inline bool Controller2D::grounded() const {
 inline bool Controller2D::ceiling () const {
     return m_details.above;
 }
+
+inline bool Controller2D::left () const {
+    return m_details.left;
+}
+inline bool Controller2D::right () const {
+    return m_details.right;
+}
+
 
 inline void Controller2D::setGrounded(bool value) {
     m_details.below = value;
