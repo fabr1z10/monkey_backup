@@ -36,6 +36,8 @@ using namespace glm;
 #include "models/tiled.h"
 #include "runners/scheduler.h"
 #include "runners/actions.h"
+#include "components/foewalk2d.h"
+#include "components/playerwalk2d.h"
 
 namespace py = pybind11;
 
@@ -181,8 +183,14 @@ PYBIND11_MODULE(monkey, m) {
 	/// --- states ---
 	py::class_<State, std::shared_ptr<State>>(m, "state");
 
-	py::class_<Walk2D, State, std::shared_ptr<Walk2D>>(m, "walk_2d")
+    py::class_<Walk2D, State, std::shared_ptr<Walk2D>>(m, "walk_2d");
+
+	py::class_<PlayerWalk2D, State, std::shared_ptr<PlayerWalk2D>>(m, "walk_2d_player")
 		.def(py::init<const std::string&, py::kwargs&>());
+
+    py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
+        .def(py::init<const std::string&, py::kwargs&>());
+
 
 	py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
 		.def(py::init<const std::string&, py::kwargs&>());

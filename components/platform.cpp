@@ -17,7 +17,8 @@ void Platform::start() {
 }
 
 void Platform::unregisterComponent(Controller2D* character) {
-    m_characters.erase(character);
+    //m_characters.erase(character);
+    m_removeBuffer.push_back(character);
 }
 
 void Platform::registerComponent(Controller2D* character) {
@@ -28,7 +29,12 @@ void Platform::unregisterAll() {
     m_characters.clear();
 }
 
+
+
 void Platform::move(Node* node) {
+    for (const auto& b : m_removeBuffer) {
+        m_characters.erase(b);
+    }
     glm::vec3 currentPosition = node->getWorldPosition();
     glm::vec3 delta = currentPosition - m_lastPosition;
     if (delta.x != 0.0f || delta.y != 0.0f) {
@@ -67,9 +73,11 @@ void Platform::move(Node* node) {
 
 
         for (const auto& c : m_characters) {
-//            delta.x *= (node->getFilpX() ? -1.f : 1.f);
+            // TODO Problem: What happens if moving the character send it to another platform?
+            // this would trigger the unregister and so the vector will change while iterating
+
             c->move(delta, true);
-            //c->setGrounded(true);
+
         }
     }
     m_lastPosition = currentPosition;
