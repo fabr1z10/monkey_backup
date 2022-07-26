@@ -37,6 +37,9 @@ public:
 	std::type_index getType() override;
 	void start() override;
 	void setAnimation(const std::string&);
+	const std::string& getAnimation() const;
+	Sprite* getSprite();
+	int getFrame() const;
 private:
 	void innerDraw(Shader*) override;
 	const AnimInfo* m_animInfo;
@@ -45,3 +48,7 @@ private:
 	std::shared_ptr<Sprite> m_sprite;
 	int m_ticks;
 };
+
+inline Sprite* SpriteRenderer::getSprite() {
+    return m_sprite.get();
+}

@@ -17,6 +17,7 @@ public:
 	void addRunner(std::shared_ptr<Runner> c) {
 		m_runners[c->getType()] = c;
 	}
+	void cleanUp();
 
 	template <typename T>
 	T* getRunner() {

@@ -20,6 +20,20 @@ void CollisionEngine::add(Collider * c) {
 	}
 }
 
+void CollisionEngine::remove(Collider * c) {
+    m_removed.insert(c);
+    auto d = m_colliderLocations.at(c);
+    for (auto i = d.min.x; i <= d.max.x; ++i) {
+        for (auto j = d.min.y; j <= d.max.y; ++j) {
+            auto aa = m_cells.find(glm::vec3(i, j, 0));
+            if (aa != m_cells.end()) {
+                aa->second.colliders.erase(c);
+            }
+        }
+    }
+    m_colliderLocations.erase(c);
+}
+
 void CollisionEngine::move(Collider * c) {
 	// TODO mark collider as DIRTY, and update collider position (cells occupied)
 	// then at update time, go thorugh each dirty collider, and test it with other colliders in cells
@@ -49,6 +63,9 @@ void CollisionEngine::update(double) {
 						continue;
 					}
 					for (const auto &c2 : colliders) {
+					    if (m_removed.count(c2) > 0) {
+					        std::cout << "HEY\n";
+					    }
 						// don't collide with itself
 						auto pair = UPair<Collider *>(c1, c2);
 						if (processed.find(pair) != processed.end()) continue;

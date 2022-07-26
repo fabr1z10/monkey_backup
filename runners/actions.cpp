@@ -3,14 +3,24 @@
 #include "../engine.h"
 #include <glm/gtx/transform.hpp>
 #include "../pyhelper.h"
+#include "../components/statemachine.h"
 
-MoveBy::MoveBy(const pybind11::kwargs& args) {
+NodeAction::NodeAction(const pybind11::kwargs& args) {
     m_node = nullptr;
     if (args.contains("id")) {
-        m_id = args["id"].cast<int>();
+        m_nodeId = args["id"].cast<int>();
     } else {
         m_node = args["node"].cast<std::shared_ptr<Node>>().get();
     }
+}
+
+void NodeAction::start() {
+    if (m_node == nullptr) {
+        m_node = Engine::instance().getNode(m_nodeId).get();
+    }
+}
+
+MoveBy::MoveBy(const pybind11::kwargs& args) : NodeAction(args) {
     auto dx = dictget<float>(args, "x", 0.f);
     auto dy = dictget<float>(args, "y", 0.f);
     auto dz = dictget<float>(args, "z", 0.f);
@@ -22,8 +32,8 @@ MoveBy::MoveBy(const pybind11::kwargs& args) {
 }
 
 void MoveBy::start() {
-    if (m_node == nullptr)
-        m_node = Engine::instance().getNode(m_id).get();
+    NodeAction::start();
+
     m_endPoint = m_node->getWorldPosition() + m_delta;
     m_distanceTraveled = 0.f;
 }
@@ -40,4 +50,15 @@ int MoveBy::run(double dt) {
     }
     m_node->move(glm::translate(delta));
     return 1;
+}
+
+SetState::SetState(const pybind11::kwargs& args) : NodeAction(args) {
+    m_state = args["state"].cast<std::string>();
+
+
+}
+
+int SetState::run(double) {
+    m_node->getComponent<StateMachine>()->setState(m_state);
+    return 0;
 }

@@ -8,9 +8,6 @@ void Action::setId(long id) {
     _id = id;
 }
 
-void Action::init(Node * node) {
-    m_node = node;
-}
 //
 //void Scheduler::start() {
 //    for (auto& b : m_actions) {
@@ -31,6 +28,7 @@ long Script::add(std::shared_ptr<Action> action, const pybind11::args & args) {
         m_inDegree[_nextId]++;
         m_edges[args[i].cast<long>()].push_back(_nextId);
     }
+
     return _nextId++;
 
 }

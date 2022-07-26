@@ -22,5 +22,5 @@ private:
     glm::vec3 m_lastPosition;
     CollisionEngine* m_collisionEngine;
     float m_platformWidth;
-
+    std::unordered_map<Controller2D*, int> m_pippo;
 };

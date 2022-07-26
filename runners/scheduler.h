@@ -19,7 +19,7 @@ public:
 
 protected:
     long _id;
-    Node* m_node;
+
 };
 
 class Script {

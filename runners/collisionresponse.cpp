@@ -25,7 +25,7 @@ void CollisionResponseManager::onStart(Collider * c1, Collider * c2) {
 	} else {
 		handler = m_response.find(std::make_pair(c2->getCollisionTag(), c1->getCollisionTag()));
 		if (handler != m_response.end() && handler->second.onStart) {
-			handler->second.onStart(c1->getNode(), c2->getNode());
+			handler->second.onStart(c2->getNode(), c1->getNode());
 		}
 	}
 }
@@ -37,7 +37,7 @@ void CollisionResponseManager::onStay(Collider * c1, Collider * c2) {
 	} else {
 		handler = m_response.find(std::make_pair(c2->getCollisionTag(), c1->getCollisionTag()));
 		if (handler != m_response.end() && handler->second.onStay) {
-			handler->second.onStay(c1->getNode(), c2->getNode());
+			handler->second.onStay(c2->getNode(), c1->getNode());
 		}
 	}
 }
@@ -49,7 +49,7 @@ void CollisionResponseManager::onEnd(Collider * c1, Collider * c2) {
 	} else {
 		handler = m_response.find(std::make_pair(c2->getCollisionTag(), c1->getCollisionTag()));
 		if (handler != m_response.end() && handler->second.onEnd) {
-			handler->second.onEnd(c1->getNode(), c2->getNode());
+			handler->second.onEnd(c2->getNode(), c1->getNode());
 		}
 	}
 }

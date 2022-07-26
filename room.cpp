@@ -12,6 +12,11 @@ Room::~Room() {
 	std::cout << "destroy room\n";
 }
 
+void Room::cleanUp() {
+    m_root = nullptr;
+    m_runners.clear();
+}
+
 Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {
 
 
@@ -27,6 +32,9 @@ void Node::setPosition(float x, float y, float z) {
 
 Node::~Node() {
 	std::cout << "destroy node\n";
+	m_components.clear();
+	m_children.clear();
+	onRemove.fire(this);
 }
 
 //void Node::draw(Shader* s) {
@@ -60,6 +68,7 @@ void Room::iterate_dfs(std::function<void(Node*)> f) {
 }
 
 void Room::update(double dt) {
+    for (const auto& m : m_root->m_children) std::cout << "cane: " << m.second.use_count() << "\n";
 	std::vector<Node*> li;
 	li.push_back(m_root.get());
 	while (!li.empty()) {

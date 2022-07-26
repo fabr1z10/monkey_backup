@@ -5,6 +5,10 @@
 #include "../symbols.h"
 #include "../components/renderer.h"
 #include "../pyhelper.h"
+#include "../shapes/aabb.h"
+#include "../shapes/compound.h"
+#include "../modelmake.h"
+#include "rawmodel.h"
 
 Sprite::Sprite(const YAML::Node& node) : Model(ShaderType::SHADER_TEXTURE), m_defaultAnimation(std::string()) {
 
@@ -19,6 +23,27 @@ Sprite::Sprite(const YAML::Node& node) : Model(ShaderType::SHADER_TEXTURE), m_de
 	auto texh = tex->getHeight();
 	float ppu = 1.0f;
 	int quadCount = 0;
+	// read shapes
+
+    for (YAML::const_iterator anit = node["boxes"].begin(); anit != node["boxes"].end(); ++anit) {
+        auto a = (*anit).as<std::vector<float>>();
+        assert(a.size() % 4 == 0);
+        std::shared_ptr<Shape> shape;
+        if (a.size() == 4) {
+            shape = std::make_shared<AABB>(a[0], a[1], a[2], a[3]);
+        } else {
+            auto s1 = std::make_shared<CompoundShape>();
+            for (size_t i = 0; i < a.size(); i+=4) {
+                s1->addShape(std::make_shared<AABB>(a[i], a[i+1], a[i+2], a[i+3]));
+            }
+            shape = s1;
+        }
+        m_staticBounds.expandWith(shape->getBounds());
+        m_shapes.push_back(shape);
+    }
+
+
+
 	for (YAML::const_iterator anit = node["animations"].begin(); anit != node["animations"].end(); ++anit) {
 		//std::cout << " --- anim: " << anit->first << "\n";
 		if (m_defaultAnimation.empty()) m_defaultAnimation = anit->first.as<std::string>();
@@ -26,11 +51,16 @@ Sprite::Sprite(const YAML::Node& node) : Model(ShaderType::SHADER_TEXTURE), m_de
 		AnimInfo animInfo;
 		animInfo.loop = anit->second["loop"].as<bool>(true);
 		animInfo.frames = 0;
+		int boxAnim = anit->second["box"].as<int>(-1);
+		int nframe = 0;
 		for (const auto& el : anit->second["elements"]) {
 			FrameInfo fi;
 			fi.offset = indices.size();
 			fi.count = 0;
 			fi.ticks = el["ticks"].as<int>(1);//el.dictget<int>(el, "ticks", 1);
+			int boxFrame = el["frame"].as<int>(boxAnim);
+			if (boxFrame != -1) m_frameToShape[std::make_pair(anit->first.as<std::string>(), nframe)] = boxFrame;
+			nframe++;
 			animInfo.frames++;
 			for (const auto& quad : el["quads"]) {
 				auto n = quad.size();
@@ -101,5 +131,47 @@ const FrameInfo & Sprite::getFrameInfo(const std::string &anim, int frame) {
 
 std::shared_ptr<Renderer> Sprite::getRenderer() const {
 	return std::make_shared<SpriteRenderer>(m_defaultAnimation);
+
+}
+
+bool Sprite::hasCollision(const std::string & anim) const {
+    return m_frameToShape.count(std::make_pair(anim, 0)) > 0;
+
+}
+
+std::shared_ptr<Shape> Sprite::getShape (const std::string& anim, int frame) const {
+    return m_shapes[m_frameToShape.at(std::make_pair(anim, frame))];
+}
+
+std::shared_ptr<Shape> Sprite::getShapeCast (const std::string& anim, int frame) const {
+    return nullptr;
+}
+
+
+std::shared_ptr<Model> Sprite::generateDebugModel() {
+    std::vector<float> vertices;
+    std::vector<unsigned> elements;
+    unsigned u{0};
+    glm::vec4 color(1.f);
+    auto lambda = [&] (const Bounds& b) {
+        vertices.insert(vertices.end(), {b.min.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
+        vertices.insert(vertices.end(), {b.max.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
+        vertices.insert(vertices.end(), {b.max.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
+        vertices.insert(vertices.end(), {b.min.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
+        elements.insert(elements.end(), {u, u+1, u+1, u+2, u+2, u+3, u+3, u});
+        u += 4;
+    };
+
+    for (const auto& s : m_shapes) {
+        if (s->getShapeType() == ShapeType::COMPOUND) {
+            auto* cs = static_cast<CompoundShape*>(s.get());
+            for (const auto& t : cs->getShapes()) {
+                lambda(t->getBounds());
+            }
+        } else {
+            lambda(s->getBounds());
+        }
+    }
+    return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, GL_LINES, vertices, elements);
 
 }

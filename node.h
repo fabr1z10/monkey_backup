@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "model.h"
 #include "camera.h"
 #include "component.h"
@@ -49,19 +50,19 @@ public:
 
 	void setAnimation(const std::string& animId);
 	Event<Node*> onMove;						// fires when this node moves
-
+    Event<Node*> onRemove;
 	void setParent(Node*);
 	void setMultColor(float r, float g, float b, float a);
 	Node* getParent() ;
 	pybind11::object getUserData();
 	void setUserData(pybind11::object);
+    std::unordered_map<long, std::shared_ptr<Node>> m_children;
 
 private:
 
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
 	//std::shared_ptr<Model> m_model;
-	std::unordered_map<long, std::shared_ptr<Node>> m_children;
 	Node* m_parent;
 	std::unordered_map<std::type_index, std::shared_ptr<Component> > m_components;
 	glm::mat4 m_worldMatrix;

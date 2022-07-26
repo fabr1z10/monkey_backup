@@ -79,3 +79,11 @@ void SpriteRenderer::innerDraw(Shader * s) {
 std::type_index SpriteRenderer::getType() {
 	return std::type_index(typeid(Renderer));
 }
+
+const std::string & SpriteRenderer::getAnimation() const {
+    return m_animation;
+}
+
+int SpriteRenderer::getFrame() const {
+    return m_frame;
+}

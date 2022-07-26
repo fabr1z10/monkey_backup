@@ -19,10 +19,16 @@ void Platform::start() {
 void Platform::unregisterComponent(Controller2D* character) {
     //m_characters.erase(character);
     m_removeBuffer.push_back(character);
+    character->getNode()->onRemove.unreg(m_pippo.at(character));
 }
 
 void Platform::registerComponent(Controller2D* character) {
     m_characters.insert(character);
+    int a = character->getNode()->onRemove.reg([&, character] (Node* node) {
+       m_characters.erase(character);
+    });
+    m_pippo[character] = a;
+
 }
 
 void Platform::unregisterAll() {

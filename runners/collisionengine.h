@@ -32,6 +32,7 @@ class CollisionEngine : public Runner {
 public:
 	CollisionEngine(float, float);
 	virtual void add (Collider*);
+	virtual void remove (Collider*);
 	virtual void move (Collider*) ;
 	void update(double) override;
 	virtual RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
@@ -54,6 +55,6 @@ private:
 	std::shared_ptr<CollisionResponseManager> m_responseManager;
 
 	std::unordered_map<std::pair<Collider*, Collider*>, CollisionInfo> m_previouslyCollidingPairs;
-
+    std::unordered_set<Collider*> m_removed;
 };
 

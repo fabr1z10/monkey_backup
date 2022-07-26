@@ -4,6 +4,7 @@
 #include "shapes/circle.h"
 #include "models/rawmodel.h"
 #include "shapes/compound.h"
+#include "shapes/aabb.h"
 #include "pyhelper.h"
 #include "models/multi.h"
 #include <cmath>
@@ -14,6 +15,7 @@ ModelMaker::ModelMaker() {
     m_builders[std::type_index(typeid(Circle))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCircle(s, args); };
     m_builders[std::type_index(typeid(ConvexPoly))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeConvexPoly(s, args); };
     m_builders[std::type_index(typeid(CompoundShape))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCompoundShape(s, args); };
+    m_builders[std::type_index(typeid(AABB))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeAABB(s, args); };
 
 }
 
@@ -24,6 +26,21 @@ std::shared_ptr<Model> ModelMaker::makeCompoundShape(std::shared_ptr<Shape> s, c
         model->addModel(this->get(shape, args));
     }
     return model;
+}
+
+std::shared_ptr<Model> ModelMaker::makeAABB(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
+    auto* cs = static_cast<AABB*>(s.get());
+    auto color = dictget<glm::vec4>(args, "color", glm::vec4(1.0f));
+    std::vector<float> vertices;
+    std::vector<unsigned> elements;
+    unsigned u{0};
+    auto b = cs->getBounds();
+    vertices.insert(vertices.end(), {b.min.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
+    vertices.insert(vertices.end(), {b.max.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
+    vertices.insert(vertices.end(), {b.max.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
+    vertices.insert(vertices.end(), {b.min.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
+    elements.insert(elements.end(), {0, 1, 2, 3});
+    return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, GL_LINE_LOOP, vertices, elements);
 }
 
 std::shared_ptr<Model> ModelMaker::makeConvexPoly(std::shared_ptr<Shape> s, const pybind11::kwargs& args) {

@@ -38,6 +38,9 @@ using namespace glm;
 #include "runners/actions.h"
 #include "components/foewalk2d.h"
 #include "components/playerwalk2d.h"
+#include "shapes/aabb.h"
+#include "components/smartcollider.h"
+#include "components/idle.h"
 
 namespace py = pybind11;
 
@@ -58,7 +61,8 @@ PYBIND11_MODULE(monkey, m) {
 		.def("start", &Engine::start)
 		.def("shutdown", &Engine::shutdown)
 		.def("close_room", &Engine::closeRoom)
-		.def("load",&Engine::load);
+		.def("load",&Engine::load)
+        .def("get_node", &Engine::getNode, py::return_value_policy::reference);
 		//.def("instance", &Engine::instance, py::return_value_policy::reference);
 
 	py::class_<Node, std::shared_ptr<Node>>(m, "Node")
@@ -116,6 +120,8 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Segment, Shape, std::shared_ptr<Segment>>(m, "segment")
         .def(py::init<float, float, float, float>());
 
+    py::class_<AABB, Shape, std::shared_ptr<AABB>>(m, "aabb")
+        .def(py::init<float, float, float, float>());
 
     py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
         .def("add_shape", &CompoundShape::addShape)
@@ -130,6 +136,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
+
+    py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")
+        .def(py::init<int, int, int>());
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
@@ -173,7 +182,10 @@ PYBIND11_MODULE(monkey, m) {
 
     /// --- actions ---
     py::class_<Action, std::shared_ptr<Action>>(m, "action");
-    py::class_<MoveBy, Action, std::shared_ptr<MoveBy>>(m, "move_by")
+    py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(m, "node_action");
+    py::class_<MoveBy, NodeAction, std::shared_ptr<MoveBy>>(m, "move_by")
+        .def(py::init<const pybind11::kwargs&>());
+    py::class_<SetState, NodeAction, std::shared_ptr<SetState>>(m, "set_state")
         .def(py::init<const pybind11::kwargs&>());
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
@@ -191,8 +203,11 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
         .def(py::init<const std::string&, py::kwargs&>());
 
+    py::class_<Idle, State, std::shared_ptr<Idle>>(m, "idle")
+        .def(py::init<const std::string&, const std::string&>());
 
-	py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
+
+    py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
 		.def(py::init<const std::string&, py::kwargs&>());
 
 	/// --- runners ---

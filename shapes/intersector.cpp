@@ -3,6 +3,7 @@
 #include "../shapes/circle.h"
 #include "../util.h"
 #include "../shapes/compound.h"
+#include "aabb.h"
 
 
 Intersector2D::Intersector2D() {
@@ -23,6 +24,12 @@ Intersector2D::Intersector2D() {
     add<CompoundShape, Rect> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
     add<CompoundShape, Segment> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
     add<CompoundShape, Circle> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
+    add<CompoundShape, AABB> ([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return compound(s1, s2, t1, t2); });
+
+    add<AABB, ConvexPoly>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATAABB(s1, s2, t1, t2); });
+    add<AABB, Rect>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATAABB(s1, s2, t1, t2); });
+    add<AABB, Segment>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATAABB(s1, s2, t1, t2); });
+    add<AABB, AABB>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return AABB2(s1, s2, t1, t2); });
 }
 
 CollisionReport Intersector2D::compound(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
@@ -45,6 +52,32 @@ CollisionReport Intersector2D::SAT(const Shape * s1, const Shape * s2, const glm
 	//axes.insert(axes.end(), cp2->getUnitNormals().begin(), cp2->getUnitNormals().end());
 	return performSAT(axes, cp1, cp2, t1, t2);
 }
+
+CollisionReport Intersector2D::SATAABB(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
+    const auto* cp1 = static_cast<const Shape2D*>(s1);
+    const auto* cp2 = static_cast<const ConvexPoly*>(s2);
+    std::vector<glm::vec2> axes { glm::vec2(1.f, 0.f), glm::vec2(0.f, 1.f)};
+    for (const auto& t : cp2->getUnitNormals()) axes.push_back(t2 * glm::vec4(t, 0.f, 0.f));
+    //axes.insert(axes.end(), cp2->getUnitNormals().begin(), cp2->getUnitNormals().end());
+    return performSAT(axes, cp1, cp2, t1, t2);
+}
+
+CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
+    auto b1 = s1->getBounds();
+    auto b2 = s2->getBounds();
+    glm::vec3 tr1(t1[3]);
+    glm::vec3 tr2(t1[3]);
+    auto m1 = b1.min + tr1;
+    auto M1 = b1.max + tr1;
+    auto m2 = b2.min + tr2;
+    auto M2 = b2.max + tr2;
+    CollisionReport report;
+    bool notCollide =(m2.x > M1.x || M2.x < m1.x) || (m2.y > M2.y || M2.y < m1.y);
+    report.collide = !notCollide;
+    return report;
+
+}
+
 
 CollisionReport Intersector2D::SATCircle(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
     const auto* cp1 = static_cast<const ConvexPoly*>(s1);
