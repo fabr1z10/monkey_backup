@@ -77,6 +77,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
+        .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
 		.def("add", &Node::add)
@@ -162,6 +163,7 @@ PYBIND11_MODULE(monkey, m) {
 
 
 	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller")
+        .def("set_size", &Controller::setSize)
 	    .def(py::init<const py::kwargs&>());
 
 	py::class_<Controller2D, Controller, std::shared_ptr<Controller2D>>(m, "controller_2d")

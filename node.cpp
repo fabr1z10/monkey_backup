@@ -3,14 +3,30 @@
 #include "engine.h"
 
 void Node::setModel(std::shared_ptr<Model> model) {
-	auto renderer = model->getRenderer();
-	renderer->setModel(model);
-	addComponent(renderer);
+
+    auto* r = getComponent<Renderer>();
+    if (r == nullptr) {
+        auto renderer = model->getRenderer();
+        renderer->setModel(model);
+        addComponent(renderer);
+    } else {
+        r->setModel(model);
+        for (auto& c : m_components) {
+            c.second->start();
+        }
+    }
+
 
 	//m_model = model;
 }
 
+void Node::addComponent(std::shared_ptr<Component> c) {
+    m_components[c->getType()] = c;
+    c->setNode(this);
+}
+
 void Node::start() {
+    m_started = true;
 	// update world matrix
 	if (m_parent != nullptr) {
 		m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;

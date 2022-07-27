@@ -13,13 +13,18 @@ class Controller : public Component {
 public:
 	Controller(const pybind11::kwargs&);
 	void start() override;
-
+    void setSize(pybind11::tuple size, pybind11::tuple offset);
 	virtual void move(glm::vec3&, bool forced);
 protected:
+    void computeCoordinates();
 	glm::vec3 m_size;
 	glm::vec3 m_center;
 	bool m_debug;
 	CollisionEngine* m_collisionEngine;
+    glm::vec3 m_localTopFwd;
+    glm::vec3 m_localTopBack;
+    glm::vec3 m_localBottomFwd;
+    glm::vec3 m_localBottomBack;
 };
 
 struct RaycastOrigins {
@@ -59,10 +64,7 @@ private:
 	void verticalCollisions(glm::vec3& velocity, bool);
 
 	RaycastOrigins m_raycastOrigins;
-	glm::vec3 m_localTopFwd;
-	glm::vec3 m_localTopBack;
-	glm::vec3 m_localBottomFwd;
-	glm::vec3 m_localBottomBack;
+
 	bool m_wasGnd;
 	CollisionDetails m_details;
 	float m_maxClimbAngle;

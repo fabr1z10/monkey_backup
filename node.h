@@ -34,10 +34,7 @@ public:
 	void move(glm::mat4);
 	pybind11::tuple getPos() const;
 	//template <typename C>
-	void addComponent(std::shared_ptr<Component> c) {
-		m_components[c->getType()] = c;
-		c->setNode(this);
-	}
+	void addComponent(std::shared_ptr<Component> c) ;
 
 	template <typename T>
 	T* getComponent() {
@@ -57,8 +54,8 @@ public:
 	pybind11::object getUserData();
 	void setUserData(pybind11::object);
     std::unordered_map<long, std::shared_ptr<Node>> m_children;
-
 private:
+    bool m_started;
 
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;

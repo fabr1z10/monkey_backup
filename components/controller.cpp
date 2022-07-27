@@ -14,9 +14,24 @@ void Controller::start() {
 	m_collisionEngine = room->getRunner<CollisionEngine>();
 }
 
+void Controller::setSize(pybind11::tuple size, pybind11::tuple center) {
+	m_size = glm::vec3(size[0].cast<float>(), size[1].cast<float>(), size.size() > 2 ? size[2].cast<float>() : 0.f);
+	m_center = glm::vec3(center[0].cast<float>(), center[1].cast<float>(), center.size() > 2 ? center[2].cast<float>() : 0.f);
+	computeCoordinates();
+}
+
 Controller::Controller(const pybind11::kwargs& args) {
     m_size = dictget<glm::vec3>(args, "size", glm::vec3(0.f));
     m_center = dictget<glm::vec3>(args, "center", glm::vec3(0.f));
+	computeCoordinates();
+}
+
+void Controller::computeCoordinates() {
+	// raycast origins in local coordinates. This won't change until shape is changed
+	m_localTopFwd = m_size - m_center;
+	m_localTopBack = glm::vec3(0.0f, m_size.y, 0.0f) - m_center;
+	m_localBottomFwd = glm::vec3(m_size.x, 0.0f, 0.0f) - m_center;
+	m_localBottomBack = glm::vec3(0.0f) - m_center;
 }
 
 Controller2D::Controller2D(const pybind11::kwargs& kwargs) : Controller(kwargs) {
@@ -29,11 +44,7 @@ Controller2D::Controller2D(const pybind11::kwargs& kwargs) : Controller(kwargs) 
 	m_maskUp = pyget<int>(kwargs, "mask_up", 2);
     m_platforms = nullptr;
 
-	// raycast origins in local coordinates. This won't change until shape is changed
-	m_localTopFwd = m_size - m_center;
-	m_localTopBack = glm::vec3(0.0f, m_size.y, 0.0f) - m_center;
-	m_localBottomFwd = glm::vec3(m_size.x, 0.0f, 0.0f) - m_center;
-	m_localBottomBack = glm::vec3(0.0f) - m_center;
+
 }
 
 void Controller2D::updateRaycastOrigins() {
@@ -44,8 +55,8 @@ void Controller2D::updateRaycastOrigins() {
 	m_raycastOrigins.bottomLeft = worldMatrix * glm::vec4(m_localBottomBack, 1.0f);
 	float width = fabs(m_raycastOrigins.topRight.x - m_raycastOrigins.topLeft.x);
 	float height = m_raycastOrigins.topRight.y - m_raycastOrigins.bottomRight.y;
-	m_horizontalRaySpacing = width / (m_horizontalRayCount - 1.f);
-	m_verticalRaySpacing = height / (m_verticalRayCount - 1.f);
+	m_horizontalRaySpacing = height / (m_horizontalRayCount - 1.f);
+	m_verticalRaySpacing = width / (m_verticalRayCount - 1.f);
 }
 
 void Controller::move(glm::vec3 & delta, bool) {

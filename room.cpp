@@ -17,7 +17,8 @@ void Room::cleanUp() {
     m_runners.clear();
 }
 
-Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f) {
+Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f),
+m_started(false) {
 
 
 }
