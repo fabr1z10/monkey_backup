@@ -69,7 +69,7 @@ void Room::iterate_dfs(std::function<void(Node*)> f) {
 }
 
 void Room::update(double dt) {
-    for (const auto& m : m_root->m_children) std::cout << "cane: " << m.second.use_count() << "\n";
+    //for (const auto& m : m_root->m_children) std::cout << "cane: " << m.second.use_count() << "\n";
 	std::vector<Node*> li;
 	li.push_back(m_root.get());
 	while (!li.empty()) {

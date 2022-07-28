@@ -18,14 +18,14 @@ void CollisionResponseManager::add(int i , int j, const pybind11::kwargs& f) {
 	m_response[std::make_pair(i, j)] = resp;
 }
 
-void CollisionResponseManager::onStart(Collider * c1, Collider * c2) {
+void CollisionResponseManager::onStart(Collider * c1, Collider * c2, glm::vec3 v) {
 	auto handler = m_response.find(std::make_pair(c1->getCollisionTag(), c2->getCollisionTag()));
 	if (handler != m_response.end() && handler->second.onStart) {
-		handler->second.onStart(c1->getNode(), c2->getNode());
+		handler->second.onStart(c1->getNode(), c2->getNode(), v);
 	} else {
 		handler = m_response.find(std::make_pair(c2->getCollisionTag(), c1->getCollisionTag()));
 		if (handler != m_response.end() && handler->second.onStart) {
-			handler->second.onStart(c2->getNode(), c1->getNode());
+			handler->second.onStart(c2->getNode(), c1->getNode(),v );
 		}
 	}
 }

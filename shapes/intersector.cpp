@@ -66,14 +66,53 @@ CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const g
     auto b1 = s1->getBounds();
     auto b2 = s2->getBounds();
     glm::vec3 tr1(t1[3]);
-    glm::vec3 tr2(t1[3]);
+    glm::vec3 tr2(t2[3]);
     auto m1 = b1.min + tr1;
     auto M1 = b1.max + tr1;
     auto m2 = b2.min + tr2;
     auto M2 = b2.max + tr2;
     CollisionReport report;
-    bool notCollide =(m2.x > M1.x || M2.x < m1.x) || (m2.y > M2.y || M2.y < m1.y);
-    report.collide = !notCollide;
+    float overlap_x{0.f};
+    float overlap_y{0.f};
+    if (M1.x < m2.x) {
+        // do nothing
+    } else {
+        if (M1.x < M2.x) {
+            float x1 = fabs(M1.x - m2.x);
+            float x2 = fabs(M2.x - m1.x);
+            overlap_x = (x1 < x2) ? -x1 : x2;
+        } else {
+            if (m1.x < M2.x) {
+                overlap_x = M2.x - m1.x;
+            }
+        }
+    }
+    if (M1.y < m2.y) {
+        // do nothing
+    } else {
+        if (M1.y < M2.y) {
+            float y1 = fabs(M1.y - m2.y);
+            float y2 = fabs(M2.y - m1.y);
+            overlap_y = (y1 < y2) ? -y1 : y2;
+        } else {
+            if (m1.y < M2.y) {
+                overlap_y = M2.y - m1.y;
+            }
+        }
+    }
+    report.collide = overlap_x != 0.f && overlap_y != 0.f;
+    if (report.collide) {
+        if (fabs(overlap_x) > fabs(overlap_y)) {
+            report.direction = glm::vec3(0.f, sign(overlap_y), 0.f);
+            report.distance = fabs(overlap_y);
+        } else {
+            report.direction = glm::vec3(sign(overlap_y), 0.f, 0.f);
+            report.distance = fabs(overlap_x);
+        }
+    }
+
+    //#line  "" notCollide =(m2.x > M1.x || M2.x < m1.x) || (m2.y > M2.y || M2.y < m1.y);
+    //report.collide = !notCollide;
     return report;
 
 }

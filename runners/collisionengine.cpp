@@ -32,6 +32,13 @@ void CollisionEngine::remove(Collider * c) {
         }
     }
     m_colliderLocations.erase(c);
+    for (auto it = m_previouslyCollidingPairs.begin(); it != m_previouslyCollidingPairs.end(); ) {
+        if (it->first.first == c || it->first.second == c) {
+            it = m_previouslyCollidingPairs.erase(it);
+        } else {
+            it++;
+        }
+    }
 }
 
 void CollisionEngine::move(Collider * c) {
@@ -124,7 +131,7 @@ void CollisionEngine::update(double) {
 	for (auto& p : currentlyCollidingPairs) {
 		auto it = m_previouslyCollidingPairs.find(p.first);
 		if (it == m_previouslyCollidingPairs.end()) {
-			m_responseManager->onStart (p.first.first, p.first.second);
+			m_responseManager->onStart (p.first.first, p.first.second, p.second.report.direction * p.second.report.distance);
 			m_previouslyCollidingPairs.insert(std::make_pair(p.first, p.second));
 		} else {
 			m_responseManager->onStay(p.first.first, p.first.second);

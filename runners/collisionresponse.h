@@ -14,7 +14,7 @@ class CollisionResponseManager {
 public:
 	bool hasCollision(Collider*, Collider*);
 	void add(int, int, const pybind11::kwargs&);
-	void onStart(Collider*, Collider*);
+	void onStart(Collider*, Collider*, glm::vec3);
 	void onStay(Collider*, Collider*);
 	void onEnd(Collider*, Collider*);
 private:

@@ -22,6 +22,9 @@ using namespace glm;
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include <pybind11/operators.h>
+
 #include "pyfunc.h"
 #include "components/move.h"
 #include "components/controller.h"
@@ -55,6 +58,15 @@ PYBIND11_MODULE(monkey, m) {
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
 	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
+
+	py::class_<glm::vec3>(m, "vec3")
+	    .def_readwrite("x", &glm::vec3::x)
+	    .def_readwrite("y", &glm::vec3::y)
+	    .def_readwrite("z", &glm::vec3::z)
+	    .def(py::self + py::self)
+	    .def(py::init<float>())
+	    .def(py::init<float, float, float>());
+
 
 	py::class_<Engine>(m, "Engine")
 		//.def(py::init<>())
