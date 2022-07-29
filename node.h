@@ -44,7 +44,7 @@ public:
 		}
 		return nullptr;
 	}
-
+    void setState (const std::string& state);
 	void setAnimation(const std::string& animId);
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;

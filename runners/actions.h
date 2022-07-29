@@ -10,6 +10,20 @@ protected:
     int m_nodeId;
 };
 
+class Delay : public Action {
+public:
+    Delay(float t);
+    int run(double) override;
+    void start() override;
+private:
+    float m_time;
+    float m_timer;
+};
+
+// TODO Callfunc
+//class CallFunc : public Action {
+//
+//};
 
 class MoveBy : public NodeAction {
 public:
@@ -27,6 +41,21 @@ private:
     glm::vec3 m_unitVec;
 };
 
+class MoveAccelerated : public NodeAction {
+public:
+    explicit MoveAccelerated(const pybind11::kwargs&);
+    int run(double) override;
+    //void start() override;
+
+private:
+    int m_id;
+    glm::vec3 m_endPoint;
+    glm::vec3 m_initialVelocity;
+    glm::vec3 m_velocity;
+    glm::vec3 m_acceleration;
+};
+
+
 class SetState : public NodeAction {
 public:
     explicit SetState(const pybind11::kwargs&);
@@ -35,4 +64,10 @@ public:
 private:
     std::string m_state;
 
+};
+
+class RemoveNode : public NodeAction {
+public:
+    explicit RemoveNode(const pybind11::kwargs& args) : NodeAction(args) {}
+    int run(double) override;
 };

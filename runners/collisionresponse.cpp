@@ -25,7 +25,7 @@ void CollisionResponseManager::onStart(Collider * c1, Collider * c2, glm::vec3 v
 	} else {
 		handler = m_response.find(std::make_pair(c2->getCollisionTag(), c1->getCollisionTag()));
 		if (handler != m_response.end() && handler->second.onStart) {
-			handler->second.onStart(c2->getNode(), c1->getNode(),v );
+			handler->second.onStart(c2->getNode(), c1->getNode(), -v);
 		}
 	}
 }

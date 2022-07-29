@@ -81,6 +81,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<>())
 		.def("children_count", &Node::getChildrenCount)
 		.def("set_model", &Node::setModel)
+		.def("set_state", &Node::setState)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("set_animation", &Node::setAnimation)
@@ -88,6 +89,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_mult_color", &Node::setMultColor)
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
+        .def("get_dynamics", &Node::getComponent<Dynamics>, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
@@ -168,6 +170,7 @@ PYBIND11_MODULE(monkey, m) {
 
 
 	py::class_<Dynamics, Component, std::shared_ptr<Dynamics>>(m, "dynamics")
+        .def_readwrite("velocity", &Dynamics::m_velocity)
 		.def(py::init<>());
 
 	py::class_<Follow, Component, std::shared_ptr<Follow>>(m, "follow")
@@ -199,7 +202,13 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(m, "node_action");
     py::class_<MoveBy, NodeAction, std::shared_ptr<MoveBy>>(m, "move_by")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<MoveAccelerated, NodeAction, std::shared_ptr<MoveAccelerated>>(m, "move_accelerated")
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<SetState, NodeAction, std::shared_ptr<SetState>>(m, "set_state")
+        .def(py::init<const pybind11::kwargs&>());
+    py::class_<Delay, Action, std::shared_ptr<Delay>>(m, "delay")
+        .def(py::init<float>());
+    py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(m, "remove")
         .def(py::init<const pybind11::kwargs&>());
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")

@@ -106,7 +106,7 @@ CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const g
             report.direction = glm::vec3(0.f, sign(overlap_y), 0.f);
             report.distance = fabs(overlap_y);
         } else {
-            report.direction = glm::vec3(sign(overlap_y), 0.f, 0.f);
+            report.direction = glm::vec3(sign(overlap_x), 0.f, 0.f);
             report.distance = fabs(overlap_x);
         }
     }
@@ -178,7 +178,11 @@ CollisionReport Intersector::intersect(const Shape * s1, const Shape * s2, const
         if (it2 == m_functionMap.end()) {
             return CollisionReport();
         }
-        return it2->second(s2, s1, t2, t1);
+        auto report = it2->second(s2, s1, t2, t1);
+        if (report.collide) {
+            report.direction *= -1.f;
+        }
+        return report;
 	}
 
 	return it->second(s1, s2, t1, t2);

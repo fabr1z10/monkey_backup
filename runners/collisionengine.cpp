@@ -141,6 +141,16 @@ void CollisionEngine::update(double) {
 }
 
 void CollisionEngine::pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M) {
+    auto it = m_colliderLocations.find(c);
+    if (it != m_colliderLocations.end()) {
+        if (it->second.min != m || it->second.max != M) {
+            for (int i = it->second.min.x; i <= it->second.max.x; ++i) {
+                for (int j = it->second.min.y; j <= it->second.max.y; ++j) {
+                    m_cells[glm::ivec3(i, j, 0)].colliders.erase(c);
+                }
+            }
+        }
+    }
 	for (int i = m.x; i <= M.x; ++i) {
 		for (int j = m.y; j <= M.y; ++j) {
 			auto &cell = m_cells[glm::ivec3(i, j, 0)];

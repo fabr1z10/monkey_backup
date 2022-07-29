@@ -31,6 +31,14 @@ MoveBy::MoveBy(const pybind11::kwargs& args) : NodeAction(args) {
     m_speed = m_distance / t;
 }
 
+MoveAccelerated::MoveAccelerated(const pybind11::kwargs& args) : NodeAction(args) {
+    m_initialVelocity = args["velocity"].cast<glm::vec3>();
+    m_velocity = m_initialVelocity;
+    m_acceleration = args["acceleration"].cast<glm::vec3>();
+
+
+}
+
 void MoveBy::start() {
     NodeAction::start();
 
@@ -52,6 +60,14 @@ int MoveBy::run(double dt) {
     return 1;
 }
 
+int MoveAccelerated::run(double dt) {
+    auto dtf = static_cast<float>(dt);
+    glm::vec2 delta = m_velocity * dtf;
+    m_velocity += m_acceleration * dtf;
+    m_node->move(glm::translate(glm::vec3(delta, 0.f)));
+    return 1.f;
+}
+
 SetState::SetState(const pybind11::kwargs& args) : NodeAction(args) {
     m_state = args["state"].cast<std::string>();
 
@@ -60,5 +76,24 @@ SetState::SetState(const pybind11::kwargs& args) : NodeAction(args) {
 
 int SetState::run(double) {
     m_node->getComponent<StateMachine>()->setState(m_state);
+    return 0;
+}
+
+Delay::Delay(float t) : Action(), m_time(t) {}
+
+void Delay::start() {
+    m_timer = 0.f;
+}
+
+int Delay::run(double dt) {
+    m_timer += static_cast<float>(dt);
+    if (m_timer > m_time) {
+        return 0.f;
+    }
+    return 1.f;
+}
+
+int RemoveNode::run(double) {
+    m_node->remove();
     return 0;
 }

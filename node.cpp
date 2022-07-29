@@ -1,6 +1,7 @@
 #include "node.h"
 #include "components/renderer.h"
 #include "engine.h"
+#include "components/statemachine.h"
 
 void Node::setModel(std::shared_ptr<Model> model) {
 
@@ -109,6 +110,13 @@ void Node::setAnimation(const std::string &animId) {
     auto sr = dynamic_cast<SpriteRenderer*>(getComponent<Renderer>());
     if (sr) {
         sr->setAnimation(animId);
+    }
+}
+
+void Node::setState(const std::string &state) {
+    auto sm = getComponent<StateMachine>();
+    if (sm != nullptr) {
+        sm->setState(state);
     }
 }
 
