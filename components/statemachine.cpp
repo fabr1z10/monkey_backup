@@ -1,5 +1,25 @@
 #include "statemachine.h"
 #include "../error.h"
+#include "../engine.h"
+#include "../runners/scheduler.h"
+#include "../pyhelper.h"
+
+
+State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id) {
+    m_script = dictget<pybind11::function>(kwargs, "script", pybind11::function());
+}
+
+void State::init() {
+    if (m_script) {
+        m_scriptId = m_script(m_sm->getNode()->getId()).cast<long>();
+    }
+}
+
+void State::end() {
+    if (m_scriptId == -1) {
+        Engine::instance().getRoom()->getRunner<Scheduler>()->kill(m_scriptId);
+    }
+}
 
 void StateMachine::start() {
 	for (const auto& s : m_states) {
@@ -10,10 +30,15 @@ void StateMachine::start() {
 	}
 }
 
+
+
 void StateMachine::setState(const std::string & state) {
 	auto it = m_states.find(state);
 	if (it == m_states.end()) {
 		GLIB_FAIL("Don't know state: " + state);
+	}
+	if (m_currentState) {
+	    m_currentState->end();
 	}
 	it->second->init();
 	m_currentState = it->second;

@@ -5,7 +5,7 @@
 
 class Idle : public State {
 public:
-    Idle(const std::string& id, const std::string& anim);
+    Idle(const std::string& id, const std::string& anim, const pybind11::kwargs&);
     void init() override;
     void setParent(StateMachine*) override;
 private:

@@ -113,6 +113,12 @@ void Node::setAnimation(const std::string &animId) {
     }
 }
 
+std::string Node::getState() const {
+    auto sm = getComponent<StateMachine>();
+    auto pino = sm->getState()->getId();
+    return pino;
+}
+
 void Node::setState(const std::string &state) {
     auto sm = getComponent<StateMachine>();
     if (sm != nullptr) {

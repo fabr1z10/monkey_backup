@@ -2,8 +2,10 @@
 #include "../node.h"
 #include "../engine.h"
 #include <glm/gtx/transform.hpp>
+#include <utility>
 #include "../pyhelper.h"
 #include "../components/statemachine.h"
+#include "../components/renderer.h"
 
 NodeAction::NodeAction(const pybind11::kwargs& args) {
     m_node = nullptr;
@@ -35,8 +37,8 @@ MoveAccelerated::MoveAccelerated(const pybind11::kwargs& args) : NodeAction(args
     m_initialVelocity = args["velocity"].cast<glm::vec3>();
     m_velocity = m_initialVelocity;
     m_acceleration = args["acceleration"].cast<glm::vec3>();
-
-
+    m_timeOut = dictget<float>(args, "timeout", std::numeric_limits<float>::infinity());
+    m_time = 0.f;
 }
 
 void MoveBy::start() {
@@ -57,14 +59,23 @@ int MoveBy::run(double dt) {
         return 0;
     }
     m_node->move(glm::translate(delta));
+
     return 1;
+}
+
+void MoveAccelerated::start() {
+    NodeAction::start();
+
 }
 
 int MoveAccelerated::run(double dt) {
     auto dtf = static_cast<float>(dt);
+    if (m_time > m_timeOut)
+        return 0;
     glm::vec2 delta = m_velocity * dtf;
     m_velocity += m_acceleration * dtf;
     m_node->move(glm::translate(glm::vec3(delta, 0.f)));
+    m_time += dtf;
     return 1.f;
 }
 
@@ -93,7 +104,40 @@ int Delay::run(double dt) {
     return 1.f;
 }
 
+Blink::Blink(const pybind11::kwargs & args) : NodeAction(args) {
+    m_duration = args["duration"].cast<float>();
+    m_period = args["period"].cast<float>();
+}
+
+void Blink::start() {
+    NodeAction::start();
+    m_renderer = m_node->getComponent<Renderer>();
+    m_time = 0.f;
+}
+
+int Blink::run(double dt) {
+    m_time += static_cast<float>(dt);
+    if (m_time > m_duration) {
+        m_renderer->setMultColor(glm::vec4(1.f));
+        return 0.f;
+    }
+    int a = static_cast<int>(m_time / m_period) % 2;
+    m_renderer->setMultColor(a == 0 ? glm::vec4(1.f) : glm::vec4(0.f));
+
+    return 1.f;
+}
+
 int RemoveNode::run(double) {
     m_node->remove();
+    return 0;
+}
+
+CallFunc::CallFunc(pybind11::function f) {
+    m_func = std::move(f);
+}
+
+
+int CallFunc::run(double) {
+    m_func();
     return 0;
 }

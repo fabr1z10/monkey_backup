@@ -82,6 +82,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("children_count", &Node::getChildrenCount)
 		.def("set_model", &Node::setModel)
 		.def("set_state", &Node::setState)
+		.def_property_readonly("state", &Node::getState)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("set_animation", &Node::setAnimation)
@@ -208,8 +209,12 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const pybind11::kwargs&>());
     py::class_<Delay, Action, std::shared_ptr<Delay>>(m, "delay")
         .def(py::init<float>());
+    py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(m, "blink")
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(m, "remove")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(m, "callfunc")
+        .def(py::init<pybind11::function>());
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
         .def("add", &Script::add)
@@ -227,7 +232,7 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<Idle, State, std::shared_ptr<Idle>>(m, "idle")
-        .def(py::init<const std::string&, const std::string&>());
+        .def(py::init<const std::string&, const std::string&, py::kwargs&>());
 
 
     py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")

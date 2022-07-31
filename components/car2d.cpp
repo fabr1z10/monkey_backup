@@ -7,7 +7,7 @@
 
 extern GLFWwindow* window;
 
-Car2D::Car2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id) {
+Car2D::Car2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id, kwargs) {
 	m_maxSpeed = kwargs["speed"].cast<float>();
 	m_accelerationTime = dictget<float>(kwargs, "acc_time", 0.1f);
 	m_acceleration = m_maxSpeed / m_accelerationTime;
@@ -15,7 +15,7 @@ Car2D::Car2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id) 
 
 }
 
-void Car2D::init() {}
+
 
 
 void Car2D::setParent(StateMachine * sm) {

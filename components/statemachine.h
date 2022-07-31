@@ -3,22 +3,26 @@
 #include "../component.h"
 #include <memory>
 #include <unordered_map>
+#include <pybind11/pytypes.h>
 #include "../keylistener.h"
 
 class StateMachine;
 
 class State : public KeyboardListener {
 public:
-	State(const std::string& id) : m_id(id) {}
+	State(const std::string& id, const pybind11::kwargs&);
 	virtual ~State() = default;
 	std::string getId() const;
 	void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override {}
-	virtual void init() {}
+	virtual void init();
 	virtual void run(double) {}
+	virtual void end();
 	virtual void setParent(StateMachine*);
 protected:
+    pybind11::function m_script;
 	std::string m_id;
 	StateMachine* m_sm;
+	long m_scriptId;
 };
 
 inline void State::setParent(StateMachine * sm) {

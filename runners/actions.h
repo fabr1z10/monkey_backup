@@ -1,6 +1,8 @@
 #include "scheduler.h"
 #include "glm/glm.hpp"
 
+class Renderer;
+
 class NodeAction : public Action {
 public:
     explicit NodeAction(const pybind11::kwargs&);
@@ -20,10 +22,30 @@ private:
     float m_timer;
 };
 
-// TODO Callfunc
-//class CallFunc : public Action {
-//
-//};
+class Blink : public NodeAction {
+public:
+    Blink(const pybind11::kwargs&);
+    int run(double) override;
+    void start() override;
+
+private:
+    float m_duration;
+    float m_period;
+    float m_time;
+    Renderer* m_renderer;
+
+};
+
+
+
+class CallFunc : public Action {
+public:
+    explicit CallFunc(pybind11::function f);
+    int run(double) override;
+    void start() override {}
+private:
+    pybind11::function m_func;
+};
 
 class MoveBy : public NodeAction {
 public:
@@ -45,10 +67,12 @@ class MoveAccelerated : public NodeAction {
 public:
     explicit MoveAccelerated(const pybind11::kwargs&);
     int run(double) override;
-    //void start() override;
+    void start() override;
 
 private:
     int m_id;
+    float m_time;
+    float m_timeOut;
     glm::vec3 m_endPoint;
     glm::vec3 m_initialVelocity;
     glm::vec3 m_velocity;

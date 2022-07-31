@@ -13,6 +13,7 @@ public:
     void control() override;
 private:
     bool m_flipOnEdge;
+    bool m_flipHorizontally;
 };
 
 

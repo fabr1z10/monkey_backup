@@ -19,6 +19,8 @@ Script::Script(const pybind11::args& args) : m_done(false) {
     m_scriptId = dictget<std::string>(args, "id", "");
 }
 
+
+
 long Script::add(std::shared_ptr<Action> action, const pybind11::args & args) {
     action->setId(_nextId);
     m_actions[_nextId] = action;
@@ -36,6 +38,8 @@ long Script::add(std::shared_ptr<Action> action, const pybind11::args & args) {
 
 void Script::update(double dt) {
     // is there anything to process? do it otherwise do nothing
+
+
     std::vector<int> complete;
     for (auto it = m_current.begin(); it != m_current.end();) {
         if ((*it)->run(dt) == 0) {
@@ -81,11 +85,10 @@ void Scheduler::update(double dt) {
 
     // run all scripts
     for (auto it = m_scripts.begin(); it != m_scripts.end();) {
-
-        (*it)->update(dt);
         if ((*it)->done()) {
             it = m_scripts.erase(it);
         } else {
+            (*it)->update(dt);
             it++;
         }
     }
@@ -93,7 +96,13 @@ void Scheduler::update(double dt) {
 
 }
 
-void Scheduler::add(std::shared_ptr<Script> s) {
+long Scheduler::add(std::shared_ptr<Script> s) {
+    m_ids[_nextId] = s;
     m_scripts.push_back(s);
+    return _nextId++;
+
 }
 
+void Scheduler::kill(long id) {
+    m_ids.at(id)->kill();
+}

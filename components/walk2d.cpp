@@ -5,11 +5,11 @@
 
 
 
-void Walk2D::init() {
+//void Walk2D::init() {
+//
+//}
 
-}
-
-Walk2D::Walk2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id) {
+Walk2D::Walk2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id, kwargs) {
 	m_gravity = dictget<float>(kwargs, "gravity", 0.0f);
 	m_jumpHeight = kwargs["jump_height"].cast<float>();
     m_timeToJumpApex = kwargs["time_to_jump_apex"].cast<float>();

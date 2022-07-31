@@ -28,6 +28,7 @@ public:
     long add(std::shared_ptr<Action> action, const pybind11::args&);
     void update(double);
     bool done() const;
+    void kill();
 private:
     std::list<std::shared_ptr<Action>> m_current;
     std::unordered_map<int, std::shared_ptr<Action>> m_actions;
@@ -36,7 +37,14 @@ private:
     long _nextId;
     std::string m_scriptId;
     bool m_done;
+
 };
+
+inline void Script::kill() {
+    m_done = true;
+    // maybe do something more?
+}
+
 
 inline bool Script::done() const {
     return m_done;
@@ -49,8 +57,12 @@ public:
     Scheduler() = default;
     void update(double) override;
 //    void start() override;
-    void add(std::shared_ptr<Script>);
+    long add(std::shared_ptr<Script>);
+    void kill(long);
 private:
     std::list<std::shared_ptr<Script>> m_scripts;
-    std::unordered_map<std::string, std::shared_ptr<Script>> m_tags;
+    //std::unordered_map<std::string, std::shared_ptr<Script>> m_tags;
+    std::unordered_map<long, std::shared_ptr<Script>> m_ids;
+    long _nextId;
+    std::vector<long> m_toErase;
 };

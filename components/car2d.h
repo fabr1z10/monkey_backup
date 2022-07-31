@@ -11,7 +11,6 @@ class Node;
 class Car2D : public State {
 public:
 	Car2D(const std::string& id, const pybind11::kwargs&);
-	void init() override;
 	void setParent(StateMachine*) override;
 	void run(double) override;
 private:

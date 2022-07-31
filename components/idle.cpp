@@ -1,9 +1,10 @@
 #include "idle.h"
 #include "../node.h"
 
-Idle::Idle(const std::string& id, const std::string& anim) : State(id), m_animation(anim) {}
+Idle::Idle(const std::string& id, const std::string& anim, const pybind11::kwargs& args) : State(id, args), m_animation(anim) {}
 
 void Idle::init() {
+    State::init();
     m_spriteRenderer->setAnimation(m_animation);
 
 }

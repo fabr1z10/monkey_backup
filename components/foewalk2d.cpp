@@ -14,10 +14,14 @@ void FoeWalk2D::control() {
         m_right = !m_left;
 
     }
+    if (m_flipHorizontally) {
+        m_spriteRenderer->flipHorizontal(m_left);
+    }
 }
 
 FoeWalk2D::FoeWalk2D(const std::string& id, const pybind11::kwargs& kwargs) : Walk2D(id, kwargs) {
     m_left = dictget<bool>(kwargs, "left", true);
+    m_flipHorizontally = dictget<bool>(kwargs, "flip", false);
     m_right = !m_left;
     m_up = false;
 }

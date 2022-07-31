@@ -37,14 +37,15 @@ public:
 	void addComponent(std::shared_ptr<Component> c) ;
 
 	template <typename T>
-	T* getComponent() {
+	T* getComponent() const {
 		auto it = m_components.find(std::type_index(typeid(T)));
 		if (it != m_components.end()) {
 			return dynamic_cast<T*>(it->second.get());
 		}
 		return nullptr;
 	}
-    void setState (const std::string& state);
+    std::string getState() const;
+	void setState (const std::string& state);
 	void setAnimation(const std::string& animId);
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;
