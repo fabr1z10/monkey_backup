@@ -37,6 +37,7 @@ struct RaycastOrigins {
 class Controller2D : public Controller {
 public:
 	Controller2D(const pybind11::kwargs&);
+	virtual ~Controller2D();
 	void move(glm::vec3&, bool forced) override;
 	std::type_index getType() override;
 	void updateRaycastOrigins();
@@ -46,6 +47,7 @@ public:
     bool right() const;
 	void setGrounded(bool);
 	void setPlatform(Platform*);
+	void resetPlatform();
 	bool isFalling(float);
 private:
 	struct CollisionDetails {

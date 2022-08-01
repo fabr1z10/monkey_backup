@@ -22,6 +22,10 @@ Camera::Camera(const py::kwargs& kwargs) {
 	assert(m_viewport.y >= 0 && m_viewport.y <= deviceSize[1]);
 	assert(m_viewport.z >= 0 && m_viewport.z <= deviceSize[0]);
 	assert(m_viewport.w >= 0 && m_viewport.y <= deviceSize[1]);
+	auto t = std::numeric_limits<float>::infinity();
+	m_xBounds = glm::vec2(-t, t);
+	m_yBounds = m_xBounds;
+    m_zBounds = m_xBounds;
 	setPosition(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 
@@ -47,7 +51,10 @@ void Camera::setPosition(glm::vec3 eye, glm::vec3 dir, glm::vec3 up) {
 	m_fwd = dir;
 	m_up = up;
 	m_eye = eye;
-	m_viewMatrix = glm::lookAt(eye, eye + dir, up);
+	m_eye.x = std::clamp(m_eye.x, m_xBounds[0], m_xBounds[1]);
+    m_eye.y = std::clamp(m_eye.y, m_yBounds[0], m_yBounds[1]);
+    m_eye.z = std::clamp(m_eye.z, m_zBounds[0], m_zBounds[1]);
+	m_viewMatrix = glm::lookAt(m_eye, m_eye + dir, up);
 }
 
 void Camera::init(Shader* s) {
@@ -65,4 +72,8 @@ void Camera::init(Shader* s) {
 
 }
 
-void Camera::setBounds(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {}
+void Camera::setBounds(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
+    m_xBounds = glm::vec2(xMin, xMax);
+    m_yBounds = glm::vec2(yMin, yMax);
+    m_zBounds = glm::vec2(zMin, zMax);
+}

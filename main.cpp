@@ -115,6 +115,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<const py::kwargs&>());
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
+	    .def("set_bounds", &Camera::setBounds)
 		.def(py::init<const py::kwargs&>());
 
 	py::class_<OrthoCamera, Camera, std::shared_ptr<OrthoCamera>>(m, "camera_ortho")

@@ -5,6 +5,11 @@
 #include "../engine.h"
 #include "../util.h"
 
+Platform::~Platform() {
+    for (const auto& c : m_characters) {
+        c->resetPlatform();
+    }
+}
 
 void Platform::start() {
     auto& engine = Engine::instance();
@@ -18,8 +23,13 @@ void Platform::start() {
 
 void Platform::unregisterComponent(Controller2D* character) {
     //m_characters.erase(character);
-    m_removeBuffer.push_back(character);
+    //m_removeBuffer.push_back(character);
     character->getNode()->onRemove.unreg(m_pippo.at(character));
+    m_characters.erase(character);
+}
+
+void Platform::forceRemove(Controller2D * c) {
+    m_characters.erase(c);
 }
 
 void Platform::registerComponent(Controller2D* character) {

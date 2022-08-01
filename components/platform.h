@@ -10,10 +10,12 @@ class Controller2D;
 class Platform : public Component {
 public:
     Platform() {}
+    virtual ~Platform();
     void start() override;
     // void update(double) override;
     void registerComponent(Controller2D*);
     void unregisterComponent(Controller2D*);
+    void forceRemove(Controller2D*);
     void unregisterAll();
     void move(Node*);
 private:

@@ -7,6 +7,7 @@ class Node;
 class Component {
 public:
 	Component();
+	virtual ~Component() = default;
 	virtual std::type_index getType();
 	virtual void start() {}
 	virtual void update(double) {}

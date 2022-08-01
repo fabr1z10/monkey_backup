@@ -47,6 +47,14 @@ Controller2D::Controller2D(const pybind11::kwargs& kwargs) : Controller(kwargs) 
 
 }
 
+Controller2D::~Controller2D() {
+    if (m_platforms != nullptr) {
+        m_platforms->unregisterComponent(this);
+        m_platforms->forceRemove(this);
+
+    }
+}
+
 void Controller2D::updateRaycastOrigins() {
 	auto worldMatrix = m_node->getWorldMatrix();
 	m_raycastOrigins.topRight = worldMatrix * glm::vec4(m_localTopFwd, 1.0f);
@@ -250,6 +258,10 @@ void Controller2D::setPlatform(Platform * p) {
         m_platforms->unregisterComponent(this);
     }
     m_platforms = p;
+}
+
+void Controller2D::resetPlatform() {
+    m_platforms = nullptr;
 }
 
 std::type_index Controller2D::getType() {
