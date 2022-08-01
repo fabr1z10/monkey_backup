@@ -19,6 +19,6 @@ std::shared_ptr<Model> makeModel(std::shared_ptr<Shape> shape, const pybind11::k
 	return m.get(shape, args);
 }
 
-void playScript(const std::shared_ptr<Script> s) {
-    Engine::instance().getRoom()->getRunner<Scheduler>()->add(s);
+int playScript(const std::shared_ptr<Script> s) {
+    return Engine::instance().getRoom()->getRunner<Scheduler>()->add(s);
 }

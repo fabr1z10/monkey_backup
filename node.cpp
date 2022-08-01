@@ -101,6 +101,13 @@ pybind11::tuple Node::getPos() const {
 
 }
 
+float Node::getX() const {
+    return m_worldMatrix[3][0];
+}
+
+float Node::getY() const {
+    return m_worldMatrix[3][1];
+}
 
 void Node::setMultColor(float r, float g, float b, float a) {
 	getComponent<Renderer>()->setMultColor(glm::vec4(r,g,b,a));
@@ -119,10 +126,10 @@ std::string Node::getState() const {
     return pino;
 }
 
-void Node::setState(const std::string &state) {
+void Node::setState(const std::string &state, const pybind11::kwargs& kwargs) {
     auto sm = getComponent<StateMachine>();
     if (sm != nullptr) {
-        sm->setState(state);
+        sm->setState(state, kwargs);
     }
 }
 

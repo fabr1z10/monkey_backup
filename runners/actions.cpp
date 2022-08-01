@@ -115,10 +115,14 @@ void Blink::start() {
     m_time = 0.f;
 }
 
+void Blink::end() {
+    m_renderer->setMultColor(glm::vec4(1.f));
+
+}
+
 int Blink::run(double dt) {
     m_time += static_cast<float>(dt);
     if (m_time > m_duration) {
-        m_renderer->setMultColor(glm::vec4(1.f));
         return 0.f;
     }
     int a = static_cast<int>(m_time / m_period) % 2;

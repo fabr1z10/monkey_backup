@@ -7,5 +7,5 @@
 
 std::shared_ptr<Sprite> getSprite(const std::string&);
 std::shared_ptr<TiledModel> getTiled(const std::string&);
-void playScript(std::shared_ptr<Script>);
+int playScript(std::shared_ptr<Script>);
 std::shared_ptr<Model> makeModel(std::shared_ptr<Shape>, const pybind11::kwargs&);

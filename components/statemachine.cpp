@@ -5,18 +5,18 @@
 #include "../pyhelper.h"
 
 
-State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id) {
+State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), m_scriptId(-1) {
     m_script = dictget<pybind11::function>(kwargs, "script", pybind11::function());
 }
 
-void State::init() {
+void State::init(const pybind11::kwargs& args) {
     if (m_script) {
         m_scriptId = m_script(m_sm->getNode()->getId()).cast<long>();
     }
 }
 
 void State::end() {
-    if (m_scriptId == -1) {
+    if (m_scriptId != -1) {
         Engine::instance().getRoom()->getRunner<Scheduler>()->kill(m_scriptId);
     }
 }
@@ -32,7 +32,7 @@ void StateMachine::start() {
 
 
 
-void StateMachine::setState(const std::string & state) {
+void StateMachine::setState(const std::string & state, const pybind11::kwargs& args) {
 	auto it = m_states.find(state);
 	if (it == m_states.end()) {
 		GLIB_FAIL("Don't know state: " + state);
@@ -40,7 +40,7 @@ void StateMachine::setState(const std::string & state) {
 	if (m_currentState) {
 	    m_currentState->end();
 	}
-	it->second->init();
+	it->second->init(args);
 	m_currentState = it->second;
 }
 

@@ -10,7 +10,7 @@ class Node;
 class Walk2D : public State {
 public:
 	Walk2D(const std::string& id, const pybind11::kwargs&);
-	//void init() override;
+    void init(const pybind11::kwargs& args) override;
 	void setParent(StateMachine*) override;
 	void run(double) override;
     //void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override;

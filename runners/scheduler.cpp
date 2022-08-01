@@ -35,6 +35,13 @@ long Script::add(std::shared_ptr<Action> action, const pybind11::args & args) {
 
 }
 
+void Script::kill() {
+    m_done = true;
+    // maybe do something more?
+    for (auto& action : m_current) {
+        action->end();
+    }
+}
 
 void Script::update(double dt) {
     // is there anything to process? do it otherwise do nothing
@@ -44,6 +51,7 @@ void Script::update(double dt) {
     for (auto it = m_current.begin(); it != m_current.end();) {
         if ((*it)->run(dt) == 0) {
             // action is completed
+            (*it)->end();
             for (const auto& edge : m_edges.at((*it)->getId())) {
                 m_inDegree[edge]--;
             }
@@ -105,4 +113,5 @@ long Scheduler::add(std::shared_ptr<Script> s) {
 
 void Scheduler::kill(long id) {
     m_ids.at(id)->kill();
+
 }

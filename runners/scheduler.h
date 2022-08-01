@@ -13,6 +13,7 @@ public:
     // return 0 when completed
     virtual void start() = 0;
     virtual int run(double) = 0;
+    virtual void end() {}
     long getId() const;
     void setId(long);
     void init(Node*);
@@ -40,10 +41,6 @@ private:
 
 };
 
-inline void Script::kill() {
-    m_done = true;
-    // maybe do something more?
-}
 
 
 inline bool Script::done() const {

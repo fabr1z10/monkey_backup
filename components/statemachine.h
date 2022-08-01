@@ -14,7 +14,7 @@ public:
 	virtual ~State() = default;
 	std::string getId() const;
 	void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override {}
-	virtual void init();
+	virtual void init(const pybind11::kwargs& args);
 	virtual void run(double) {}
 	virtual void end();
 	virtual void setParent(StateMachine*);
@@ -46,7 +46,7 @@ public:
 	void start () override;
 	void update(double) override;
 	std::shared_ptr<State> getState() const;
-	void setState(const std::string&);
+	void setState(const std::string&, const pybind11::kwargs& kwargs = pybind11::kwargs());
 	void addState(std::shared_ptr<State> state);
 	void setInitialState(const std::string& id);
 protected:

@@ -23,6 +23,12 @@ Walk2D::Walk2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id
 	std::cout << "gravity = " << m_gravity << "\n";
 }
 
+void Walk2D::init(const pybind11::kwargs &args) {
+    State::init(args);
+    auto dir = dictget<float>(args, "dir", -1.0f);
+    m_left = dir < 0.0f;
+    m_right = !m_left;
+}
 
 void Walk2D::setParent(StateMachine * sm) {
 	State::setParent(sm);

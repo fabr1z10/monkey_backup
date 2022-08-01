@@ -9,7 +9,7 @@ void FoeWalk2D::control() {
     }
     //if (m_flipIfPlatformEnds) {
     // check if I reached the end of the platform
-    if (m_controller->grounded() && m_controller->isFalling(m_left ? -1.f : 1.f)) {
+    if (m_flipOnEdge && m_controller->grounded() && m_controller->isFalling(m_left ? -1.f : 1.f)) {
         m_left = !m_left;
         m_right = !m_left;
 
@@ -22,6 +22,7 @@ void FoeWalk2D::control() {
 FoeWalk2D::FoeWalk2D(const std::string& id, const pybind11::kwargs& kwargs) : Walk2D(id, kwargs) {
     m_left = dictget<bool>(kwargs, "left", true);
     m_flipHorizontally = dictget<bool>(kwargs, "flip", false);
+    m_flipOnEdge = dictget<bool>(kwargs, "flip_on_edge", false);
     m_right = !m_left;
     m_up = false;
 }

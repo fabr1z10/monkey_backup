@@ -95,6 +95,8 @@ PYBIND11_MODULE(monkey, m) {
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
+		.def_property_readonly("x", &Node::getX)
+		.def_property_readonly("y", &Node::getY)
 		.def("add", &Node::add)
 	    .def("remove", &Node::remove);
 

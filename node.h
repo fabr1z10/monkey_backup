@@ -35,7 +35,8 @@ public:
 	pybind11::tuple getPos() const;
 	//template <typename C>
 	void addComponent(std::shared_ptr<Component> c) ;
-
+    float getX() const;
+    float getY() const;
 	template <typename T>
 	T* getComponent() const {
 		auto it = m_components.find(std::type_index(typeid(T)));
@@ -45,7 +46,7 @@ public:
 		return nullptr;
 	}
     std::string getState() const;
-	void setState (const std::string& state);
+	void setState (const std::string& state, const pybind11::kwargs&);
 	void setAnimation(const std::string& animId);
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;
