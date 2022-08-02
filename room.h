@@ -27,13 +27,20 @@ public:
 		}
 		return nullptr;
 	}
+
+	void setOnStart(pybind11::function);
+    void setOnEnd(pybind11::function);
+
+    void start();
+    void end();
 private:
 
 	std::string m_id;
 	std::shared_ptr<Node> m_root;
 	std::unordered_map<std::type_index, std::shared_ptr<Runner> > m_runners;
 
-
+    pybind11::function m_onStart;
+    pybind11::function m_onEnd;
 };
 
 

@@ -136,3 +136,18 @@ void Room::draw(Shader* s) {
 	}
 
 }
+
+void Room::setOnStart(pybind11::function f) {
+    m_onStart = f;
+}
+
+void Room::setOnEnd(pybind11::function f) {
+    m_onEnd = f;
+}
+
+void Room::start() {
+    if (m_onStart) m_onStart();
+}
+void Room::end() {
+    if (m_onEnd) m_onEnd();
+}

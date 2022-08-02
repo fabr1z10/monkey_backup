@@ -91,10 +91,12 @@ void Engine::start() {
 	loadShaders();
     m_shutdown = false;
     while (!m_shutdown) {
+        m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
         loadRoom();
         // start up all nodes and components
         m_room->iterate_dfs([](Node *n) { n->start(); });
         m_run = true;
+        m_room->start();
         do {
             double currentTime = glfwGetTime();
             /// note: if I run the update only every frame time CPU goes to 100%. If I run it on
@@ -135,6 +137,7 @@ void Engine::start() {
 
         } // Check if the ESC key was pressed or the window was closed
         while (m_run && !m_shutdown);
+        m_room->end();
         m_allNodes.clear();
         if (m_room) {
             m_room->cleanUp();

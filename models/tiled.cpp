@@ -74,18 +74,25 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
             continue;
         }
         int tx = std::stoi(tokens[n++]);
-        int ty = std::stoi(tokens[n++]);
-
-        // bottom left
-        vertices.insert(vertices.end(), {x * tileSize[0], y * tileSize[1], 0.0f, tx * t1, (ty + 1.f) * t2, 1, 1, 1, 1});
-        // bottom right
-        vertices.insert(vertices.end(), {x * tileSize[0] + tileSize[0], y * tileSize[1], 0.0f, (tx + 1.f) * t1, (ty + 1) * t2, 1, 1, 1, 1});
-        // top right
-        vertices.insert(vertices.end(), {x * tileSize[0] + tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, (tx + 1.f) * t1, ty * t2, 1, 1, 1, 1});
-        // top left
-        vertices.insert(vertices.end(), {x * tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, tx * t1, ty * t2, 1, 1, 1, 1});
-        indices.insert(indices.end(), {i0, i0 + 1, i0 + 2, i0 + 3, i0, i0 + 2});
-        i0 += 4;
+        if (tx != -1) {
+            int ty = std::stoi(tokens[n++]);
+            // bottom left
+            vertices.insert(vertices.end(),
+                            {x * tileSize[0], y * tileSize[1], 0.0f, tx * t1, (ty + 1.f) * t2, 1, 1, 1, 1});
+            // bottom right
+            vertices.insert(vertices.end(),
+                            {x * tileSize[0] + tileSize[0], y * tileSize[1], 0.0f, (tx + 1.f) * t1, (ty + 1) * t2, 1, 1,
+                             1, 1});
+            // top right
+            vertices.insert(vertices.end(),
+                            {x * tileSize[0] + tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, (tx + 1.f) * t1,
+                             ty * t2, 1, 1, 1, 1});
+            // top left
+            vertices.insert(vertices.end(),
+                            {x * tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, tx * t1, ty * t2, 1, 1, 1, 1});
+            indices.insert(indices.end(), {i0, i0 + 1, i0 + 2, i0 + 3, i0, i0 + 2});
+            i0 += 4;
+        }
         x++;
         if (width != -1) {
             if (x >= width) {

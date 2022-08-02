@@ -44,6 +44,7 @@ using namespace glm;
 #include "shapes/aabb.h"
 #include "components/smartcollider.h"
 #include "components/idle.h"
+#include "components/autowalk2d.h"
 
 namespace py = pybind11;
 
@@ -234,6 +235,9 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
         .def(py::init<const std::string&, py::kwargs&>());
 
+    py::class_<AutoWalk2D, State, std::shared_ptr<AutoWalk2D>>(m, "walk_2d_auto")
+        .def(py::init<const std::string&, py::kwargs&>());
+
     py::class_<Idle, State, std::shared_ptr<Idle>>(m, "idle")
         .def(py::init<const std::string&, const std::string&, py::kwargs&>());
 
@@ -256,6 +260,8 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Room, std::shared_ptr<Room>>(m, "Room")
 	    .def(py::init<const std::string&>())
 		.def("add_runner", &Room::addRunner)
+		.def("set_on_start", &Room::setOnStart)
+		.def("set_on_end", &Room::setOnEnd)
 	    .def("root", &Room::getRoot, py::return_value_policy::reference);
 
 }

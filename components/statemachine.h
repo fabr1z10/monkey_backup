@@ -23,6 +23,7 @@ protected:
 	std::string m_id;
 	StateMachine* m_sm;
 	long m_scriptId;
+	bool m_current;
 };
 
 inline void State::setParent(StateMachine * sm) {

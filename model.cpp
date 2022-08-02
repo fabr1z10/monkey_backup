@@ -9,7 +9,7 @@ Model::Model(int shaderType) : m_shaderType(static_cast<ShaderType>(shaderType))
 
 Model::~Model() {
 	// Cleanup VBO
-	std::cout << "destroy model\n";
+	//std::cout << "destroy model\n";
 	glDeleteBuffers(1, &m_vbo);
 	glDeleteBuffers(1, &m_ebo);
 }

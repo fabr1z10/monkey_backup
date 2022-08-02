@@ -7,7 +7,7 @@
 #include "../node.h"
 
 Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr) {
-    std::cout << "creating collider\n";
+    //std::cout << "creating collider\n";
 }
 
 void Collider::start() {
@@ -39,7 +39,7 @@ std::type_index Collider::getType() {
 }
 
 Collider::~Collider() {
-    std::cout << "destroying collider\n";
+    //std::cout << "destroying collider\n";
     m_engine->remove(this);
 	if (m_callbackHandle != -1)
 		m_node->onMove.unreg(m_callbackHandle);

@@ -5,17 +5,19 @@
 #include "../pyhelper.h"
 
 
-State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), m_scriptId(-1) {
+State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), m_scriptId(-1), m_current(false) {
     m_script = dictget<pybind11::function>(kwargs, "script", pybind11::function());
 }
 
 void State::init(const pybind11::kwargs& args) {
+    m_current = true;
     if (m_script) {
         m_scriptId = m_script(m_sm->getNode()->getId()).cast<long>();
     }
 }
 
 void State::end() {
+    m_current = false;
     if (m_scriptId != -1) {
         Engine::instance().getRoom()->getRunner<Scheduler>()->kill(m_scriptId);
     }
