@@ -87,7 +87,7 @@ public:
     //void start() override;
 private:
     std::string m_state;
-
+    pybind11::kwargs m_args;
 };
 
 class RemoveNode : public NodeAction {

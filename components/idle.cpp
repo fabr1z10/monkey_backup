@@ -1,11 +1,14 @@
 #include "idle.h"
 #include "../node.h"
+#include "../pyhelper.h"
+
 
 Idle::Idle(const std::string& id, const std::string& anim, const pybind11::kwargs& args) : State(id, args), m_animation(anim) {}
 
 void Idle::init(const pybind11::kwargs& args) {
     State::init(args);
-    m_spriteRenderer->setAnimation(m_animation);
+    auto anim = dictget<std::string>(args, "anim", m_animation);
+    m_spriteRenderer->setAnimation(anim);
 
 }
 

@@ -26,11 +26,16 @@ MoveBy::MoveBy(const pybind11::kwargs& args) : NodeAction(args) {
     auto dx = dictget<float>(args, "x", 0.f);
     auto dy = dictget<float>(args, "y", 0.f);
     auto dz = dictget<float>(args, "z", 0.f);
-    auto t = args["t"].cast<float>();
+    auto t = dictget<float>(args, "t", -1.f);
     m_distance = sqrt(dx * dx + dy * dy);
     m_delta = glm::vec3(dx, dy, 0.f);
     m_unitVec = glm::normalize(m_delta);
-    m_speed = m_distance / t;
+    if (t < 0) {
+        m_speed = args["speed"].cast<float>();
+    } else {
+        m_speed = m_distance / t;
+    }
+
 }
 
 MoveAccelerated::MoveAccelerated(const pybind11::kwargs& args) : NodeAction(args) {
@@ -79,14 +84,14 @@ int MoveAccelerated::run(double dt) {
     return 1.f;
 }
 
-SetState::SetState(const pybind11::kwargs& args) : NodeAction(args) {
+SetState::SetState(const pybind11::kwargs& args) : NodeAction(args), m_args(args) {
     m_state = args["state"].cast<std::string>();
 
 
 }
 
 int SetState::run(double) {
-    m_node->getComponent<StateMachine>()->setState(m_state);
+    m_node->getComponent<StateMachine>()->setState(m_state, m_args);
     return 0;
 }
 
