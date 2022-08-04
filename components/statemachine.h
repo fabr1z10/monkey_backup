@@ -49,10 +49,11 @@ public:
 	std::shared_ptr<State> getState() const;
 	void setState(const std::string&, const pybind11::kwargs& kwargs = pybind11::kwargs());
 	void addState(std::shared_ptr<State> state);
-	void setInitialState(const std::string& id);
+	void setInitialState(const std::string& id, const pybind11::kwargs& args);
 protected:
 	std::shared_ptr<State> m_currentState;
 	std::string m_initialState;
+	pybind11::kwargs m_args;
 	std::unordered_map<std::string, std::shared_ptr<State>> m_states;
 };
 
@@ -64,8 +65,9 @@ inline std::shared_ptr<State> StateMachine::getState() const {
 	return m_currentState;
 }
 
-inline void StateMachine::setInitialState(const std::string &id) {
+inline void StateMachine::setInitialState(const std::string &id, const pybind11::kwargs& kwargs) {
 	m_initialState = id;
+	m_args = kwargs;
 }
 
 

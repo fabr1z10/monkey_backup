@@ -33,6 +33,10 @@ void Renderer::flipHorizontal(bool value) {
 	m_rendererTransform[0] = abs(m_rendererTransform[0]) * (value ? -1.f : 1.f);
 }
 
+bool Renderer::getFlipHorizontal() const {
+    return m_rendererTransform[0][0] < 0.f;
+}
+
 SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
 
 }

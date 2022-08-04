@@ -25,6 +25,7 @@ public:
 	void update(double) ;
 	//void draw(Shader*);
 	void pop();
+	bool getFlipX() const;
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
 	glm::vec3 getWorldPosition() const;

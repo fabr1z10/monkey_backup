@@ -28,7 +28,7 @@ void StateMachine::start() {
 		s.second->setParent(this);
 	}
 	if (!m_initialState.empty()) {
-		setState(m_initialState);
+		setState(m_initialState, m_args);
 	}
 }
 

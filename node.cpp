@@ -59,6 +59,10 @@ bool Node::getFilpX() const {
     return m_modelMatrix[0][0] < 0.f;
 }
 
+bool Node::getFlipX() const {
+    return getComponent<Renderer>()->getFlipHorizontal();
+}
+
 void Node::update(double dt) {
 	if (!m_active) return;
 	for (auto& iter : m_components) {

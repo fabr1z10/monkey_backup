@@ -25,7 +25,7 @@ FoeWalk2D::FoeWalk2D(const std::string& id, const pybind11::kwargs& kwargs) : Wa
     m_flipHorizontally = dictget<bool>(kwargs, "flip", false);
     m_flipOnEdge = dictget<bool>(kwargs, "flip_on_edge", false);
     m_right = !m_left;
-    m_up = false;
+    m_up = dictget<bool>(kwargs, "up", false);
 }
 
 

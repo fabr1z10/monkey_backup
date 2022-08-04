@@ -96,6 +96,7 @@ PYBIND11_MODULE(monkey, m) {
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
         .def("get_collider", &Node::getComponent<Collider>, py::return_value_policy::reference)
+        .def_property_readonly("flip_x",&Node::getFlipX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
 		.def_property_readonly("x", &Node::getX)

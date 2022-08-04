@@ -15,6 +15,7 @@ public:
 	void setAddColor(glm::vec4);
 	const glm::mat4& getRendererTransform() const;
 	void flipHorizontal(bool);
+	bool getFlipHorizontal() const;
 protected:
 	virtual void innerDraw(Shader*) ;
 private:
