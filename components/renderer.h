@@ -9,6 +9,7 @@ class Renderer : public Component {
 public:
 	Renderer();
 	void draw(Shader*);
+	std::shared_ptr<Model> getModel();
 	virtual void setModel(std::shared_ptr<Model>);
 	void setMultColor(glm::vec4);
 	void setAddColor(glm::vec4);
@@ -22,6 +23,10 @@ private:
 	glm::vec4 m_addColor;
 	glm::mat4 m_rendererTransform;
 };
+
+inline std::shared_ptr<Model> Renderer::getModel() {
+    return m_model;
+}
 
 inline const glm::mat4 & Renderer::getRendererTransform() const {
     return m_rendererTransform;

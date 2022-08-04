@@ -17,6 +17,7 @@ void FoeWalk2D::control() {
     if (m_flipHorizontally) {
         m_spriteRenderer->flipHorizontal(m_left);
     }
+    //m_up = true;
 }
 
 FoeWalk2D::FoeWalk2D(const std::string& id, const pybind11::kwargs& kwargs) : Walk2D(id, kwargs) {

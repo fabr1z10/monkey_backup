@@ -11,6 +11,7 @@ public:
     int getCollisionFlag() const override;
     int getCollisionMask() const override;
     void start() override;
+    void setCollisionFlag(int) override;
 
 private:
     int m_flag;
@@ -20,3 +21,8 @@ private:
     Sprite* m_sprite;
     void generateDebugMesh() override;
 };
+
+inline void SpriteCollider::setCollisionFlag(int flag) {
+
+    m_flag = flag;
+}

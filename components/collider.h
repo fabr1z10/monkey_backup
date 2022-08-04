@@ -16,6 +16,7 @@ public:
 	virtual int getCollisionTag() const = 0;
 	virtual int getCollisionFlag() const = 0;
 	virtual int getCollisionMask() const = 0;
+	virtual void setCollisionFlag(int) = 0;
 	void start() override;
 protected:
 	virtual void generateDebugMesh() {}
@@ -31,6 +32,8 @@ public:
 	int getCollisionTag() const override;
 	int getCollisionFlag() const override;
 	int getCollisionMask() const override;
+    void setCollisionFlag(int) override;
+
 private:
 	void generateDebugMesh() override;
 	std::shared_ptr<Shape> m_shape;
@@ -53,5 +56,9 @@ inline int SimpleCollider::getCollisionFlag() const {
 
 inline int SimpleCollider::getCollisionMask() const {
 	return m_mask;
+}
+
+inline void SimpleCollider::setCollisionFlag(int flag) {
+    m_flag = flag;
 }
 

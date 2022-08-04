@@ -71,7 +71,7 @@ void CollisionEngine::update(double) {
 					}
 					for (const auto &c2 : colliders) {
 					    if (m_removed.count(c2) > 0) {
-					        std::cout << "HEY\n";
+					        //std::cout << "HEY\n";
 					    }
 						// don't collide with itself
 						auto pair = UPair<Collider *>(c1, c2);
