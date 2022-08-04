@@ -32,7 +32,7 @@ void Node::setPosition(float x, float y, float z) {
 }
 
 Node::~Node() {
-	std::cout << "destroy node\n";
+	//std::cout << "destroy node\n";
 	m_components.clear();
 	m_children.clear();
 	onRemove.fire(this);

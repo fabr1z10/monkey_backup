@@ -4,7 +4,8 @@
 #include "components/renderer.h"
 #include <iostream>
 
-Model::Model(int shaderType) : m_shaderType(static_cast<ShaderType>(shaderType)), m_primitive(GL_TRIANGLES)
+Model::Model(int shaderType) : m_shaderType(static_cast<ShaderType>(shaderType)), m_primitive(GL_TRIANGLES),
+m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE)
 {}
 
 Model::~Model() {

@@ -2,6 +2,7 @@
 #include "components/renderer.h"
 #include "engine.h"
 #include "components/statemachine.h"
+#include "models/text.h"
 
 void Node::setModel(std::shared_ptr<Model> model) {
 
@@ -118,6 +119,10 @@ void Node::setAnimation(const std::string &animId) {
     if (sr) {
         sr->setAnimation(animId);
     }
+}
+
+void Node::setText(const std::string &text) {
+    dynamic_cast<Text*>(getComponent<Renderer>()->getModel().get())->setText(text);
 }
 
 std::string Node::getState() const {

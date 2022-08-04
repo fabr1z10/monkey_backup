@@ -87,6 +87,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("set_animation", &Node::setAnimation)
+		.def("set_text", &Node::setText)
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
@@ -94,6 +95,7 @@ PYBIND11_MODULE(monkey, m) {
         .def("get_dynamics", &Node::getComponent<Dynamics>, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
+        .def("get_collider", &Node::getComponent<Collider>, py::return_value_policy::reference)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
 		.def_property_readonly("x", &Node::getX)
@@ -152,7 +154,8 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<KeyboardListener, std::shared_ptr<KeyboardListener>>(m, "keyboard_listener");
 
-	py::class_<Collider, Component, std::shared_ptr<Collider>>(m, "icollider");
+	py::class_<Collider, Component, std::shared_ptr<Collider>>(m, "icollider")
+	    .def("set_collision_flag", &Collider::setCollisionFlag);
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());

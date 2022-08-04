@@ -86,6 +86,10 @@ void Engine::start() {
 	Engine::WindowResizeCallback(window, m_windowSize[0], m_windowSize[1]);
 	glfwSetKeyCallback(window, key_callback );
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	loadShaders();
@@ -116,7 +120,8 @@ void Engine::start() {
 
 
                 // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
-                glClear(GL_COLOR_BUFFER_BIT);
+                //glClear(GL_COLOR_BUFFER_BIT);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 // Draw nothing, see you in tutorial 2 !
                 m_room->update(m_frameTime);
@@ -238,7 +243,7 @@ std::shared_ptr<Room> Engine::getRoom() {
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	// don't handle key events for disable keys until mods==16 (programmatically for demo-mode)
-	std::cout << key << ", " << scancode << ", " << action << ", " << mods << "\n";
+	//std::cout << key << ", " << scancode << ", " << action << ", " << mods << "\n";
 	for (auto& s : Engine::instance().m_keyboardListeners) {
 		s->keyCallback(window, key, scancode, action, mods);
 	}

@@ -48,6 +48,7 @@ public:
     std::string getState() const;
 	void setState (const std::string& state, const pybind11::kwargs&);
 	void setAnimation(const std::string& animId);
+    void setText(const std::string& text);
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;
 	void setParent(Node*);
