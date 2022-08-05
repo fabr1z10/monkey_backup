@@ -45,6 +45,7 @@ using namespace glm;
 #include "components/smartcollider.h"
 #include "components/idle.h"
 #include "components/autowalk2d.h"
+#include "components/selfdestroy.h"
 
 namespace py = pybind11;
 
@@ -205,6 +206,8 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Platform, Component, std::shared_ptr<Platform>>(m, "platform")
         .def(py::init<>());
 
+    py::class_<SelfDestroy, Component, std::shared_ptr<SelfDestroy>>(m, "self_destroy")
+        .def(py::init<py::kwargs&>());
 
     /// --- actions ---
     py::class_<Action, std::shared_ptr<Action>>(m, "action");
