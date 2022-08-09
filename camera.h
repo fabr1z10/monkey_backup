@@ -14,6 +14,7 @@ public:
 	void setBounds(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
 	void init(Shader*);
 	const glm::mat4& getViewMatrix() const;
+	bool isInViewport(float, float);
 protected:
 	glm::vec3 m_fwd;
 	glm::vec3 m_up;
@@ -25,6 +26,7 @@ protected:
 	glm::mat4 m_projectionMatrix;
 	glm::mat4 m_viewMatrix;
 	glm::vec4 m_viewport;
+	glm::vec4 m_screenViewport;
 };
 
 inline const glm::mat4 & Camera::getViewMatrix() const {
@@ -35,6 +37,7 @@ inline const glm::mat4 & Camera::getViewMatrix() const {
 class OrthoCamera : public Camera {
 public:
 	OrthoCamera(float width, float height, const py::kwargs& kwargs);
+	glm::vec2 getWorldCooridnates(float x, float y);
 private:
 	float m_orthoWidth;
 	float m_orthoHeight;

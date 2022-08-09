@@ -3,6 +3,7 @@
 
 #include "pyhelper.h"
 #include "symbols.h"
+#include "shaders/shaders.h"
 
 
 GLFWwindow* window;
@@ -14,8 +15,8 @@ Engine& getEngine() {
 
 Engine::Engine() : m_room(nullptr), m_nextId(0) {
 
-	m_shaderBuilders[0] = [&] () { add_shader<VCShader>(ShaderType::SHADER_COLOR, "shaders/color.vs", "shaders/color.fs"); };
-	m_shaderBuilders[1] = [&] () { add_shader<VTCShader>(ShaderType::SHADER_TEXTURE, "shaders/tex.vs", "shaders/tex.fs"); };
+	m_shaderBuilders[0] = [&] () { add_shader<VCShader>(ShaderType::SHADER_COLOR, color_vs, color_fs); };
+	m_shaderBuilders[1] = [&] () { add_shader<VTCShader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs); };
 
 
 }
@@ -29,6 +30,8 @@ void Engine::load(pybind11::object obj) {
 	m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
 	m_frameTime = 1.0 / 60.0;
 	m_timeLastUpdate = 0.0;
+	m_enableMouse = pyget<bool>(m_game.attr("pippo"), "enable_mouse", false);
+
 }
 
 void Engine::addNode(std::shared_ptr<Node> node) {
@@ -85,7 +88,12 @@ void Engine::start() {
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	Engine::WindowResizeCallback(window, m_windowSize[0], m_windowSize[1]);
 	glfwSetKeyCallback(window, key_callback );
-
+    if (m_enableMouse) {
+        //glfwSetMouseButtonCallback(window, mouse_button_callback);
+        glfwSetCursorPosCallback(window, cursor_pos_callback);
+        //glfwSetScrollCallback(window, scroll_callback);
+        //exit(1);
+    }
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,8 +204,8 @@ void Engine::WindowResizeCallback(GLFWwindow* win, int width, int height) {
 	if (height == 0) height = 1;
 	std::cout << "(" << width << ", " << height << ")\n";
 	float winAspectRatio = static_cast<float>(width) / height;
-
 	auto& engine = Engine::instance();
+	engine.m_windowSize = glm::ivec2(width, height);
 	auto deviceSize = engine.getDeviceSize();
 	auto dar = engine.getDeviceAspectRatio();
 	int vx, vy, vw, vh;
@@ -217,12 +225,23 @@ void Engine::WindowResizeCallback(GLFWwindow* win, int width, int height) {
 	engine.setActualDeviceViewport(glm::vec4(vx, vy, static_cast<float>(vw) / deviceSize[0], static_cast<float>(vh) / deviceSize[1]));
 }
 
+void Engine::cursor_pos_callback(GLFWwindow * win, double xpos, double ypos) {
+    for (auto &listener : Engine::instance().m_mouseListeners) {
+        listener->cursorPosCallback(win, xpos, ypos);
+    }
+}
+
+
 float Engine::getDeviceAspectRatio() const {
 	return m_deviceAspectRatio;
 }
 
 glm::vec2 Engine::getDeviceSize() const {
 	return m_deviceSize;
+}
+
+glm::ivec2 Engine::getWindowSize() const {
+    return m_windowSize;
 }
 
 glm::vec4 Engine::getActualDeviceViewport() const {
@@ -251,15 +270,20 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 void Engine::registerToKeyboardEvent(KeyboardListener * listener) {
 	m_keyboardListeners.insert(listener);
+}
 
-
+void Engine::registerToMouseEvent(MouseListener* listener) {
+    m_mouseListeners.insert(listener);
 }
 
 void Engine::unregisterToKeyboardEvent(KeyboardListener * listener) {
 	m_keyboardListeners.erase(listener);
 
 }
+void Engine::unregisterToMouseEvent(MouseListener * listener) {
+    m_mouseListeners.erase(listener);
 
+}
 void Engine::scheduleForRemoval(Node * node) {
     m_scheduledForRemoval.push_back(node);
 }

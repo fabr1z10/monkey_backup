@@ -18,10 +18,10 @@ Camera::Camera(const py::kwargs& kwargs) {
 			m_viewport = glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]);
 		}
 	}
-	assert(m_viewport.x >= 0 && m_viewport.x <= deviceSize[0]);
-	assert(m_viewport.y >= 0 && m_viewport.y <= deviceSize[1]);
-	assert(m_viewport.z >= 0 && m_viewport.z <= deviceSize[0]);
-	assert(m_viewport.w >= 0 && m_viewport.y <= deviceSize[1]);
+//	assert(m_viewport.x >= 0 && m_viewport.x <= deviceSize[0]);
+//	assert(m_viewport.y >= 0 && m_viewport.y <= deviceSize[1]);
+//	assert(m_viewport.z >= 0 && m_viewport.z <= deviceSize[0]);
+//	assert(m_viewport.w >= 0 && m_viewport.y <= deviceSize[1]);
 	auto t = std::numeric_limits<float>::infinity();
 	m_xBounds = glm::vec2(-t, t);
 	m_yBounds = m_xBounds;
@@ -36,6 +36,16 @@ OrthoCamera::OrthoCamera(float width, float height, const py::kwargs& kwargs) : 
 	float hh = m_orthoHeight / 2.0f;
 	m_projectionMatrix = glm::ortho(-hw, hw, -hh, hh, -100.0f, 100.0f);
 
+}
+
+glm::vec2 OrthoCamera::getWorldCooridnates(float x, float y) {
+    float x0 = -m_viewMatrix[3][0] - m_orthoWidth * 0.5f;
+    float y0 = -m_viewMatrix[3][1] - m_orthoHeight * 0.5f;
+    float winHeight = Engine::instance().getWindowSize().y;
+    float ty = winHeight - y;
+    float xw = x0 + (x - m_screenViewport.x) * (m_orthoWidth / m_screenViewport[2]);
+    float yw = y0 + (ty - m_screenViewport.y) * (m_orthoHeight / m_screenViewport[3]);
+    return glm::vec2(xw, yw);
 }
 
 PerspectiveCamera::PerspectiveCamera(const py::kwargs& kwargs) : Camera(kwargs) {
@@ -67,6 +77,7 @@ void Camera::init(Shader* s) {
 	float y = vp.y + m_viewport.y * vp[3];
 	float w = m_viewport[2] * vp[2];
 	float h = m_viewport[3] * vp[3];
+	m_screenViewport = glm::vec4(x, y, x+w, y+h);
 	glViewport(x, y, w, h);
 
 
@@ -76,4 +87,17 @@ void Camera::setBounds(float xMin, float xMax, float yMin, float yMax, float zMi
     m_xBounds = glm::vec2(xMin, xMax);
     m_yBounds = glm::vec2(yMin, yMax);
     m_zBounds = glm::vec2(zMin, zMax);
+}
+
+bool Camera::isInViewport(float x, float y) {
+    float winHeight = Engine::instance().getWindowSize().y;
+    float yf = winHeight - y;
+    if (x < m_screenViewport[0] || x > m_screenViewport[2]) {
+        return false;
+    }
+    if (yf < m_screenViewport[1] || yf > m_screenViewport[3]) {
+        return false;
+    }
+    return true;
+
 }

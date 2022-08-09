@@ -17,14 +17,19 @@ public:
 	}
 	glm::vec3 getOffset() const;
 	void setOffset(float x, float y, float z);
-
 	Bounds getBounds() const;
 	ShapeType getShapeType() const;
+	virtual bool isInside(glm::vec2) const;
 protected:
 	Bounds m_bounds;
 	glm::vec3 m_offset;
 	ShapeType m_type;
 };
+
+inline bool Shape::isInside(glm::vec2) const {
+    return false;
+}
+
 
 inline glm::vec3 Shape::getOffset() const {
 	return m_offset;

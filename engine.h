@@ -8,6 +8,7 @@
 #include "room.h"
 #include "shader.h"
 #include "keylistener.h"
+#include "mouselistener.h"
 
 namespace py = pybind11;
 
@@ -30,13 +31,17 @@ public:
 	//Shader* getShader(int);
 	float getDeviceAspectRatio() const;
 	glm::vec2 getDeviceSize() const;
+	glm::ivec2 getWindowSize() const;
 	glm::vec4 getActualDeviceViewport() const;
 	void setActualDeviceViewport(glm::vec4) ;
 	static void WindowResizeCallback(GLFWwindow* win, int width, int height);
+    static void cursor_pos_callback(GLFWwindow*, double xpos, double ypos);
 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void registerToKeyboardEvent(KeyboardListener*);
 	void unregisterToKeyboardEvent(KeyboardListener*);
+    void registerToMouseEvent(MouseListener*);
+    void unregisterToMouseEvent(MouseListener*);
 	std::shared_ptr<Shader> getShader(ShaderType type);
 	std::shared_ptr<Room> getRoom();
 	pybind11::handle getConfig();
@@ -59,7 +64,7 @@ private:
 	std::vector<std::shared_ptr<Shader>> m_shaders;
 
 	template<typename T>
-	void add_shader(ShaderType type, const char* vertex, const char* fragment) {
+	void add_shader(ShaderType type, const std::string& vertex, const std::string& fragment) {
 		auto shader = std::make_shared<T>(type, vertex, fragment);
 		m_shaderTypeToIndex[type] = m_shaders.size();
 		m_shaders.push_back(shader);
@@ -71,11 +76,13 @@ private:
 	double m_frameTime;
 	double m_timeLastUpdate;
 	std::unordered_set<KeyboardListener*> m_keyboardListeners;
+	std::unordered_set<MouseListener*> m_mouseListeners;
     bool m_run;
     bool m_shutdown;
     std::vector<Node*> m_scheduledForRemoval;
     long m_nextId;
     std::unordered_map<int, std::weak_ptr<Node>> m_allNodes;
+    bool m_enableMouse;
 };
 
 Engine& getEngine();

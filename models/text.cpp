@@ -18,6 +18,8 @@ void Text::setText(const std::string& text) {
     // default alignment is top left
     float x{0.0f};
     float y{-m_fontSize};
+    m_textSize.x = 0;
+    m_textSize.y = m_fontSize;
     unsigned quadCount = 0;
     for (char32_t c : s32) {
         std::cout << c << "\n";
@@ -28,6 +30,7 @@ void Text::setText(const std::string& text) {
         if (c == 10) {
             x = 0.0f;
             y -= m_fontSize;
+            m_textSize.y += m_fontSize;
             continue;
         }
         if (!m_font->hasCharInfo(c)) {
@@ -46,7 +49,7 @@ void Text::setText(const std::string& text) {
         vertices.insert(vertices.end(), {x + w, y + h, 0.0f, info.tx + info.tw, info.ty, 1, 1, 1, 1});
         // top left
         vertices.insert(vertices.end(), {x, y + h, 0.0f, info.tx, info.ty, 1, 1, 1, 1});
-
+        m_textSize.x = std::max(m_textSize.x, x+w);
         // generate elements for current character
         unsigned ix = quadCount * 4;
         indices.insert(indices.end(), {ix, ix + 1, ix + 2, ix + 3, ix, ix + 2});
@@ -94,4 +97,8 @@ void Text::draw(Shader* s, int offset, int size) {
 
 
 
+}
+
+glm::vec2 Text::getSize() const {
+    return m_textSize;
 }

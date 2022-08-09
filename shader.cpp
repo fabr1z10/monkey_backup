@@ -4,28 +4,28 @@
 #include "shader.h"
 
 
-Shader::Shader(ShaderType type, const char* vertexPath, const char* fragmentPath) : m_shaderType(type) {
-	std::string vertexCode;
-	std::string fragmentCode;
-
-	std::ifstream vShaderFile;
-	std::ifstream fShaderFile;
-	vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-	fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-	try {
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
-		std::stringstream vShaderStream, fShaderStream;
-		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-		vShaderFile.close();
-		fShaderFile.close();
-		vertexCode = vShaderStream.str();
-		fragmentCode = fShaderStream.str();
-	} catch (std::ifstream::failure& e) {
-		std::cout << "Error: shader file " << vertexPath << ", " << fragmentPath << " not successfully read" << std::endl;
-		exit(1);
-	}
+Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : m_shaderType(type) {
+//	std::string vertexCode;
+//	std::string fragmentCode;
+//
+//	std::ifstream vShaderFile;
+//	std::ifstream fShaderFile;
+//	vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+//	fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+//	try {
+//		vShaderFile.open(vertexPath);
+//		fShaderFile.open(fragmentPath);
+//		std::stringstream vShaderStream, fShaderStream;
+//		vShaderStream << vShaderFile.rdbuf();
+//		fShaderStream << fShaderFile.rdbuf();
+//		vShaderFile.close();
+//		fShaderFile.close();
+//		vertexCode = vShaderStream.str();
+//		fragmentCode = fShaderStream.str();
+//	} catch (std::ifstream::failure& e) {
+//		std::cout << "Error: shader file " << vertexPath << ", " << fragmentPath << " not successfully read" << std::endl;
+//		exit(1);
+//	}
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
 
@@ -104,7 +104,7 @@ void Shader::setup() {
 	glBindVertexArray(m_vao);
 
 }
-VCShader::VCShader(ShaderType type, const char* vertex, const char* fragment) : Shader(type, vertex, fragment) {}
+VCShader::VCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
 
 void VCShader::setupVertices() {
 	glEnableVertexAttribArray(0);
@@ -113,7 +113,7 @@ void VCShader::setupVertices() {
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 28, (void*)12);
 }
 
-VTCShader::VTCShader(ShaderType type, const char* vertex, const char* fragment) : Shader(type, vertex, fragment) {}
+VTCShader::VTCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
 
 void VTCShader::setupVertices() {
 	glEnableVertexAttribArray(0);

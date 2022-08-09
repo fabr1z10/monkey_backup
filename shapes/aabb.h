@@ -11,6 +11,7 @@ class AABB : public Shape2D {
 public:
     AABB(float xmin, float xmax, float ymin, float ymax);
     glm::vec2 project(glm::vec2, const glm::mat4&) const override;
+    bool isInside(glm::vec2 P) const override;
 private:
     float m_xMin;
     float m_xMax;

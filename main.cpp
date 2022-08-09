@@ -46,6 +46,7 @@ using namespace glm;
 #include "components/idle.h"
 #include "components/autowalk2d.h"
 #include "components/selfdestroy.h"
+#include "components/hotspotmanager.h"
 
 namespace py = pybind11;
 
@@ -60,6 +61,13 @@ PYBIND11_MODULE(monkey, m) {
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
 	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
+
+    py::class_<glm::vec2>(m, "vec2")
+        .def_readwrite("x", &glm::vec2::x)
+        .def_readwrite("y", &glm::vec2::y)
+        .def(py::self + py::self)
+        .def(py::init<float>())
+        .def(py::init<float, float>());
 
 	py::class_<glm::vec3>(m, "vec3")
 	    .def_readwrite("x", &glm::vec3::x)
@@ -117,6 +125,7 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const std::string&>());
 
 	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
+	    .def_property_readonly("size", &Text::getSize)
 		.def(py::init<const py::kwargs&>());
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
@@ -164,6 +173,12 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")
         .def(py::init<int, int, int>());
+
+    py::class_<HotSpotManager, Component, std::shared_ptr<HotSpotManager>>(m, "hot_spot_manager")
+        .def(py::init<>());
+
+    py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
+        .def(py::init<std::shared_ptr<Shape>, const pybind11::kwargs&>());
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());

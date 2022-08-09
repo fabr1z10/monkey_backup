@@ -14,7 +14,7 @@
 
 class Shader {
 public:
-	Shader(ShaderType, const char* vertex, const char* fragment);
+	Shader(ShaderType, const std::string& vertexCode, const std::string& fragmentCode);
 	virtual ~Shader();
 	virtual void use();
 	virtual void setup();
@@ -36,12 +36,12 @@ inline ShaderType Shader::getShaderType() const {
 
 class VCShader : public Shader {
 public:
-	VCShader(ShaderType, const char* vertex, const char* fragment);
+	VCShader(ShaderType, const std::string& vertexCode, const std::string& fragmentCode);
 	void setupVertices() override;
 };
 
 class VTCShader : public Shader {
 public:
-	VTCShader(ShaderType, const char* vertex, const char* fragment);
+	VTCShader(ShaderType, const std::string& vertexCode, const std::string& fragmentCode);
 	void setupVertices() override;
 };

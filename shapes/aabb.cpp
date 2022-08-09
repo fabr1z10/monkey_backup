@@ -21,3 +21,7 @@ glm::vec2 AABB::project(glm::vec2 axis, const glm::mat4 & t) const {
     }
     return out;
 }
+
+bool AABB::isInside(glm::vec2 P) const {
+    return (P.x >= m_points[0].x && P.x <= m_points[1].x && P.y >= m_points[0].y && P.y <= m_points[2].y);
+}
