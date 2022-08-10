@@ -4,19 +4,18 @@
 #include <unordered_set>
 #include <vector>
 
-template<typename Key, typename Value = Key>
+template<typename T>
 class Graph {
-
 public:
-    void addNode (Key key, Value value) {
-        m_nodes[key] = value;
+    Graph() : m_next(0) {}
+
+    int addNode (T value) {
+        m_nodes[m_next] = value;
+        return m_next++;
     }
 
-    void addNode (Key key) {
-        m_nodes[key] = Value();
-    }
 
-    void removeNode(Key key) {
+    void removeNode(int key) {
         m_nodes.erase(key);
         // check all edges from key
         auto it = m_edges.find(key);
@@ -26,31 +25,34 @@ public:
             }
             m_edges.erase(key);
         }
+        if (key == m_next - 1) {
+            m_next--;
+        }
 
     }
 
-    void addEdge (Key tail, Key head, float weight) {
+    void addEdge (int tail, int head, float weight) {
         m_edges[tail].insert(std::make_pair(head, weight));
         m_edges[head].insert(std::make_pair(tail, weight));
     }
 
-    void removeEdge (Key tail, Key head) {
+    void removeEdge (int tail, int head) {
         m_edges[tail].erase(head);
         m_edges[head].erase(tail);
     }
 
-    float shortestPath(Key start, Key end, std::vector<Key>& path) {
+    float shortestPath(int start, int end, std::vector<int>& path) {
         // we'll mark every node with its minimum distance to node C (our selected node).
         // For start node, this distance is 0. For the rest of nodes, as we still don't know that minimum distance,
         // it starts being infinity (∞)
-        std::unordered_map<Key, float> dist;
-        std::unordered_set<Key> visited;
-        std::unordered_map<Key, Key> next;
+        std::unordered_map<int, float> dist;
+        std::unordered_set<int> visited;
+        std::unordered_map<int, int> next;
 
         for (const auto& node : m_nodes) {
             dist[node.first] = node.first == start ? 0 : std::numeric_limits<float>::infinity();
         }
-        Key currentNode = start;
+        int currentNode = start;
         bool done = false;
         while (!done) {
             auto it = m_edges.find(currentNode);
@@ -101,18 +103,19 @@ public:
         return m_edges.size();
     }
 
-    std::unordered_map<Key, Value>& getNodes() {
+    std::unordered_map<int, T>& getNodes() {
         return m_nodes;
     }
 
-    const Value& getNode(int id) {
+    const T& getNode(int id) {
         return m_nodes[id];
     }
 
-    std::unordered_map<Key, std::unordered_map<Key, float>>& getEdges() {
+    std::unordered_map<int, std::unordered_map<int, float>>& getEdges() {
         return m_edges;
     }
 private:
-    std::unordered_map<Key, std::unordered_map<Key, float>> m_edges;
-    std::unordered_map<Key, Value> m_nodes;
+    std::unordered_map<int, std::unordered_map<int, float>> m_edges;
+    std::unordered_map<int, T> m_nodes;
+    int m_next;
 };

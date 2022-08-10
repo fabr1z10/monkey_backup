@@ -15,7 +15,7 @@ void Action::setId(long id) {
 //    }
 //}
 
-Script::Script(const pybind11::args& args) : m_done(false) {
+Script::Script(const pybind11::kwargs& args) : m_done(false) {
     m_scriptId = dictget<std::string>(args, "id", "");
 }
 
@@ -94,6 +94,7 @@ void Scheduler::update(double dt) {
     // run all scripts
     for (auto it = m_scripts.begin(); it != m_scripts.end();) {
         if ((*it)->done()) {
+            m_scriptMap.erase((*it)->getId());
             it = m_scripts.erase(it);
         } else {
             (*it)->update(dt);
@@ -107,6 +108,15 @@ void Scheduler::update(double dt) {
 long Scheduler::add(std::shared_ptr<Script> s) {
     m_ids[_nextId] = s;
     m_scripts.push_back(s);
+    auto sid = s->getId();
+    if (!sid.empty()) {
+        auto f = m_scriptMap.find(sid);
+        if (f != m_scriptMap.end()) {
+            f->second->get()->kill();
+            m_scripts.erase(f->second);
+        }
+        m_scriptMap[sid] = std::prev(m_scripts.end());
+    }
     return _nextId++;
 
 }

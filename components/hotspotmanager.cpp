@@ -1,5 +1,7 @@
 #include "hotspotmanager.h"
 #include "../node.h"
+#include "../engine.h"
+#include <GLFW/glfw3.h>
 
 void HotSpotManager::start() {
     m_camera = dynamic_cast<OrthoCamera*>(m_node->getCamera().get());
@@ -34,9 +36,26 @@ void HotSpotManager::cursorPosCallback(GLFWwindow *, double x, double y) {
 
 
     } else {
+        if (m_previous != nullptr) {
+            m_previous->exit();
+            m_previous = nullptr;
+        }
     }
 
 
+}
+
+void HotSpotManager::mouseButtonCallback(GLFWwindow * window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+
+        if (m_previous != nullptr) {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            glm::vec2 worldCoords = m_camera->getWorldCooridnates(xpos, ypos);
+            m_previous->click(worldCoords);
+        }
+    }
 }
 
 void HotSpotManager::add(HotSpot * h) {

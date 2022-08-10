@@ -11,6 +11,8 @@ class HotSpotManager : public Component, public MouseListener {
 public:
     HotSpotManager() = default;
     void cursorPosCallback(GLFWwindow*, double, double) override;
+    void mouseButtonCallback(GLFWwindow*, int, int, int) override;
+
     void start() override;
     void add(HotSpot*);
     void remove(HotSpot*);

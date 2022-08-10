@@ -43,8 +43,8 @@ glm::vec2 OrthoCamera::getWorldCooridnates(float x, float y) {
     float y0 = -m_viewMatrix[3][1] - m_orthoHeight * 0.5f;
     float winHeight = Engine::instance().getWindowSize().y;
     float ty = winHeight - y;
-    float xw = x0 + (x - m_screenViewport.x) * (m_orthoWidth / m_screenViewport[2]);
-    float yw = y0 + (ty - m_screenViewport.y) * (m_orthoHeight / m_screenViewport[3]);
+    float xw = x0 + (x - m_screenViewport.x) * (m_orthoWidth / (m_screenViewport[2] - m_screenViewport[0]));
+    float yw = y0 + (ty - m_screenViewport.y) * (m_orthoHeight / (m_screenViewport[3] - m_screenViewport[1]));
     return glm::vec2(xw, yw);
 }
 

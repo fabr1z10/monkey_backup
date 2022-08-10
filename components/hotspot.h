@@ -16,9 +16,12 @@ public:
     int getPriority() const;
     void enter();
     void exit();
+    void click(glm::vec2);
 private:
     pybind11::function m_onEnter;
     pybind11::function m_onLeave;
+    pybind11::function m_onClick;
+
     std::shared_ptr<Shape> m_shape;
     HotSpotManager* m_manager;
     int m_priority;

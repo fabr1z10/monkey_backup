@@ -89,7 +89,7 @@ void Engine::start() {
 	Engine::WindowResizeCallback(window, m_windowSize[0], m_windowSize[1]);
 	glfwSetKeyCallback(window, key_callback );
     if (m_enableMouse) {
-        //glfwSetMouseButtonCallback(window, mouse_button_callback);
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
         glfwSetCursorPosCallback(window, cursor_pos_callback);
         //glfwSetScrollCallback(window, scroll_callback);
         //exit(1);
@@ -230,6 +230,14 @@ void Engine::cursor_pos_callback(GLFWwindow * win, double xpos, double ypos) {
         listener->cursorPosCallback(win, xpos, ypos);
     }
 }
+
+void Engine::mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
+    for (auto &listener : Engine::instance().m_mouseListeners) {
+        listener->mouseButtonCallback(win, button, action, mods);
+    }
+
+}
+
 
 
 float Engine::getDeviceAspectRatio() const {

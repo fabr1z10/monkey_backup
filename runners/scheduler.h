@@ -25,11 +25,12 @@ protected:
 
 class Script {
 public:
-    Script(const pybind11::args&);
+    Script(const pybind11::kwargs&);
     long add(std::shared_ptr<Action> action, const pybind11::args&);
     void update(double);
     bool done() const;
     void kill();
+    std::string getId() const;
 private:
     std::list<std::shared_ptr<Action>> m_current;
     std::unordered_map<int, std::shared_ptr<Action>> m_actions;
@@ -41,6 +42,9 @@ private:
 
 };
 
+inline std::string Script::getId() const {
+    return m_scriptId;
+}
 
 
 inline bool Script::done() const {
@@ -62,4 +66,5 @@ private:
     std::unordered_map<long, std::shared_ptr<Script>> m_ids;
     long _nextId;
     std::vector<long> m_toErase;
+    std::unordered_map<std::string, std::list<std::shared_ptr<Script>>::iterator> m_scriptMap;
 };

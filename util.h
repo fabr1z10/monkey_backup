@@ -57,3 +57,9 @@ float computeOverlap(glm::vec2& p1, glm::vec2& p2);
 bool seg2seg(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D, float &t);
 
 int solve2x2(float a11, float a12, float b1, float a21, float a22, float b2, float& x, float& y);
+
+float cross2D (glm::vec2 a, glm::vec2 b) ;
+
+bool pnpoly(const std::vector<glm::vec2>& points, glm::vec2 P);
+
+glm::vec2 rot90(glm::vec2 in, bool clockwise = false);

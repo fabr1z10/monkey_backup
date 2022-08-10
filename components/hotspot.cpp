@@ -6,15 +6,24 @@
 HotSpot::HotSpot(std::shared_ptr<Shape> shape, const pybind11::kwargs& args) : m_shape(shape), m_manager(nullptr) {
     m_onEnter = dictget<pybind11::function>(args, "on_enter", pybind11::function());
     m_onLeave = dictget<pybind11::function>(args, "on_leave", pybind11::function());
+    m_onClick = dictget<pybind11::function>(args, "on_click", pybind11::function());
+
     m_priority = dictget<int>(args, "priority", 0);
 }
 
 void HotSpot::enter() {
-    m_onEnter(m_node);
+    if (m_onEnter)
+        m_onEnter(m_node);
 }
 
 void HotSpot::exit() {
-    m_onLeave(m_node);
+    if (m_onLeave)
+        m_onLeave(m_node);
+}
+
+void HotSpot::click(glm::vec2 pos) {
+    if (m_onClick)
+        m_onClick(m_node, pos);
 }
 
 

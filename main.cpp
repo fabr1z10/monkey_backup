@@ -21,7 +21,7 @@
 using namespace glm;
 
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+
 
 #include <pybind11/operators.h>
 
@@ -47,6 +47,8 @@ using namespace glm;
 #include "components/autowalk2d.h"
 #include "components/selfdestroy.h"
 #include "components/hotspotmanager.h"
+#include "components/walkarea.h"
+#include "runners/walk.h"
 
 namespace py = pybind11;
 
@@ -224,6 +226,10 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<SelfDestroy, Component, std::shared_ptr<SelfDestroy>>(m, "self_destroy")
         .def(py::init<py::kwargs&>());
 
+    py::class_<WalkArea, Component, std::shared_ptr<WalkArea>>(m, "walkarea")
+        .def(py::init<const py::kwargs&>());
+
+
     /// --- actions ---
     py::class_<Action, std::shared_ptr<Action>>(m, "action");
     py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(m, "node_action");
@@ -237,6 +243,9 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<float>());
     py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(m, "blink")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<Walk, NodeAction, std::shared_ptr<Walk>>(m, "walk")
+        .def(py::init<const pybind11::kwargs&>());
+
     py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(m, "remove")
         .def(py::init<const pybind11::kwargs&>());
     py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(m, "callfunc")
@@ -244,7 +253,7 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
         .def("add", &Script::add)
-        .def(py::init<const pybind11::args&>());
+        .def(py::init<const pybind11::kwargs&>());
 
 	/// --- states ---
 	py::class_<State, std::shared_ptr<State>>(m, "state");

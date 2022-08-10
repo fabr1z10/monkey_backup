@@ -36,7 +36,7 @@ public:
 	void setActualDeviceViewport(glm::vec4) ;
 	static void WindowResizeCallback(GLFWwindow* win, int width, int height);
     static void cursor_pos_callback(GLFWwindow*, double xpos, double ypos);
-
+    static void mouse_button_callback(GLFWwindow*, int, int, int);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void registerToKeyboardEvent(KeyboardListener*);
 	void unregisterToKeyboardEvent(KeyboardListener*);

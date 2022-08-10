@@ -74,3 +74,23 @@ int solve2x2(float a11, float a12, float b1, float a21, float a22, float b2, flo
     y = dy * idet;
     return 0;
 }
+
+float cross2D (glm::vec2 a, glm::vec2 b) {
+    return a.x * b.y - a.y * b.x;
+}
+
+bool pnpoly(const std::vector<glm::vec2>& points, glm::vec2 p) {
+    int i, j;
+    bool c = false;
+    int nvert = points.size();
+    for (i = 0, j = nvert-1; i < nvert; j = i++) {
+        if ( ((points[i].y > p.y) != (points[j].y > p.y)) &&
+             (p.x <= (points[j].x-points[i].x) * (p.y-points[i].y) / (points[j].y-points[i].y) + points[i].x) )
+            c = !c;
+    }
+    return c;
+}
+
+glm::vec2 rot90(glm::vec2 vec, bool clockwise) {
+    return (clockwise ? -1.f : 1.f) * glm::vec2(-vec.y, vec.x);
+}
