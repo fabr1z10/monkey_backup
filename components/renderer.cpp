@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "../models/sprite.h"
+#include "../error.h"
 
 Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f) {}
 
@@ -53,6 +54,9 @@ void SpriteRenderer::setAnimation(const std::string& anim) {
 
 	//m_complete = false;
 	m_animInfo = m_sprite->getAnimInfo(anim);
+	if (m_animInfo == nullptr) {
+	    GLIB_FAIL("mmh don't know animation: " + anim);
+	}
 	m_frame = 0;
 	m_animation = anim;
 

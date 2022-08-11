@@ -55,6 +55,11 @@ inline Bounds Sprite::getStaticBounds() const {
 }
 
 inline const AnimInfo * Sprite::getAnimInfo(const std::string &anim) {
-	return &m_animInfo[anim];
+    auto it = m_animInfo.find(anim);
+    if (it == m_animInfo.end())
+        return nullptr;
+
+    return &it->second;
+	//return &m_animInfo[anim];
 }
 

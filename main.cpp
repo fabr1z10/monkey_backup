@@ -49,6 +49,8 @@ using namespace glm;
 #include "components/hotspotmanager.h"
 #include "components/walkarea.h"
 #include "runners/walk.h"
+#include "models/image.h"
+#include "runners/say.h"
 
 namespace py = pybind11;
 
@@ -125,6 +127,9 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(m, "tiled")
         .def(py::init<const std::string&>());
+
+    py::class_<Image, Model, std::shared_ptr<Image>>(m, "image")
+        .def(py::init<const std::string&, const pybind11::kwargs&>());
 
 	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
 	    .def_property_readonly("size", &Text::getSize)
@@ -244,6 +249,8 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(m, "blink")
         .def(py::init<const pybind11::kwargs&>());
     py::class_<Walk, NodeAction, std::shared_ptr<Walk>>(m, "walk")
+        .def(py::init<const pybind11::kwargs&>());
+    py::class_<Say, NodeAction, std::shared_ptr<Say>>(m, "say")
         .def(py::init<const pybind11::kwargs&>());
 
     py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(m, "remove")

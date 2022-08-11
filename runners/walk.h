@@ -26,6 +26,7 @@ private:
     float m_speed;
     int m_currentSegment;
     float m_currentLength;
-
-
+    std::string m_dir;
+    std::string m_endDirection;
+    Renderer * m_renderer;
 };
