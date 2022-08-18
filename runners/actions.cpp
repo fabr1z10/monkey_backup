@@ -22,6 +22,19 @@ void NodeAction::start() {
     }
 }
 
+Animate::Animate(const pybind11::kwargs& args) : NodeAction(args) {
+	m_animation = args["anim"].cast<std::string>();
+}
+
+void Animate::start() {
+	NodeAction::start();
+	static_cast<SpriteRenderer*>(m_node->getComponent<Renderer>())->setAnimation(m_animation);
+}
+
+int Animate::run(double) {
+	return 0;
+}
+
 MoveBy::MoveBy(const pybind11::kwargs& args) : NodeAction(args) {
     auto dx = dictget<float>(args, "x", 0.f);
     auto dy = dictget<float>(args, "y", 0.f);

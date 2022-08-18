@@ -17,6 +17,8 @@ public:
     void enter();
     void exit();
     void click(glm::vec2);
+    void removeManager();
+    void setShape(std::shared_ptr<Shape>);
 private:
     pybind11::function m_onEnter;
     pybind11::function m_onLeave;

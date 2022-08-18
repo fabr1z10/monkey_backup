@@ -16,6 +16,7 @@ public:
 	void remove();
 	void setModel(std::shared_ptr<Model> model);
 	void setPosition(float x, float y, float z);
+	void clearChildren();
 	int getChildrenCount() const;
     const std::unordered_map<long, std::shared_ptr<Node>>& children() const;
     void start();

@@ -27,6 +27,10 @@ void HotSpot::click(glm::vec2 pos) {
 }
 
 
+void HotSpot::setShape(std::shared_ptr<Shape> shape) {
+	m_shape = shape;
+}
+
 void HotSpot::start() {
     auto node = m_node;
     while (node) {
@@ -53,4 +57,9 @@ HotSpot::~HotSpot() {
     if (m_manager != nullptr) {
         m_manager->remove(this);
     }
+}
+
+
+void HotSpot::removeManager() {
+	m_manager = nullptr;
 }

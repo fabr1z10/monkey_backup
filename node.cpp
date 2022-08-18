@@ -22,6 +22,10 @@ void Node::setModel(std::shared_ptr<Model> model) {
 	//m_model = model;
 }
 
+void Node::clearChildren() {
+	for (const auto& c : m_children) c.second->remove();
+}
+
 void Node::addComponent(std::shared_ptr<Component> c) {
     m_components[c->getType()] = c;
     c->setNode(this);

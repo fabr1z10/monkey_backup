@@ -72,8 +72,17 @@ int Walk::run(double dt) {
         m_node->setPosition(seg.end.x, seg.end.y, 0.f);
         m_currentSegment++;
         if (m_currentSegment >= m_segments.size()) {
-            auto dir = m_endDirection.empty() ? m_dir : m_endDirection;
-            m_node->setAnimation("idle_" + dir);
+        	std::string endAnim;
+        	bool flip;
+        	if (m_endDirection.empty()) {
+        		endAnim = "idle_" + m_dir;
+        		flip = m_segments.back().flip;
+        	} else {
+        		flip = m_endDirection == "w";
+        		endAnim = "idle_" + (m_endDirection == "w" ? "e" : m_endDirection);
+        	}
+			m_renderer->flipHorizontal(flip);
+            m_node->setAnimation(endAnim);
             return 0;
         }
         m_currentLength = 0.f;

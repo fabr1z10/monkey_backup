@@ -27,8 +27,11 @@ long Script::add(std::shared_ptr<Action> action, const pybind11::args & args) {
     m_inDegree[_nextId] = 0;
     m_edges[_nextId] = std::vector<int>();
     for (size_t i = 0 ; i< args.size(); i++) {
-        m_inDegree[_nextId]++;
-        m_edges[args[i].cast<long>()].push_back(_nextId);
+    	long prev =args[i].cast<long>();
+    	if (prev != -1) {
+			m_inDegree[_nextId]++;
+			m_edges[prev].push_back(_nextId);
+		}
     }
 
     return _nextId++;

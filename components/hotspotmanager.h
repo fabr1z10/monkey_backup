@@ -10,6 +10,7 @@ class OrthoCamera;
 class HotSpotManager : public Component, public MouseListener {
 public:
     HotSpotManager() = default;
+    virtual ~HotSpotManager();
     void cursorPosCallback(GLFWwindow*, double, double) override;
     void mouseButtonCallback(GLFWwindow*, int, int, int) override;
 

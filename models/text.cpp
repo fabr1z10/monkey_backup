@@ -79,8 +79,13 @@ Text::Text(const py::kwargs& args)  : Model(ShaderType::SHADER_TEXTURE) {
 	m_font = am.getFont(fontId);
 	m_texId = m_font->getTexId();
 	setText(text);
+}
 
-
+Text::Text(const std::string& fontId, const std::string& text, int size) : Model(ShaderType::SHADER_TEXTURE), m_fontSize(size) {
+    auto& am = AssetManager::instance();
+    m_font = am.getFont(fontId);
+    m_texId = m_font->getTexId();
+    setText(text);
 
 
 }

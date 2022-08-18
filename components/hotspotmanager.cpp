@@ -9,6 +9,12 @@ void HotSpotManager::start() {
     m_previous = nullptr;
 }
 
+HotSpotManager::~HotSpotManager() {
+	for (const auto& h : m_hotspot) {
+		h->removeManager();
+	}
+}
+
 void HotSpotManager::cursorPosCallback(GLFWwindow *, double x, double y) {
     bool isInViewport = m_camera->isInViewport(x, y);
     if (isInViewport) {

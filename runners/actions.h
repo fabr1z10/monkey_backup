@@ -14,6 +14,15 @@ protected:
     int m_nodeId;
 };
 
+class Animate : public NodeAction {
+public:
+	Animate(const pybind11::kwargs&);
+	void start() override;
+	int run(double) override;
+private:
+	std::string m_animation;
+};
+
 class Delay : public Action {
 public:
     Delay(float t);

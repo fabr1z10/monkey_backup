@@ -106,9 +106,12 @@ PYBIND11_MODULE(monkey, m) {
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
         .def("get_dynamics", &Node::getComponent<Dynamics>, py::return_value_policy::reference)
+    	.def("get_hotspot", &Node::getComponent<HotSpot>, py::return_value_policy::reference)
         .def("get_move_dynamics", &Node::getComponent<MoveDynamics>, py::return_value_policy::reference)
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
         .def("get_collider", &Node::getComponent<Collider>, py::return_value_policy::reference)
+		.def("get_renderer", &Node::getComponent<Renderer>, py::return_value_policy::reference)
+		.def("clear_children", &Node::clearChildren)
         .def_property_readonly("flip_x",&Node::getFlipX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
@@ -185,10 +188,16 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<>());
 
     py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
+    	.def("set_shape", &HotSpot::setShape)
         .def(py::init<std::shared_ptr<Shape>, const pybind11::kwargs&>());
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
+
+	py::class_<Renderer, Component, std::shared_ptr<Renderer>>(m, "renderer")
+		.def("flip", &Renderer::flipHorizontal)
+		.def(py::init<>());
+
 
     py::class_<MoveDynamics, Component, std::shared_ptr<MoveDynamics>>(m, "move_dynamics")
         .def("set_velocity", &MoveDynamics::setVelocity)
@@ -238,6 +247,8 @@ PYBIND11_MODULE(monkey, m) {
     /// --- actions ---
     py::class_<Action, std::shared_ptr<Action>>(m, "action");
     py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(m, "node_action");
+	py::class_<Animate, NodeAction, std::shared_ptr<Animate>>(m, "animate")
+		.def(py::init<const pybind11::kwargs&>());
     py::class_<MoveBy, NodeAction, std::shared_ptr<MoveBy>>(m, "move_by")
         .def(py::init<const pybind11::kwargs&>());
     py::class_<MoveAccelerated, NodeAction, std::shared_ptr<MoveAccelerated>>(m, "move_accelerated")
