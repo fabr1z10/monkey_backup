@@ -39,6 +39,7 @@ WalkArea::WalkArea(const pybind11::kwargs& args) {
         edge.normalInAtStart = glm::normalize(edge.unitVec - uvec);
         if (i > 0)
             m_edgeData.back().normalInAtEnd = edge.normalInAtStart;
+        uvec = edge.unitVec;
         m_edgeData.push_back(edge);
     }
 

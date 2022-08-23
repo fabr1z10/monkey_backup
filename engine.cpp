@@ -145,8 +145,9 @@ void Engine::start() {
 
                 // Swap buffers
             }
-            m_shutdown = !(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-                         glfwWindowShouldClose(window) == 0);
+            //m_shutdown = !(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+            //             glfwWindowShouldClose(window) == 0);
+			m_shutdown = !(glfwWindowShouldClose(window) == 0);
 
         } // Check if the ESC key was pressed or the window was closed
         while (m_run && !m_shutdown);

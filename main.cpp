@@ -51,6 +51,8 @@ using namespace glm;
 #include "runners/walk.h"
 #include "models/image.h"
 #include "runners/say.h"
+#include "components/panzoom.h"
+#include "components/inputtext.h"
 
 namespace py = pybind11;
 
@@ -97,6 +99,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_model", &Node::setModel)
 		.def("set_state", &Node::setState)
 		.def_property_readonly("state", &Node::getState)
+		.def("get_camera", &Node::getCamera)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("set_animation", &Node::setAnimation)
@@ -140,6 +143,7 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
 	    .def("set_bounds", &Camera::setBounds)
+	    .def("set_position", &Camera::setPosition)
 		.def(py::init<const py::kwargs&>());
 
 	py::class_<OrthoCamera, Camera, std::shared_ptr<OrthoCamera>>(m, "camera_ortho")
@@ -187,6 +191,10 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<HotSpotManager, Component, std::shared_ptr<HotSpotManager>>(m, "hot_spot_manager")
         .def(py::init<>());
 
+	py::class_<PanZoom, Component, std::shared_ptr<PanZoom>>(m, "panzoom")
+		.def(py::init<>());
+
+
     py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
     	.def("set_shape", &HotSpot::setShape)
         .def(py::init<std::shared_ptr<Shape>, const pybind11::kwargs&>());
@@ -233,6 +241,9 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Keyboard, Component, KeyboardListener, std::shared_ptr<Keyboard>>(m, "keyboard")
         .def("add", &Keyboard::addFunction)
         .def(py::init<>());
+
+	py::class_<InputText, Component, KeyboardListener, std::shared_ptr<InputText>>(m, "input_text")
+		.def(py::init<const std::string&, float, int, const py::kwargs&>());
 
     py::class_<Platform, Component, std::shared_ptr<Platform>>(m, "platform")
         .def(py::init<>());

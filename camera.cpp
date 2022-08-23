@@ -56,6 +56,14 @@ PerspectiveCamera::PerspectiveCamera(const py::kwargs& kwargs) : Camera(kwargs) 
 
 }
 
+void Camera::move(glm::vec2 delta) {
+	m_eye += glm::vec3(delta, 0.f);
+	m_eye.x = std::clamp(m_eye.x, m_xBounds[0], m_xBounds[1]);
+	m_eye.y = std::clamp(m_eye.y, m_yBounds[0], m_yBounds[1]);
+	m_eye.z = std::clamp(m_eye.z, m_zBounds[0], m_zBounds[1]);
+	m_viewMatrix = glm::lookAt(m_eye, m_eye + m_fwd, m_up);
+
+}
 
 void Camera::setPosition(glm::vec3 eye, glm::vec3 dir, glm::vec3 up) {
 	m_fwd = dir;

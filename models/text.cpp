@@ -17,7 +17,7 @@ void Text::setText(const std::string& text) {
     // initialize cursor position
     // default alignment is top left
     float x{0.0f};
-    float y{-m_fontSize};
+    float y{0.0f};
     m_textSize.x = 0;
     m_textSize.y = m_fontSize;
     unsigned quadCount = 0;
@@ -40,15 +40,16 @@ void Text::setText(const std::string& text) {
         const auto& info = m_font->getCharInfo(c);
         auto w = m_fontSize * info.sx;
         auto h = m_fontSize * info.sy;
+        auto oy = info.oy;
         // generate vertices for current character
         // bottom left
-        vertices.insert(vertices.end(), {x, y, 0.0f, info.tx, info.ty + info.th, 1, 1, 1, 1});
+        vertices.insert(vertices.end(), {x, y - oy, 0.0f, info.tx, info.ty + info.th, 1, 1, 1, 1});
         // bottom right
-        vertices.insert(vertices.end(), {x + w, y, 0.0f, info.tx + info.tw, info.ty + info.th, 1, 1, 1, 1});
+        vertices.insert(vertices.end(), {x + w, y - oy, 0.0f, info.tx + info.tw, info.ty + info.th, 1, 1, 1, 1});
         // top right
-        vertices.insert(vertices.end(), {x + w, y + h, 0.0f, info.tx + info.tw, info.ty, 1, 1, 1, 1});
+        vertices.insert(vertices.end(), {x + w, y + h - oy, 0.0f, info.tx + info.tw, info.ty, 1, 1, 1, 1});
         // top left
-        vertices.insert(vertices.end(), {x, y + h, 0.0f, info.tx, info.ty, 1, 1, 1, 1});
+        vertices.insert(vertices.end(), {x, y + h - oy, 0.0f, info.tx, info.ty, 1, 1, 1, 1});
         m_textSize.x = std::max(m_textSize.x, x+w);
         // generate elements for current character
         unsigned ix = quadCount * 4;
