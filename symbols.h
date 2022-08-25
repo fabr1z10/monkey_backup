@@ -6,3 +6,7 @@ enum ShaderType {
 	SHADER_TEXTURE
 };
 
+enum FillType {
+	OUTLINE = 0,
+	SOLID
+};

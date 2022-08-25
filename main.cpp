@@ -67,6 +67,8 @@ PYBIND11_MODULE(monkey, m) {
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
 	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
+	m.attr("FILL_OUTLINE") = static_cast<int>(FillType::OUTLINE);
+	m.attr("FILL_SOLID") = static_cast<int>(FillType::SOLID);
 
     py::class_<glm::vec2>(m, "vec2")
         .def_readwrite("x", &glm::vec2::x)
@@ -83,6 +85,14 @@ PYBIND11_MODULE(monkey, m) {
 	    .def(py::init<float>())
 	    .def(py::init<float, float, float>());
 
+	py::class_<glm::vec4>(m, "vec4")
+		.def_readwrite("x", &glm::vec4::x)
+		.def_readwrite("y", &glm::vec4::y)
+		.def_readwrite("z", &glm::vec4::z)
+		.def_readwrite("w", &glm::vec4::w)
+		.def(py::self + py::self)
+		.def(py::init<float>())
+		.def(py::init<float, float, float, float>());
 
 	py::class_<Engine>(m, "Engine")
 		//.def(py::init<>())

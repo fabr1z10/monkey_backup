@@ -31,6 +31,8 @@ std::shared_ptr<Model> ModelMaker::makeCompoundShape(std::shared_ptr<Shape> s, c
 std::shared_ptr<Model> ModelMaker::makeAABB(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
     auto* cs = static_cast<AABB*>(s.get());
     auto color = dictget<glm::vec4>(args, "color", glm::vec4(1.0f));
+
+    auto fillType = static_cast<FillType>(dictget<int>(args, "fill", 0));
     std::vector<float> vertices;
     std::vector<unsigned> elements;
     unsigned u{0};
@@ -39,8 +41,16 @@ std::shared_ptr<Model> ModelMaker::makeAABB(std::shared_ptr<Shape> s, const pybi
     vertices.insert(vertices.end(), {b.max.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
     vertices.insert(vertices.end(), {b.max.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
     vertices.insert(vertices.end(), {b.min.x, b.max.y, 0.0f, color.r, color.g, color.b, color.a});
-    elements.insert(elements.end(), {0, 1, 2, 3});
-    return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, GL_LINE_LOOP, vertices, elements);
+
+    GLuint prim {GL_LINE_LOOP};
+    if (fillType == FillType::OUTLINE) {
+		elements.insert(elements.end(), {0, 1, 2, 3});
+	} else {
+		elements.insert(elements.end(), {0, 1, 2, 2, 3, 0});
+		prim = GL_TRIANGLES;
+    }
+
+    return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, prim, vertices, elements);
 }
 
 std::shared_ptr<Model> ModelMaker::makeConvexPoly(std::shared_ptr<Shape> s, const pybind11::kwargs& args) {
