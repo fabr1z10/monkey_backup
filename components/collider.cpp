@@ -12,7 +12,7 @@ Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr) {
 
 void Collider::start() {
 	auto& engine = Engine::instance();
-	auto collDebug = pyget<bool>(engine.getConfig().attr("pippo"),"debug_collision", false);
+	auto collDebug = pyget<bool>(engine.getConfig().attr("settings"),"debug_collision", false);
 	auto room = engine.getRoom();
 	m_engine = room->getRunner<CollisionEngine>();
 	//m_engine = Engine::get().GetRunner<ICollisionEngine>();

@@ -106,6 +106,10 @@ void Node::removeChild(long id) {
 glm::vec3 Node::getWorldPosition() const {
 	return glm::vec3(m_worldMatrix[3]);
 }
+glm::vec3 Node::getLocalPosition() const {
+	return glm::vec3(m_modelMatrix[3]);
+}
+
 
 pybind11::tuple Node::getPos() const {
 	return pybind11::make_tuple(m_worldMatrix[3][0], m_worldMatrix[3][1], m_worldMatrix[3][2]);
@@ -120,8 +124,8 @@ float Node::getY() const {
     return m_worldMatrix[3][1];
 }
 
-void Node::setMultColor(float r, float g, float b, float a) {
-	getComponent<Renderer>()->setMultColor(glm::vec4(r,g,b,a));
+void Node::setMultColor(glm::vec4 color) {
+	getComponent<Renderer>()->setMultColor(color);
 }
 
 void Node::setAnimation(const std::string &animId) {

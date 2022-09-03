@@ -99,6 +99,10 @@ void Room::draw(Shader* s) {
 	while (!li.empty()) {
 		auto current = li.back();
 		int currentIndex = li.size() - 1;
+		li.pop_back();
+		if (!current->active()) {
+			continue;
+		}
 
 		// check if current node has a camera
 		auto cam = current->getCamera();
@@ -122,7 +126,6 @@ void Room::draw(Shader* s) {
 			// need to pop last matrix from stack
 			m_matrices.pop_back();
 		}
-		li.pop_back();
 
 		// setup modelview
 		auto renderer = current->getComponent<Renderer>();

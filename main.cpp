@@ -53,6 +53,7 @@ using namespace glm;
 #include "runners/say.h"
 #include "components/panzoom.h"
 #include "components/inputtext.h"
+#include "components/depth.h"
 
 namespace py = pybind11;
 
@@ -114,9 +115,11 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_position", &Node::setPosition)
 		.def("set_animation", &Node::setAnimation)
 		.def("set_text", &Node::setText)
+
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
+		.def_property("active", &Node::active, &Node::setActive)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
         .def("get_dynamics", &Node::getComponent<Dynamics>, py::return_value_policy::reference)
     	.def("get_hotspot", &Node::getComponent<HotSpot>, py::return_value_policy::reference)
@@ -204,8 +207,11 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<PanZoom, Component, std::shared_ptr<PanZoom>>(m, "panzoom")
 		.def(py::init<>());
 
+	py::class_<Depth, Component, std::shared_ptr<Depth>>(m, "depth")
+		.def(py::init<const pybind11::kwargs&>());
 
-    py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
+
+	py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
     	.def("set_shape", &HotSpot::setShape)
         .def(py::init<std::shared_ptr<Shape>, const pybind11::kwargs&>());
 

@@ -23,7 +23,7 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
     int sheetId = std::stoi(tokens[0]);
     // first token is the sheet id
     const auto& game = Engine::instance().getConfig();
-    auto cane = game.attr("pippo").attr("tilesets").cast<pybind11::dict>();
+    auto cane = game.attr("settings").attr("tilesets").cast<pybind11::dict>();
     auto imgName = cane[py::int_(sheetId)]["img"].cast<std::string>();
     auto ts = cane[py::int_(0)]["tile_size"].cast<pybind11::tuple>();
     glm::vec2 tileSize(ts[0].cast<int>(), ts[1].cast<int>());

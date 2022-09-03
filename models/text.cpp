@@ -22,7 +22,6 @@ void Text::setText(const std::string& text) {
     m_textSize.y = m_fontSize;
     unsigned quadCount = 0;
     for (char32_t c : s32) {
-        std::cout << c << "\n";
         if (c == 32) {
             x += m_fontSize;
             continue;

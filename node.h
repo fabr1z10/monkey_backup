@@ -18,6 +18,8 @@ public:
 	void setPosition(float x, float y, float z);
 	void clearChildren();
 	int getChildrenCount() const;
+	void setActive(bool);
+	bool active() const;
     const std::unordered_map<long, std::shared_ptr<Node>>& children() const;
     void start();
 	void removeChild(long);
@@ -30,6 +32,7 @@ public:
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
 
+	glm::vec3 getLocalPosition() const;
 	glm::vec3 getWorldPosition() const;
 	const glm::mat4& getModelMatrix() const;
 	const glm::mat4& getWorldMatrix() const;
@@ -55,7 +58,7 @@ public:
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;
 	void setParent(Node*);
-	void setMultColor(float r, float g, float b, float a);
+	void setMultColor(glm::vec4 color);
 	Node* getParent() ;
 	pybind11::object getUserData();
 	void setUserData(pybind11::object);
@@ -95,6 +98,15 @@ inline Node * Node::getParent() {
 inline int Node::getChildrenCount() const {
 	return m_children.size();
 }
+
+inline void Node::setActive(bool active) {
+	m_active = active;
+}
+
+inline bool Node::active() const {
+	return m_active;
+}
+
 
 inline const std::unordered_map<long, std::shared_ptr<Node>> & Node::children() const {
 	return m_children;

@@ -38,7 +38,7 @@ void Say::initLine(int line) {
     auto node = std::make_shared<Node>();
     node->setModel(std::make_shared<Text>(m_fontId, m_lines[line], m_fontSize));
     node->setPosition(m_pos.x, m_pos.y, 0.f);
-    node->setMultColor(m_color.r, m_color.g, m_color.b, m_color.a);
+    node->setMultColor(m_color);
     m_parent->add(node);
 	m_currentNode = node.get();
 

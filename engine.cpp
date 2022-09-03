@@ -23,15 +23,15 @@ Engine::Engine() : m_room(nullptr), m_nextId(0) {
 
 void Engine::load(pybind11::object obj) {
 	m_game = obj;
-	m_title = m_game.attr("pippo").attr("title").cast<std::string>();
-	m_windowSize = as<glm::ivec2>(m_game.attr("pippo").attr("window_size"));
-	m_deviceSize = as<glm::ivec2>(m_game.attr("pippo").attr("device_size"));
+	auto settings = obj.attr("settings");
+	m_title = settings.attr("title").cast<std::string>();
+	m_windowSize = as<glm::ivec2>(settings.attr("window_size"));
+	m_deviceSize = as<glm::ivec2>(settings.attr("device_size"));
 	m_deviceAspectRatio = static_cast<float>(m_deviceSize[0]) / m_deviceSize[1];
-	m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
+	m_roomId = settings.attr("room").cast<std::string>();
 	m_frameTime = 1.0 / 60.0;
 	m_timeLastUpdate = 0.0;
-	m_enableMouse = pyget<bool>(m_game.attr("pippo"), "enable_mouse", false);
-
+	m_enableMouse = pyget<bool>(settings, "enable_mouse", false);
 }
 
 void Engine::addNode(std::shared_ptr<Node> node) {
@@ -103,7 +103,7 @@ void Engine::start() {
 	loadShaders();
     m_shutdown = false;
     while (!m_shutdown) {
-        m_roomId = m_game.attr("pippo").attr("room").cast<std::string>();
+        m_roomId = m_game.attr("settings").attr("room").cast<std::string>();
         loadRoom();
         // start up all nodes and components
         m_room->iterate_dfs([](Node *n) { n->start(); });
@@ -173,7 +173,7 @@ void Engine::closeRoom() {
 }
 
 void Engine::loadRoom() {
-	m_title = m_game.attr("pippo").attr("title").cast<std::string>();
+	//m_title = m_game.attr("pippo").attr("title").cast<std::string>();
 	//pybind11::object obj = m_game.attr("rooms").attr(m_roomId.c_str())();
 	//m_room = obj.cast<std::shared_ptr<Room>>();
 	m_room = m_game.attr("rooms").attr(m_roomId.c_str())().cast<std::shared_ptr<Room>>();
@@ -186,7 +186,7 @@ void Engine::loadRoom() {
 }
 
 void Engine::loadShaders() {
-	auto shaders = m_game.attr("pippo").attr("shaders").cast<std::vector<int>>();
+	auto shaders = m_game.attr("settings").attr("shaders").cast<std::vector<int>>();
 	for (auto sh : shaders) {
 		m_shaderBuilders[sh]();
 	}
