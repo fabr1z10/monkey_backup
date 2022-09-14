@@ -12,17 +12,20 @@ class Renderer;
 
 class Model {
 public:
+	Model();
 	Model(int);
-	virtual void draw(Shader*, int offset, int size);
+	virtual void init(Node*) {}
+	virtual void draw(Shader*, const glm::mat4&);
+	void draw(Shader* shader, int offset, int count);
 	virtual ~Model();
-	// a model can be shared by multiple nodes.
+	// ** a model can be shared by multiple nodes. **
 	// so a model does not contain information relevant on how to draw it
 	// for instance a sprite model does not contain current animation and frame
 	// but this stuff goes into the sprite renderer! When you assign a model to
 	// a node, a renderer is generated and the model is linked to the renderer.
 	// (renederer has a pointer to the model, not the node!)
 	virtual std::shared_ptr<Renderer> getRenderer() const;
-
+	void generateBuffers(const std::vector<float>& vertices, const std::vector<unsigned>& indices);
 	ShaderType getShaderType() const;
 
 protected:

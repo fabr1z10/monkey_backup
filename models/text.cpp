@@ -90,7 +90,7 @@ Text::Text(const std::string& fontId, const std::string& text, int size) : Model
 
 }
 
-void Text::draw(Shader* s, int offset, int size) {
+void Text::draw(Shader* s, const glm::mat4& m) {
 
 	if (m_texId != GL_INVALID_VALUE) {
 		s->setInt("texture_diffuse1", 0);
@@ -98,7 +98,7 @@ void Text::draw(Shader* s, int offset, int size) {
 		glBindTexture(GL_TEXTURE_2D, m_texId);
 	}
 
-	Model::draw(s, offset, size);
+	Model::draw(s, m);
 
 
 

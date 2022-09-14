@@ -1,9 +1,9 @@
 #include "multi.h"
 
 
-void MultiModel::draw(Shader * s, int offset, int size) {
+void MultiModel::draw(Shader * s, const glm::mat4& modelMatrix) {
     for (const auto& m : m_models) {
-        m->draw(s, offset, size);
+        m->draw(s, modelMatrix);
     }
 }
 

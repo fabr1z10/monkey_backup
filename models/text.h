@@ -8,7 +8,7 @@ class Text : public Model  {
 public:
 	explicit Text(const py::kwargs&);
 	Text(const std::string& font, const std::string& text, int size);
-	void draw(Shader*, int, int) override;
+	void draw(Shader*, const glm::mat4&) override;
     void setText(const std::string& text);
     glm::vec2 getSize() const;
 private:

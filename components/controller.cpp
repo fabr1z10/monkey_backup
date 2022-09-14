@@ -6,21 +6,44 @@
 #include "../engine.h"
 #include "platform.h"
 #include <glm/gtx/transform.hpp>
+#include "../shapes/shapemodel.h"
 
 void Controller::start() {
 	auto& engine = Engine::instance();
 	auto room = engine.getRoom();
 
 	m_collisionEngine = room->getRunner<CollisionEngine>();
+
+	setDebugShape();
 }
 
-void Controller::setSize(pybind11::tuple size, pybind11::tuple center) {
-	m_size = glm::vec3(size[0].cast<float>(), size[1].cast<float>(), size.size() > 2 ? size[2].cast<float>() : 0.f);
-	m_center = glm::vec3(center[0].cast<float>(), center[1].cast<float>(), center.size() > 2 ? center[2].cast<float>() : 0.f);
+void Controller::setDebugShape() {
+	auto& engine = Engine::instance();
+	auto collDebug = pyget<bool>(engine.getConfig().attr("settings"),"debug_collision", false);
+	if (collDebug) {
+		if (m_debugShape != nullptr) {
+			m_debugShape->remove();
+		}
+		AABB a(-m_center.x, -m_center.x + m_size.x, -m_center.y, -m_center.y + m_size.y);
+		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE);
+		auto node = std::make_shared<Node>();
+		node->setModel(model);
+		m_node->add(node);
+		m_debugShape = node.get();
+	}
+
+}
+
+
+void Controller::setSize(glm::vec3 size, glm::vec3 center) {
+	m_size = size;
+	m_center = center;
+
+	setDebugShape();
 	computeCoordinates();
 }
 
-Controller::Controller(const pybind11::kwargs& args) {
+Controller::Controller(const pybind11::kwargs& args) : m_debugShape(nullptr) {
     m_size = dictget<glm::vec3>(args, "size", glm::vec3(0.f));
     m_center = dictget<glm::vec3>(args, "center", glm::vec3(0.f));
 	computeCoordinates();

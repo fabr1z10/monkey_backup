@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include "../models/sprite.h"
 #include "../error.h"
+#include "../node.h"
 
 Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f) {}
 
@@ -8,14 +9,17 @@ void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
 		return;
 	}
+	const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
+
+
 	s->setVec4("mult_color", m_multColor);
 	s->setVec4("add_color", m_addColor);
-	innerDraw(s);
+	innerDraw(s, m);
 
 }
 
-void Renderer::innerDraw(Shader * s) {
-	m_model->draw(s, 0, 0);
+void Renderer::innerDraw(Shader * s, const glm::mat4& modelTransform) {
+	m_model->draw(s, modelTransform);
 }
 
 void Renderer::setModel(std::shared_ptr<Model> model) {
@@ -38,6 +42,7 @@ bool Renderer::getFlipHorizontal() const {
     return m_rendererTransform[0][0] < 0.f;
 }
 
+
 SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
 
 }
@@ -45,6 +50,11 @@ SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_f
 void SpriteRenderer::setModel(std::shared_ptr<Model> model) {
 	Renderer::setModel(model);
 	m_sprite = std::dynamic_pointer_cast<Sprite>(model);
+}
+
+void AnimatedRenderer::setModel(std::shared_ptr<Model> model) {
+	Renderer::setModel(model);
+	m_itemizedModel = std::dynamic_pointer_cast<ItemizedModel>(model);
 }
 
 void SpriteRenderer::setAnimation(const std::string& anim) {
@@ -67,9 +77,25 @@ void SpriteRenderer::start() {
 }
 
 
-void SpriteRenderer::innerDraw(Shader * s) {
+void AnimatedRenderer::start() {
+	m_referenceRenderer = dynamic_cast<SpriteRenderer*>(m_node->getParent()->getComponent<Renderer>());
+	assert(m_referenceRenderer != nullptr);
+}
+
+void AnimatedRenderer::innerDraw(Shader * s, const glm::mat4& m) {
+	auto anim = m_referenceRenderer->getAnimation();
+	auto frame = m_referenceRenderer->getFrame();
+	std::stringstream ss;
+	ss << anim << "_" << frame;
+	m_itemizedModel->innerDraw(s, m, ss.str());
+}
+
+void SpriteRenderer::innerDraw(Shader * s, const glm::mat4& modelMatrix) {
 	const auto& a = m_sprite->getFrameInfo(m_animation, m_frame);
-	m_sprite->draw(s, a.offset, a.count);
+	std::stringstream ss;
+	ss << m_animation << "_" << m_frame;
+	m_sprite->innerDraw(s, modelMatrix, ss.str());
+	//m_sprite->draw(s, nullptr);
 	// time to update frame?
 	if (m_ticks >= a.ticks) {
 		// increment frame. if this animation is
@@ -85,6 +111,10 @@ void SpriteRenderer::innerDraw(Shader * s) {
 }
 
 std::type_index SpriteRenderer::getType() {
+	return std::type_index(typeid(Renderer));
+}
+
+std::type_index AnimatedRenderer::getType() {
 	return std::type_index(typeid(Renderer));
 }
 

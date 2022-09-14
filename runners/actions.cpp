@@ -158,8 +158,23 @@ CallFunc::CallFunc(pybind11::function f) {
     m_func = std::move(f);
 }
 
+Repeat::Repeat(pybind11::function f, float period) {
+	m_func = std::move(f);
+	m_period = period;
+	m_timer = 0.f;
+}
+
+
 
 int CallFunc::run(double) {
     m_func();
     return 0;
+}
+
+int Repeat::run(double dt) {
+	m_timer += static_cast<float>(dt);
+	if (m_timer >= m_period) {
+		m_timer = 0.f;
+		m_func();
+	}
 }

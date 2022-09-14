@@ -9,6 +9,10 @@ std::shared_ptr<Sprite> getSprite(const std::string& id) {
 	return am.getSprite(id);
 }
 
+std::shared_ptr<Node> getNode(int id) {
+	return Engine::instance().getNode(id);
+}
+
 std::shared_ptr<TiledModel> getTiled(const std::string& id) {
     auto& am = AssetManager::instance();
     return am.getTiled(id);

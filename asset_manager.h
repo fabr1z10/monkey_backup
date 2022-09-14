@@ -5,6 +5,7 @@
 #include "font.h"
 #include "tex.h"
 #include "models/tiled.h"
+#include "models/spritesheet.h"
 
 
 class AssetManager {
@@ -22,6 +23,7 @@ public:
 private:
     std::unordered_map<std::string, std::shared_ptr<TiledModel>> m_tiled;
 	std::unordered_map<std::string, std::shared_ptr<Sprite>> m_sprites;
+	std::unordered_map<std::string, std::shared_ptr<SpriteSheet>> m_spriteSheets;
 	std::unordered_map<std::string, std::shared_ptr<Tex>> m_tex;
 	std::unordered_map<std::string, std::shared_ptr<Font>> m_fonts;
 

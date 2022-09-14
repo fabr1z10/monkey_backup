@@ -17,6 +17,7 @@ public:
 	void setModel(std::shared_ptr<Model> model);
 	void setPosition(float x, float y, float z);
 	void clearChildren();
+	std::vector<std::shared_ptr<Node>> getChildren();
 	int getChildrenCount() const;
 	void setActive(bool);
 	bool active() const;
@@ -26,7 +27,7 @@ public:
 	void setFlipX(bool);
 	bool getFilpX() const;
 	void update(double) ;
-	//void draw(Shader*);
+
 	void pop();
 	bool getFlipX() const;
 	std::shared_ptr<Camera> getCamera();
@@ -38,6 +39,7 @@ public:
 	const glm::mat4& getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);
 	void move(glm::mat4);
+
 	pybind11::tuple getPos() const;
 	//template <typename C>
 	void addComponent(std::shared_ptr<Component> c) ;
@@ -54,18 +56,25 @@ public:
     std::string getState() const;
 	void setState (const std::string& state, const pybind11::kwargs&);
 	void setAnimation(const std::string& animId);
+	std::string getAnimation() const;
     void setText(const std::string& text);
 	Event<Node*> onMove;						// fires when this node moves
     Event<Node*> onRemove;
 	void setParent(Node*);
 	void setMultColor(glm::vec4 color);
+	void setAddColor(glm::vec4 color);
 	Node* getParent() ;
 	pybind11::object getUserData();
+	template<typename T>
+	T getValue(const std::string& key) {
+		return m_userData[key.c_str()].cast<T>();
+	}
+
 	void setUserData(pybind11::object);
     std::unordered_map<long, std::shared_ptr<Node>> m_children;
+
 private:
     bool m_started;
-
 	glm::mat4 m_modelMatrix;
 	std::shared_ptr<Camera> m_camera;
 	//std::shared_ptr<Model> m_model;
@@ -83,6 +92,7 @@ private:
 inline const glm::mat4 & Node::getModelMatrix() const {
 	return m_modelMatrix;
 }
+
 
 
 

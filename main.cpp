@@ -21,9 +21,8 @@
 using namespace glm;
 
 #include <pybind11/pybind11.h>
-
-
 #include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include "pyfunc.h"
 #include "components/move.h"
@@ -60,6 +59,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(monkey, m) {
 	m.doc() = "prova prova2"; // optional module docstring
 	m.def("engine", &getEngine, py::return_value_policy::reference, "Gets the engine");
+	m.def("get_node", &getNode);
 	m.def("get_sprite", &getSprite);
     m.def("get_tiled", &getTiled);
 	m.def("make_model", &makeModel);
@@ -113,11 +113,13 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_camera", &Node::getCamera)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
+		.def("get_animation", &Node::getAnimation)
 		.def("set_animation", &Node::setAnimation)
 		.def("set_text", &Node::setText)
 
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
+		.def("set_add_color", &Node::setAddColor)
 		.def_property("user_data", &Node::getUserData, &Node::setUserData)
 		.def_property("active", &Node::active, &Node::setActive)
 		.def("get_parent",&Node::getParent, py::return_value_policy::reference)
@@ -128,6 +130,7 @@ PYBIND11_MODULE(monkey, m) {
         .def("get_collider", &Node::getComponent<Collider>, py::return_value_policy::reference)
 		.def("get_renderer", &Node::getComponent<Renderer>, py::return_value_policy::reference)
 		.def("clear_children", &Node::clearChildren)
+		.def("get_children", &Node::getChildren)
         .def_property_readonly("flip_x",&Node::getFlipX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
@@ -213,6 +216,7 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<HotSpot, Component, std::shared_ptr<HotSpot>>(m, "hotspot")
     	.def("set_shape", &HotSpot::setShape)
+    	.def_property("priority", &HotSpot::getPriority, &HotSpot::setPriority)
         .def(py::init<std::shared_ptr<Shape>, const pybind11::kwargs&>());
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
@@ -295,6 +299,8 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const pybind11::kwargs&>());
     py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(m, "callfunc")
         .def(py::init<pybind11::function>());
+	py::class_<Repeat, Action, std::shared_ptr<Repeat>>(m, "repeat")
+		.def(py::init<pybind11::function, float>());
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
         .def("add", &Script::add)

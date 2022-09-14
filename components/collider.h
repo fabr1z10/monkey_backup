@@ -23,6 +23,7 @@ protected:
 	int m_callbackHandle;
 	Bounds m_staticBounds;
 	CollisionEngine* m_engine;
+	Node* m_debugNode;
 };
 
 class SimpleCollider : public Collider {

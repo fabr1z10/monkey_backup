@@ -54,7 +54,7 @@ RawModel::RawModel(int shaderType, const py::array_t<float>& vertices, const py:
 
 }
 
-void RawModel::draw(Shader* s, int offset, int size) {
+void RawModel::draw(Shader* s, const glm::mat4& m) {
 
 	if (m_texId != GL_INVALID_VALUE) {
 		s->setInt("texture_diffuse1", 0);
@@ -62,7 +62,7 @@ void RawModel::draw(Shader* s, int offset, int size) {
 		glBindTexture(GL_TEXTURE_2D, m_texId);
 	}
 
-	Model::draw(s, offset, size);
+	Model::draw(s, m);
 
 
 

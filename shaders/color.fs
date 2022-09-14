@@ -11,8 +11,8 @@ in vec4 col;
 void main()
 {
     vec4 color = col;
-    color *= mult_color;
-    color += add_color;
+    //color *= mult_color;
+    //color += add_color;
 	fragColor = color;
 }
 )"

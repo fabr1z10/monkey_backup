@@ -18,7 +18,7 @@ void Room::cleanUp() {
 }
 
 Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f),
-m_started(false) {
+m_started(false), m_userData(pybind11::dict()) {
 
 
 }
@@ -119,6 +119,7 @@ void Room::draw(Shader* s) {
 		if (changeCam && !camStack.empty()) {
 			camStack.back().second->init(s);
 			viewMatrix = camStack.back().second->getViewMatrix();
+			s->setMat4("view", viewMatrix);
 		}
 
 
@@ -130,8 +131,6 @@ void Room::draw(Shader* s) {
 		// setup modelview
 		auto renderer = current->getComponent<Renderer>();
 		if (renderer != nullptr) {
-			glm::mat4 mvm =  viewMatrix * current->getWorldMatrix() * renderer->getRendererTransform();
-			s->setMat4("modelview", mvm);
 			renderer->draw(s);
 		}
 		for (const auto& [k, v] : current->children()) {

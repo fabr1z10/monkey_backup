@@ -19,13 +19,20 @@ void Node::setModel(std::shared_ptr<Model> model) {
     }
 
 
-	//m_model = model;
 }
 
 
 
 void Node::clearChildren() {
 	for (const auto& c : m_children) c.second->remove();
+}
+
+std::vector<std::shared_ptr<Node>> Node::getChildren() {
+	std::vector<std::shared_ptr<Node>> children;
+	for (const auto& c : m_children) {
+		children.push_back(c.second);
+	}
+	return children;
 }
 
 void Node::addComponent(std::shared_ptr<Component> c) {
@@ -42,6 +49,7 @@ void Node::start() {
 	for (auto& c : m_components){
 		c.second->start();
 	}
+
 }
 
 void Node::move(glm::mat4 m) {
@@ -49,6 +57,8 @@ void Node::move(glm::mat4 m) {
     m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
 	onMove.fire(this);
 }
+
+
 
 void Node::setModelMatrix(glm::mat4 m) {
     m_modelMatrix = m;
@@ -127,12 +137,23 @@ float Node::getY() const {
 void Node::setMultColor(glm::vec4 color) {
 	getComponent<Renderer>()->setMultColor(color);
 }
-
+void Node::setAddColor(glm::vec4 color) {
+	getComponent<Renderer>()->setAddColor(color);
+}
 void Node::setAnimation(const std::string &animId) {
     auto sr = dynamic_cast<SpriteRenderer*>(getComponent<Renderer>());
     if (sr) {
         sr->setAnimation(animId);
     }
+}
+
+std::string Node::getAnimation() const {
+	auto sr = dynamic_cast<SpriteRenderer*>(getComponent<Renderer>());
+	if (sr) {
+		return sr->getAnimation();
+	}
+	return std::string();
+
 }
 
 void Node::setText(const std::string &text) {

@@ -32,6 +32,10 @@ void Engine::load(pybind11::object obj) {
 	m_frameTime = 1.0 / 60.0;
 	m_timeLastUpdate = 0.0;
 	m_enableMouse = pyget<bool>(settings, "enable_mouse", false);
+	if (pybind11::hasattr(settings, "init")) {
+		settings.attr("init").cast<pybind11::function>()();
+	}
+
 }
 
 void Engine::addNode(std::shared_ptr<Node> node) {

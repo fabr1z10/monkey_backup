@@ -58,6 +58,17 @@ private:
     pybind11::function m_func;
 };
 
+class Repeat : public Action {
+public:
+	explicit Repeat(pybind11::function f, float);
+	int run(double) override;
+	void start() override {}
+private:
+	float m_timer;
+	float m_period;
+	pybind11::function m_func;
+};
+
 class MoveBy : public NodeAction {
 public:
     MoveBy(const pybind11::kwargs&);

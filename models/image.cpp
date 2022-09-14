@@ -37,11 +37,11 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
 }
 
 
-void Image::draw(Shader* s, int offset, int size) {
+void Image::draw(Shader* s, const glm::mat4& m) {
 
     s->setInt("texture_diffuse1", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texId);
 
-    Model::draw(s, offset, size);
+    Model::draw(s, m);
 }

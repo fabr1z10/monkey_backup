@@ -8,13 +8,14 @@ layout (location = 2) in vec4 vColor;
 out vec2 tex;
 out vec4 col;
 
-uniform mat4 modelview;
+uniform mat4 view;
+uniform mat4 model;
 uniform mat4 projection;
 
 void main()
 {
 	tex = vTexture;
 	col = vColor;
-	gl_Position = projection * modelview * vec4(vPosition, 1.0);
+	gl_Position = projection * view * model * vec4(vPosition, 1.0);
 }
 )"

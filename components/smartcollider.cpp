@@ -17,7 +17,7 @@ void SpriteCollider::start() {
     m_staticBounds = m_sprite->getStaticBounds();
     Collider::start();
 //    auto& engine = Engine::instance();
-//    auto collDebug = pyget<bool>(engine.getConfig().attr("pippo"),"debug_collision", false);
+//    auto collDebug = pyget<bool>(engine.getConfig().attr("settings"),"debug_collision", false);
 //    if (collDebug) {
 //        generateDebugMesh();
 //    }
@@ -41,8 +41,12 @@ int SpriteCollider::getCollisionMask() const {
 }
 
 void SpriteCollider::generateDebugMesh() {
+	if (m_debugNode != nullptr) {
+		m_debugNode->remove();
+	}
     auto model = m_sprite->generateDebugModel();
     auto node = std::make_shared<Node>();
     node->setModel(model);
     m_node->add(node);
+    m_debugNode = node.get();
 }

@@ -6,7 +6,7 @@
 #include "../pyfunc.h"
 #include "../node.h"
 
-Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr) {
+Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr), m_debugNode(nullptr) {
     //std::cout << "creating collider\n";
 }
 
@@ -17,12 +17,16 @@ void Collider::start() {
 	m_engine = room->getRunner<CollisionEngine>();
 	//m_engine = Engine::get().GetRunner<ICollisionEngine>();
 	if (m_engine == nullptr) {
-		GLIB_FAIL("The room has a collider component but no collision engine is loaded.");
+
+		//GLIB_FAIL("The room has a collider component but no collision engine is loaded.");
+	} else {
+		m_engine->add(this);
+		m_callbackHandle = m_node->onMove.reg([&] (Node* e) { m_engine->move(this); } );
 	}
-	m_engine->add(this);
+
 
 	// register to move. When the object moves, we notify the collision engine
-	m_callbackHandle = m_node->onMove.reg([&] (Node* e) { m_engine->move(this); } );
+
 	if (collDebug) {
 		generateDebugMesh();
 	}
@@ -51,8 +55,12 @@ SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask,
 }
 
 void SimpleCollider::generateDebugMesh() {
+	if (m_debugNode != nullptr) {
+		m_debugNode->remove();
+	}
 	auto model = makeModel(m_shape, pybind11::kwargs());
 	auto node = std::make_shared<Node>();
 	node->setModel(model);
 	m_node->add(node);
+	m_debugNode = node.get();
 }
