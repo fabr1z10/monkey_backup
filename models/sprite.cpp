@@ -235,7 +235,12 @@ bool Sprite::hasCollision(const std::string & anim) const {
 }
 
 std::shared_ptr<Shape> Sprite::getShape (const std::string& anim, int frame) const {
-    return m_shapes[m_frameToShape.at(std::make_pair(anim, frame))];
+    auto it = m_frameToShape.find(std::make_pair(anim, frame));
+    if (it == m_frameToShape.end())
+        return nullptr;
+    if (it->second == -1)
+        return nullptr;
+    return m_shapes[it->second];
 }
 
 std::shared_ptr<Shape> Sprite::getShapeCast (const std::string& anim, int frame) const {

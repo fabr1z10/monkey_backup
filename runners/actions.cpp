@@ -117,9 +117,9 @@ void Delay::start() {
 int Delay::run(double dt) {
     m_timer += static_cast<float>(dt);
     if (m_timer > m_time) {
-        return 0.f;
+        return 0;
     }
-    return 1.f;
+    return 1;
 }
 
 Blink::Blink(const pybind11::kwargs & args) : NodeAction(args) {
@@ -177,4 +177,5 @@ int Repeat::run(double dt) {
 		m_timer = 0.f;
 		m_func();
 	}
+	return 1;
 }

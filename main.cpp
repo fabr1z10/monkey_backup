@@ -276,30 +276,30 @@ PYBIND11_MODULE(monkey, m) {
 
 
     /// --- actions ---
-    py::class_<Action, std::shared_ptr<Action>>(m, "action");
-    py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(m, "node_action");
-	py::class_<Animate, NodeAction, std::shared_ptr<Animate>>(m, "animate")
+    py::module_ ma = m.def_submodule("actions");
+    py::class_<Action, std::shared_ptr<Action>>(ma, "action");
+    py::class_<NodeAction, Action, std::shared_ptr<NodeAction>>(ma, "node_action");
+	py::class_<Animate, NodeAction, std::shared_ptr<Animate>>(ma, "animate")
 		.def(py::init<const pybind11::kwargs&>());
-    py::class_<MoveBy, NodeAction, std::shared_ptr<MoveBy>>(m, "move_by")
+    py::class_<MoveBy, NodeAction, std::shared_ptr<MoveBy>>(ma, "move_by")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<MoveAccelerated, NodeAction, std::shared_ptr<MoveAccelerated>>(m, "move_accelerated")
+    py::class_<MoveAccelerated, NodeAction, std::shared_ptr<MoveAccelerated>>(ma, "move_accelerated")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<SetState, NodeAction, std::shared_ptr<SetState>>(m, "set_state")
+    py::class_<SetState, NodeAction, std::shared_ptr<SetState>>(ma, "set_state")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<Delay, Action, std::shared_ptr<Delay>>(m, "delay")
+    py::class_<Delay, Action, std::shared_ptr<Delay>>(ma, "delay")
         .def(py::init<float>());
-    py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(m, "blink")
+    py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(ma, "blink")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<Walk, NodeAction, std::shared_ptr<Walk>>(m, "walk")
+    py::class_<Walk, NodeAction, std::shared_ptr<Walk>>(ma, "walk")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<Say, NodeAction, std::shared_ptr<Say>>(m, "say")
+    py::class_<Say, NodeAction, std::shared_ptr<Say>>(ma, "say")
         .def(py::init<const pybind11::kwargs&>());
-
-    py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(m, "remove")
+    py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(ma, "remove")
         .def(py::init<const pybind11::kwargs&>());
-    py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(m, "callfunc")
+    py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(ma, "callfunc")
         .def(py::init<pybind11::function>());
-	py::class_<Repeat, Action, std::shared_ptr<Repeat>>(m, "repeat")
+	py::class_<Repeat, Action, std::shared_ptr<Repeat>>(ma, "repeat")
 		.def(py::init<pybind11::function, float>());
 
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
@@ -346,6 +346,9 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_on_end", &Room::setOnEnd)
 	    .def("root", &Room::getRoot, py::return_value_policy::reference);
 
+//	py::module_ submodule = m.def_submodule("my_submodule");
+//    submodule.def("hello_submodule", []()
+//    { std::cout << "Hello from submodule" << std::endl; });
 }
 //int main( void )
 //{

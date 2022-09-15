@@ -15,7 +15,7 @@ void Action::setId(long id) {
 //    }
 //}
 
-Script::Script(const pybind11::kwargs& args) : m_done(false) {
+Script::Script(const pybind11::kwargs& args) : m_done(false), _nextId(0) {
     m_scriptId = dictget<std::string>(args, "id", "");
 }
 
