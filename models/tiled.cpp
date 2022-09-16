@@ -4,6 +4,15 @@
 #include "../asset_manager.h"
 #include <stack>
 
+void TiledModel::draw(Shader * s, const glm::mat4 & m) {
+    if (m_texId != GL_INVALID_VALUE) {
+        s->setInt("texture_diffuse1", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_texId);
+    }
+    Model::draw(s, m);
+}
+
 TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE) {
     // Vector of string to save tokens
     std::string u(s);
