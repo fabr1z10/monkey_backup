@@ -1,31 +1,21 @@
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include "shader.h"
 
+std::unordered_map<char, std::pair<GLenum, size_t>> Shader::m_types {
+    {'b', {GL_BYTE, sizeof(GLbyte)}},
+    {'B', {GL_UNSIGNED_BYTE, sizeof(GLubyte)}},
+    {'s', {GL_SHORT, sizeof(GLshort)}},
+    {'B', {GL_UNSIGNED_SHORT, sizeof(GLushort)}},
+    {'i', {GL_INT, sizeof(GLint)}},
+    {'I', {GL_UNSIGNED_INT, sizeof(GLuint)}},
+    {'f', {GL_FLOAT, sizeof(GLfloat)}},
+    {'d', {GL_DOUBLE, sizeof(GLdouble)}}
+};
 
-Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : m_shaderType(type) {
-//	std::string vertexCode;
-//	std::string fragmentCode;
-//
-//	std::ifstream vShaderFile;
-//	std::ifstream fShaderFile;
-//	vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-//	fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-//	try {
-//		vShaderFile.open(vertexPath);
-//		fShaderFile.open(fragmentPath);
-//		std::stringstream vShaderStream, fShaderStream;
-//		vShaderStream << vShaderFile.rdbuf();
-//		fShaderStream << fShaderFile.rdbuf();
-//		vShaderFile.close();
-//		fShaderFile.close();
-//		vertexCode = vShaderStream.str();
-//		fragmentCode = fShaderStream.str();
-//	} catch (std::ifstream::failure& e) {
-//		std::cout << "Error: shader file " << vertexPath << ", " << fragmentPath << " not successfully read" << std::endl;
-//		exit(1);
-//	}
+
+Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode,
+               const std::string& vertexFormat) : m_shaderType(type), m_stride(0) {
+
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
 
@@ -84,7 +74,17 @@ Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string
 	}
 	m_programId = progId;
 
+	size_t start = 0;
 
+    for (size_t i = 0; i < vertexFormat.size(); ++i) {
+        if (std::isalpha(vertexFormat[i])) {
+            auto size = std::stoi(vertexFormat.substr(start, i-start));
+            const auto& typeInfo = m_types.at(vertexFormat[i]);
+            m_vertexFormat.emplace_back(VertexInfo{size, typeInfo.first, size * typeInfo.second});
+            start = i+1;
+            m_stride += size * typeInfo.second;
+        }
+    }
 	//
 	std::cout << " --- creating vao\n";
 	glGenVertexArrays(1, &m_vao);
@@ -104,25 +104,37 @@ void Shader::setup() {
 	glBindVertexArray(m_vao);
 
 }
-VCShader::VCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
 
-void VCShader::setupVertices() {
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, (void*)nullptr);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 28, (void*)12);
+void Shader::setupVertices() {
+    GLuint i{0};
+    unsigned long ptr{0};
+    for (const auto& vertex : m_vertexFormat) {
+        glEnableVertexAttribArray(i);
+        glVertexAttribPointer(i, vertex.size, GL_FLOAT, GL_FALSE, m_stride, (void*)ptr);
+        ptr += vertex.byteSize;
+        i++;
+    }
 }
 
-VTCShader::VTCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
-
-void VTCShader::setupVertices() {
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, (void*)nullptr);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 36, (void*)12);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 36, (void*)20);
-}
+//VCShader::VCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
+//
+//void VCShader::setupVertices() {
+//	glEnableVertexAttribArray(0);
+//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, (void*)nullptr);
+//	glEnableVertexAttribArray(1);
+//	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 28, (void*)12);
+//}
+//
+//VTCShader::VTCShader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode) : Shader(type, vertexCode, fragmentCode) {}
+//
+//void VTCShader::setupVertices() {
+//	glEnableVertexAttribArray(0);
+//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, (void*)nullptr);
+//	glEnableVertexAttribArray(1);
+//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 36, (void*)12);
+//	glEnableVertexAttribArray(2);
+//	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 36, (void*)20);
+//}
 // ------------------------------------------------------------------------
 void Shader:: setInt(const std::string &name, int value) const
 {

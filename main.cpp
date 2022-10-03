@@ -53,6 +53,7 @@ using namespace glm;
 #include "components/panzoom.h"
 #include "components/inputtext.h"
 #include "components/depth.h"
+#include "skeletal/skeletalmodel.h"
 
 namespace py = pybind11;
 
@@ -62,6 +63,7 @@ PYBIND11_MODULE(monkey, m) {
 	m.def("get_node", &getNode);
 	m.def("get_sprite", &getSprite);
     m.def("get_tiled", &getTiled);
+    m.def("get_mesh", &getMesh);
 	m.def("make_model", &makeModel);
 	m.def("play", &playScript);
 	m.attr("TRIANGLES") = GL_TRIANGLES;
@@ -116,7 +118,6 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_animation", &Node::getAnimation)
 		.def("set_animation", &Node::setAnimation)
 		.def("set_text", &Node::setText)
-
 		.def("add_component", &Node::addComponent)
 		.def("set_mult_color", &Node::setMultColor)
 		.def("set_add_color", &Node::setAddColor)
@@ -131,6 +132,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_renderer", &Node::getComponent<Renderer>, py::return_value_policy::reference)
 		.def("clear_children", &Node::clearChildren)
 		.def("get_children", &Node::getChildren)
+		.def("set_scale", &Node::setScale)
         .def_property_readonly("flip_x",&Node::getFlipX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
@@ -146,6 +148,10 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<int, const py::array_t<float>&, const py::array_t<unsigned>&, const py::kwargs&>());
 
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite");
+    py::class_<SkeletalModel, Model, std::shared_ptr<SkeletalModel>>(m, "skeletal_model")
+        .def(py::init<const pybind11::kwargs&>());
+
+    py::class_<PolyMesh, Model, std::shared_ptr<PolyMesh>>(m, "polymesh");
 
     py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(m, "tiled")
         .def(py::init<const std::string&>());
@@ -221,6 +227,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
+
+    py::class_<MoveQuat, Component, std::shared_ptr<MoveQuat>>(m, "movequat")
+        .def(py::init<const pybind11::kwargs&>());
 
 	py::class_<Renderer, Component, std::shared_ptr<Renderer>>(m, "renderer")
 		.def("flip", &Renderer::flipHorizontal)

@@ -15,9 +15,9 @@ Engine& getEngine() {
 
 Engine::Engine() : m_room(nullptr), m_nextId(0) {
 
-	m_shaderBuilders[0] = [&] () { add_shader<VCShader>(ShaderType::SHADER_COLOR, color_vs, color_fs); };
-	m_shaderBuilders[1] = [&] () { add_shader<VTCShader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs); };
-
+	m_shaderBuilders[0] = [&] () { add_shader<Shader>(ShaderType::SHADER_COLOR, color_vs, color_fs, "3f4f"); };
+	m_shaderBuilders[1] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs, "3f2f4f"); };
+    m_shaderBuilders[2] = [&] () { add_shader<Shader>(ShaderType::SHADER_SKELETAL, skeletal_vs, skeletal_fs, "3f2f3f"); };
 
 }
 

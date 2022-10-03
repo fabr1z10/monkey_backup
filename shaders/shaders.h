@@ -15,3 +15,11 @@ const std::string color_vs =
 const std::string color_fs =
 #include "color.fs"
 ;
+
+const std::string skeletal_vs =
+#include "skeletal.vs"
+;
+
+const std::string skeletal_fs =
+#include "skeletal.fs"
+;

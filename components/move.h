@@ -4,6 +4,8 @@
 
 #include <pybind11/pybind11.h>
 #include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 class Move : public Component {
 public:
@@ -15,6 +17,27 @@ private:
 	float m_time;
 
 };
+
+class MoveQuat : public Component {
+public:
+    explicit MoveQuat(const pybind11::kwargs&);
+    void update(double) override;
+private:
+    struct KeyFrame {
+        float time;
+        glm::quat quat;
+        glm::vec2 pos;
+        glm::vec2 dir;
+        glm::vec2 controlPoint;
+        int bezierType;
+    };
+    bool m_loop;
+    float m_t;                           // current time
+    int m_i;                            // index to the current quat
+    std::vector<KeyFrame> m_keyFrames;
+    float m_z;
+};
+
 
 class MoveDynamics : public Component {
 public:

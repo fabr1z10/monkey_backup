@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
+#include <yaml-cpp/yaml.h>
+
 
 namespace py = pybind11;
 
@@ -50,5 +52,22 @@ T dictget (pybind11::object obj, const std::string& key, T defaultValue) {
 	}
 }
 
+template<typename T>
+T _yaml_get(const YAML::Node& node, const std::string& key, T defaultValue) {
+    try {
+        return node[key].as<T>();
+    } catch (...) {
+        return defaultValue;
+    }
+}
 
+template<>
+inline glm::vec2  _yaml_get(const YAML::Node& node, const std::string& key, glm::vec2 defaultValue) {
+    try {
+        auto v = node[key].as<std::vector<float>>();
+        return glm::vec2(v[0], v[1]);
+    } catch (...) {
+        return defaultValue;
+    }
+}
 

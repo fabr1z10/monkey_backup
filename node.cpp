@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "components/statemachine.h"
 #include "models/text.h"
+#include <glm/gtx/transform.hpp>
 
 void Node::setModel(std::shared_ptr<Model> model) {
 
@@ -21,7 +22,9 @@ void Node::setModel(std::shared_ptr<Model> model) {
 
 }
 
-
+const glm::mat4 Node::getWorldMatrix() const {
+    return m_scaleMatrix * m_worldMatrix;
+}
 
 void Node::clearChildren() {
 	for (const auto& c : m_children) c.second->remove();
@@ -69,6 +72,10 @@ void Node::setModelMatrix(glm::mat4 m) {
 void Node::setFlipX(bool value) {
 	m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
 	m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+}
+
+void Node::setScale(float scale) {
+    m_scaleMatrix = glm::scale(glm::vec3(scale));
 }
 
 bool Node::getFilpX() const {

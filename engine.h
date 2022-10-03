@@ -64,8 +64,8 @@ private:
 	std::vector<std::shared_ptr<Shader>> m_shaders;
 
 	template<typename T>
-	void add_shader(ShaderType type, const std::string& vertex, const std::string& fragment) {
-		auto shader = std::make_shared<T>(type, vertex, fragment);
+	void add_shader(ShaderType type, const std::string& vertex, const std::string& fragment, const std::string& vertexFormat) {
+		auto shader = std::make_shared<T>(type, vertex, fragment, vertexFormat);
 		m_shaderTypeToIndex[type] = m_shaders.size();
 		m_shaders.push_back(shader);
 

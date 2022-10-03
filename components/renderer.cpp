@@ -9,18 +9,18 @@ void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
 		return;
 	}
+
 	const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
-
-
 	s->setVec4("mult_color", m_multColor);
 	s->setVec4("add_color", m_addColor);
-	innerDraw(s, m);
+    s->setMat4("model", m);
+    m_model->draw(s, 0, 0);
 
 }
-
-void Renderer::innerDraw(Shader * s, const glm::mat4& modelTransform) {
-	m_model->draw(s, modelTransform);
-}
+//
+//void Renderer::innerDraw(Shader * s, const glm::mat4& modelTransform) {
+//	m_model->draw(s, modelTransform);
+//}
 
 void Renderer::setModel(std::shared_ptr<Model> model) {
 	m_model = model;
@@ -43,6 +43,10 @@ bool Renderer::getFlipHorizontal() const {
 }
 
 
+void Renderer::setTransform(const glm::mat4 &m) {
+    m_rendererTransform = m;
+}
+
 SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
 
 }
@@ -52,10 +56,7 @@ void SpriteRenderer::setModel(std::shared_ptr<Model> model) {
 	m_sprite = std::dynamic_pointer_cast<Sprite>(model);
 }
 
-void AnimatedRenderer::setModel(std::shared_ptr<Model> model) {
-	Renderer::setModel(model);
-	m_itemizedModel = std::dynamic_pointer_cast<ItemizedModel>(model);
-}
+
 
 void SpriteRenderer::setAnimation(const std::string& anim) {
 	if (anim == m_animation) {
@@ -81,33 +82,44 @@ void AnimatedRenderer::start() {
 	m_referenceRenderer = dynamic_cast<SpriteRenderer*>(m_node->getParent()->getComponent<Renderer>());
 	assert(m_referenceRenderer != nullptr);
 }
+//
+//void AnimatedRenderer::innerDraw(Shader * s, const glm::mat4& m) {
+//	auto anim = m_referenceRenderer->getAnimation();
+//	auto frame = m_referenceRenderer->getFrame();
+//	std::stringstream ss;
+//	ss << anim << "_" << frame;
+//	m_itemizedModel->innerDraw(s, m, ss.str());
+//}
+//
+void SpriteRenderer::draw(Shader * s) {
+    if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
+        return;
+    }
 
-void AnimatedRenderer::innerDraw(Shader * s, const glm::mat4& m) {
-	auto anim = m_referenceRenderer->getAnimation();
-	auto frame = m_referenceRenderer->getFrame();
-	std::stringstream ss;
-	ss << anim << "_" << frame;
-	m_itemizedModel->innerDraw(s, m, ss.str());
-}
+    const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
+    s->setVec4("mult_color", m_multColor);
+    s->setVec4("add_color", m_addColor);
+    s->setMat4("model", m);
 
-void SpriteRenderer::innerDraw(Shader * s, const glm::mat4& modelMatrix) {
 	const auto& a = m_sprite->getFrameInfo(m_animation, m_frame);
-	std::stringstream ss;
-	ss << m_animation << "_" << m_frame;
-	m_sprite->innerDraw(s, modelMatrix, ss.str());
-	//m_sprite->draw(s, nullptr);
+	std::cout << "drawing " << a.offset << ", " << a.count << "\n";
+
+    m_model->draw(s, a.offset, a.count);
+//	m_sprite->innerDraw(s, modelMatrix, ss.str());
+//	//m_sprite->draw(s, nullptr);
 	// time to update frame?
 	if (m_ticks >= a.ticks) {
 		// increment frame. if this animation is
 		m_frame++;
-		if (m_frame >= m_animInfo->frames) {
-			m_frame = (m_animInfo->loop ? 0 : m_animInfo->frames - 1);
+		if (m_frame >= m_animInfo->frameCount) {
+			m_frame = (m_animInfo->loop ? 0 : m_animInfo->frameCount - 1);
 		}
 		m_ticks = 0;
 	} else {
 		// if it's not time to update frame, increment current frame length
 		m_ticks++;
 	}
+
 }
 
 std::type_index SpriteRenderer::getType() {

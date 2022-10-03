@@ -27,7 +27,7 @@ public:
 	void setFlipX(bool);
 	bool getFilpX() const;
 	void update(double) ;
-
+	void setScale(float);
 	void pop();
 	bool getFlipX() const;
 	std::shared_ptr<Camera> getCamera();
@@ -36,7 +36,7 @@ public:
 	glm::vec3 getLocalPosition() const;
 	glm::vec3 getWorldPosition() const;
 	const glm::mat4& getModelMatrix() const;
-	const glm::mat4& getWorldMatrix() const;
+	const glm::mat4 getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);
 	void move(glm::mat4);
 
@@ -81,6 +81,7 @@ private:
 	Node* m_parent;
 	std::unordered_map<std::type_index, std::shared_ptr<Component> > m_components;
 	glm::mat4 m_worldMatrix;
+	glm::mat4 m_scaleMatrix;
 	bool m_active;
 	pybind11::object m_userData;
 	long _id;
@@ -97,9 +98,7 @@ inline const glm::mat4 & Node::getModelMatrix() const {
 
 
 
-inline const glm::mat4 & Node::getWorldMatrix() const {
-	return m_worldMatrix;
-}
+
 
 inline Node * Node::getParent() {
     return m_parent;

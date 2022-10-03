@@ -22,6 +22,68 @@ std::shared_ptr<TiledModel> AssetManager::getTiled(const std::string & id) {
     }
 
 }
+std::shared_ptr<PolyMesh> AssetManager::getPolymesh(const std::string& id) {
+    auto it = m_polymesh.find(id);
+    if (it == m_polymesh.end()) {
+        std::cout << " --- not cached. Create new!\n";
+        auto u = id.find_last_of('/');
+        if (u == std::string::npos) {
+            std::cerr << " --- wrong asset format. must have a /";
+            exit(1);
+        }
+        auto meshName = id.substr(u + 1);
+        auto sheetName = id.substr(0, u);
+        std::string file = "assets/" + sheetName + ".yaml";
+        auto f = YAML::LoadFile(file);
+        for(YAML::const_iterator it2 = f.begin(); it2 != f.end(); ++it2) {
+            auto currId = it2->first.as<std::string>();
+            if (currId == meshName) {
+                std::cout << " --- mesh: " << id << "\n";
+                m_polymesh[id] = std::make_shared<PolyMesh>(it2->second);
+            }
+        }
+        if (m_polymesh.count(id) == 0) {
+            std::cerr << " looks like sprite: " << id << " does not exist!" << std::endl;
+            exit(1);
+        }
+        return m_polymesh.at(id);
+    } else {
+        return it->second;
+    }
+
+}
+
+std::shared_ptr<SkeletalAnimation> AssetManager::getSkeletalAnimation(const std::string & id) {
+    auto it = m_skeletalAnimations.find(id);
+    if (it == m_skeletalAnimations.end()) {
+        std::cout << " --- not cached. Create new!\n";
+        auto u = id.find_last_of('/');
+        if (u == std::string::npos) {
+            std::cerr << " --- wrong asset format. must have a /";
+            exit(1);
+        }
+        auto meshName = id.substr(u + 1);
+        auto sheetName = id.substr(0, u);
+        std::string file = "assets/" + sheetName + ".yaml";
+        auto f = YAML::LoadFile(file);
+        for(YAML::const_iterator it2 = f.begin(); it2 != f.end(); ++it2) {
+            auto currId = it2->first.as<std::string>();
+            if (currId == meshName) {
+                std::cout << " --- mesh: " << id << "\n";
+                m_skeletalAnimations[id] = std::make_shared<SkeletalAnimation>(it2->second);
+            }
+        }
+        if (m_skeletalAnimations.count(id) == 0) {
+            std::cerr << " looks like sprite: " << id << " does not exist!" << std::endl;
+            exit(1);
+        }
+        return m_skeletalAnimations.at(id);
+    } else {
+        return it->second;
+    }
+
+}
+
 
 std::shared_ptr<Sprite> AssetManager::getSprite(const std::string & id) {
 	auto it = m_sprites.find(id);
@@ -33,18 +95,19 @@ std::shared_ptr<Sprite> AssetManager::getSprite(const std::string & id) {
         std::string file = "assets/" + sheetName + ".yaml";
         auto f = YAML::LoadFile(file);
         // check if spritesheet has been loaded
-        if (m_spriteSheets.count(sheetName) == 0) {
-        	// load spritesheet
-        	m_spriteSheets.insert(std::make_pair(sheetName, std::make_shared<SpriteSheet>(f)));
-        }
-		auto sheet = m_spriteSheets.at(sheetName);
-		auto gino = f["sprites"];
+//        if (m_spriteSheets.count(sheetName) == 0) {
+//        	// load spritesheet
+//        	m_spriteSheets.insert(std::make_pair(sheetName, std::make_shared<SpriteSheet>(f)));
+//        }
+//		auto sheet = m_spriteSheets.at(sheetName);
+		auto sheetFile = f["sheet"].as<std::string>();
+		auto spritesNode = f["sprites"];
 
-        for(YAML::const_iterator it=gino.begin();it!=gino.end();++it) {
+        for(YAML::const_iterator it=spritesNode.begin();it!=spritesNode.end();++it) {
             auto currId = it->first.as<std::string>();
             std::string cspr = id.substr(0, u+1) + currId;
             std::cout << " --- adding sprite: " << cspr << "\n";
-            m_sprites[cspr] = std::make_shared<Sprite>(it->second, sheet.get());
+            m_sprites[cspr] = std::make_shared<Sprite>(it->second, sheetFile);
         }
         if (m_sprites.count(id) == 0) {
         	std::cerr << " looks like sprite: " << id << " does not exist!" << std::endl;

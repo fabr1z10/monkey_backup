@@ -18,7 +18,7 @@ void Room::cleanUp() {
 }
 
 Node::Node() : _id(Engine::instance().getNextId()), /*m_model(nullptr),*/ m_camera(nullptr), m_modelMatrix(1.0f), m_active(true), m_parent(nullptr), m_worldMatrix(1.0f),
-m_started(false), m_userData(pybind11::dict()) {
+m_started(false), m_userData(pybind11::dict()), m_scaleMatrix(glm::mat4(1.f)) {
 
 
 }

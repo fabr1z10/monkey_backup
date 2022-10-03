@@ -8,7 +8,7 @@
 class Renderer : public Component {
 public:
 	Renderer();
-	void draw(Shader*);
+	virtual void draw(Shader*);
 	std::shared_ptr<Model> getModel();
 	virtual void setModel(std::shared_ptr<Model>);
 	void setMultColor(glm::vec4);
@@ -16,9 +16,10 @@ public:
 	const glm::mat4& getRendererTransform() const;
 	void flipHorizontal(bool);
 	bool getFlipHorizontal() const;
+	void setTransform(const glm::mat4& m);
+//protected:
+//	virtual void innerDraw(Shader*, const glm::mat4& modelTransform) ;
 protected:
-	virtual void innerDraw(Shader*, const glm::mat4& modelTransform) ;
-private:
 	std::shared_ptr<Model> m_model;
 	glm::vec4 m_multColor;
 	glm::vec4 m_addColor;
@@ -49,8 +50,9 @@ public:
 	const std::string& getAnimation() const;
 	Sprite* getSprite();
 	int getFrame() const;
+	void draw(Shader *) override;
 private:
-	void innerDraw(Shader*, const glm::mat4&) override;
+	//void innerDraw(Shader*, const glm::mat4&) override;
 	const AnimInfo* m_animInfo;
 	std::string m_animation;
 	int m_frame;
@@ -69,7 +71,7 @@ public:
 	std::type_index getType() override;
 	void start() override;
 private:
-	void innerDraw(Shader*, const glm::mat4&) override;
+	//void innerDraw(Shader*, const glm::mat4&) override;
 	SpriteRenderer* m_referenceRenderer;
 	std::shared_ptr<ItemizedModel> m_itemizedModel;
 };

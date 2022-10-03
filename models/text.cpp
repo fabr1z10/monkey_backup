@@ -90,19 +90,19 @@ Text::Text(const std::string& fontId, const std::string& text, int size) : Model
 
 }
 
-void Text::draw(Shader* s, const glm::mat4& m) {
-
-	if (m_texId != GL_INVALID_VALUE) {
-		s->setInt("texture_diffuse1", 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_texId);
-	}
-
-	Model::draw(s, m);
-
-
-
-}
+//void Text::draw(Shader* s, const glm::mat4& m) {
+//
+//	if (m_texId != GL_INVALID_VALUE) {
+//		s->setInt("texture_diffuse1", 0);
+//		glActiveTexture(GL_TEXTURE0);
+//		glBindTexture(GL_TEXTURE_2D, m_texId);
+//	}
+//
+//	Model::draw(s, m);
+//
+//
+//
+//}
 
 glm::vec2 Text::getSize() const {
     return m_textSize;

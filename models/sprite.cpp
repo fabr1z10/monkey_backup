@@ -25,9 +25,6 @@
 //
 //}
 
-void ItemizedModel::addStateItem(const std::string & key, int item) {
-	m_stateToItems[key].push_back(item);
-}
 
 void Sprite::init(Node * n) {
 	auto obj = n->getUserData();
@@ -35,8 +32,20 @@ void Sprite::init(Node * n) {
 	obj["frame"] = 0;
 }
 
-Sprite::Sprite(const YAML::Node& node, SpriteSheet* sheet) : ItemizedModel(), m_defaultAnimation(std::string()), m_sheet(sheet) {
-	m_shaderType = ShaderType::SHADER_TEXTURE;
+Sprite::Sprite(ShaderType type, GLenum primitive) : Model(type) {
+    m_primitive = primitive;
+}
+
+Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), m_defaultAnimation(std::string()) {
+
+    m_shaderType = ShaderType::SHADER_TEXTURE;
+    m_primitive = GL_TRIANGLES;
+    auto& am = AssetManager::instance();
+    auto tex = am.getTex(sheetFile);
+    float texw = tex->getWidth();
+    float texh = tex->getHeight();
+    m_texId = tex->getTexId();
+
 	auto& engine = Engine::instance();
 	auto defaultTicks = pyget<int>(engine.getConfig().attr("settings"),"ticks", 5);
 
@@ -58,33 +67,67 @@ Sprite::Sprite(const YAML::Node& node, SpriteSheet* sheet) : ItemizedModel(), m_
         m_shapes.push_back(shape);
     }
 
+
+    std::vector<float> vertices;
+    std::vector<unsigned> indices;
+    float ppu{1.f};
+    int quadCount {0};
 	for (YAML::const_iterator anit = node["animations"].begin(); anit != node["animations"].end(); ++anit) {
 		auto animId = anit->first.as<std::string>();
 		if (m_defaultAnimation.empty()) m_defaultAnimation = animId;
-		//std::cerr << " reading animation:" << animId << "\n";
+		std::cerr << " reading animation:" << animId << "\n";
 		AnimInfo animInfo;
 		std::vector<FrameInfo> frameInfos;
 		animInfo.loop = anit->second["loop"].as<bool>(true);
 		int boxAnim = anit->second["box"].as<int>(-1);
-		animInfo.frames = 0;
+		animInfo.frameCount = 0;
 		int frameCount = 0;
 		for (const auto& el : anit->second["frames"]) {
 			FrameInfo frameInfo;
+			frameInfo.offset = indices.size();
+            frameInfo.count = 0;
+
 			frameInfo.ticks = el["ticks"].as<int>(defaultTicks);
 			int boxFrame = el["box"].as<int>(boxAnim);
+			frameInfo.box = boxFrame;
 			m_frameToShape[std::make_pair(animId, frameCount)] = boxFrame;
-			for (const auto& item : el["items"]) {
-				auto itemId = item["id"].as<std::string>();
-				m_stateToItems[animId + "_" + std::to_string(frameCount)].push_back(m_sheet->getId(itemId));
-			}
+			auto ciao = el["quads"].as<std::vector<int>>();
+            assert(ciao.size() % 6 == 0);
+            int nquads = ciao.size() / 6;
+            for (size_t i = 0; i < ciao.size(); i += 6) {
+                int width_px = ciao[i+2];
+				int height_px = ciao[i+3];
+				float tx = ciao[0] / texw;
+				float ty = ciao[1] / texh;
+				float tw = width_px / texw;
+				float th = height_px / texh;
+				float ox = ciao[4];
+				float oy = ciao[5];
+				float width_actual = static_cast<float>(width_px) / ppu;
+				float height_actual = static_cast<float>(height_px) / ppu;
+				// bottom left
+				vertices.insert(vertices.end(), {ox, oy, 0.0f, tx, ty + th, 1, 1, 1, 1});
+				// bottom right
+				vertices.insert(vertices.end(), {ox + width_actual, oy, 0.0f, tx + tw, ty + th, 1, 1, 1, 1});
+				// top right
+				vertices.insert(vertices.end(), {ox + width_actual, oy + height_actual, 0.0f, tx + tw, ty, 1, 1, 1, 1});
+				// top left
+				vertices.insert(vertices.end(), {ox, oy + height_actual, 0.0f, tx, ty, 1, 1, 1, 1});
+                unsigned ix = quadCount * 4;
+				indices.insert(indices.end(), {ix, ix + 1, ix + 2, ix + 3, ix, ix + 2});
+				frameInfo.count += 6;
+				quadCount++;
+            }
+			    //auto itemId = item["id"].as<std::string>();
+				//m_stateToItems[animId + "_" + std::to_string(frameCount)].push_back(m_sheet->getId(itemId));
+
 			frameCount++;
-			animInfo.frames ++;
-			frameInfos.push_back(frameInfo);
+			animInfo.frameCount++;
+			animInfo.frameInfo.push_back(frameInfo);
 		}
-		m_frameInfo.insert(std::make_pair(animId, frameInfos));
 		m_animInfo.insert(std::make_pair(animId, animInfo));
 	}
-
+    generateBuffers(vertices, indices);
 //		if (m_defaultAnimation.empty()) m_defaultAnimation = anit->first.as<std::string>();
 //		std::vector<FrameInfo> frameInfos;
 //		AnimInfo animInfo;
@@ -167,53 +210,29 @@ Sprite::Sprite(const YAML::Node& node, SpriteSheet* sheet) : ItemizedModel(), m_
 //
 //}
 
-void AnimatedModel::innerDraw(Shader * s, const glm::mat4& m, const std::string &key) {
-	auto it = m_stateToItems.find(key);
-	if (it == m_stateToItems.end()) {
-		// nothing to draw
-		return;
-	}
-	if (m_texId != GL_INVALID_VALUE) {
-		s->setInt("texture_diffuse1", 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_texId);
-	}
 
-	for (size_t i = 0; i < it->second.size(); ++i) {
-		s->setMat4("model", m);
-		auto id = it->second[i];
-		auto it2 = m_transforms.find(std::make_pair(key, i));
-
-		const auto& ii = m_itemInfo[id];
-		Model::draw(s, ii.first, ii.second);
-		// draw current item
-		//m_sheet->draw(s, id);
-
-	}
-
-}
-
-void Sprite::innerDraw(Shader * s, const glm::mat4& m, const std::string &key) {
-	auto it = m_stateToItems.find(key);
-	if (it == m_stateToItems.end()) {
-		// nothing to draw
-	}
-
-
-	for (size_t i = 0; i < it->second.size(); ++i) {
-		s->setMat4("model", m);
-		auto id = it->second[i];
-		auto it2 = m_transforms.find(std::make_pair(key, i));
-
-
-		// draw current item
-		m_sheet->draw(s, id);
-
-	}
-}
+//
+//void Sprite::innerDraw(Shader * s, const glm::mat4& m, const std::string &key) {
+//	auto it = m_stateToItems.find(key);
+//	if (it == m_stateToItems.end()) {
+//		// nothing to draw
+//	}
+//
+//
+//	for (size_t i = 0; i < it->second.size(); ++i) {
+//		s->setMat4("model", m);
+//		auto id = it->second[i];
+//		auto it2 = m_transforms.find(std::make_pair(key, i));
+//
+//
+//		// draw current item
+//		m_sheet->draw(s, id);
+//
+//	}
+//}
 
 const FrameInfo & Sprite::getFrameInfo(const std::string &anim, int frame) {
-	return m_frameInfo[anim][frame];
+	return m_animInfo.at(anim).frameInfo[frame];
 }
 
 std::shared_ptr<Renderer> Sprite::getRenderer() const {
@@ -221,13 +240,7 @@ std::shared_ptr<Renderer> Sprite::getRenderer() const {
 
 }
 
-std::shared_ptr<Renderer> AnimatedModel::getRenderer() const {
-	return std::make_shared<AnimatedRenderer>();
-}
 
-void AnimatedModel::addItem(int offset, int count) {
-	m_itemInfo.push_back(std::make_pair(offset, count));
-}
 
 bool Sprite::hasCollision(const std::string & anim) const {
     return m_frameToShape.count(std::make_pair(anim, 0)) > 0;
@@ -253,9 +266,12 @@ std::shared_ptr<Model> Sprite::generateDebugModel() {
     std::vector<unsigned> elements;
     unsigned u{0};
     glm::vec4 color(1.f);
-
-    auto model = std::make_shared<AnimatedModel>(ShaderType::SHADER_COLOR, GL_LINES);
-
+    auto model = std::make_shared<Sprite>(ShaderType::SHADER_COLOR, GL_LINES);
+//
+//    auto model = std::make_shared<AnimatedModel>(ShaderType::SHADER_COLOR, GL_LINES);
+//
+    // every shape is associated an offset and a count
+    std::unordered_map<int, std::pair<int, int>> m_shapeInfo;
     auto lambda = [&] (const Bounds& b) {
         vertices.insert(vertices.end(), {b.min.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
         vertices.insert(vertices.end(), {b.max.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
@@ -265,6 +281,7 @@ std::shared_ptr<Model> Sprite::generateDebugModel() {
         u += 4;
     };
 
+    int ishape{0};
     for (const auto& s : m_shapes) {
 		unsigned offset = elements.size();
         if (s->getShapeType() == ShapeType::COMPOUND) {
@@ -275,15 +292,27 @@ std::shared_ptr<Model> Sprite::generateDebugModel() {
         } else {
             lambda(s->getBounds());
         }
-		model->addItem(offset, elements.size() - offset);
+        m_shapeInfo[ishape++] = std::make_pair(offset, elements.size() - offset);
+//		model->addItem(offset, elements.size() - offset);
     }
 	model->generateBuffers(vertices, elements);
-	for (const auto& j : m_frameToShape) {
-		std::stringstream ciao;
-		ciao << j.first.first << "_" << j.first.second;
-		model->addStateItem(ciao.str(), j.second);
-	}
-	return model;
+
+    // make a copy of the anim info
+    std::unordered_map<std::string, AnimInfo> animInfo(m_animInfo);
+    for (auto& a : animInfo) {
+        for (auto& f : a.second.frameInfo) {
+            if (f.box == -1) {
+                f.count = 0;
+                f.offset = 0;
+            } else {
+                auto& p = m_shapeInfo[f.box];
+                f.offset = p.first;
+                f.count = p.second;
+            }
+        }
+    }
+    model->m_animInfo = animInfo;
+    return model;
     //return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, GL_LINES, vertices, elements);
 
 }

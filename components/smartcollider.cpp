@@ -41,12 +41,12 @@ int SpriteCollider::getCollisionMask() const {
 }
 
 void SpriteCollider::generateDebugMesh() {
-	if (m_debugNode != nullptr) {
-		m_debugNode->remove();
-	}
-    auto model = m_sprite->generateDebugModel();
-    auto node = std::make_shared<Node>();
-    node->setModel(model);
-    m_node->add(node);
-    m_debugNode = node.get();
+//	if (m_debugNode != nullptr) {
+//		m_debugNode->remove();
+//	}
+//    auto model = m_sprite->generateDebugModel();
+//    auto node = std::make_shared<Node>();
+//    node->setModel(model);
+//    m_node->add(node);
+//    m_debugNode = node.get();
 }

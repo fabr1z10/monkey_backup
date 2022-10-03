@@ -4,7 +4,7 @@
 #include "components/renderer.h"
 #include <iostream>
 
-Model::Model() : m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE) {}
+Model::Model() : m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE), m_texId(GL_INVALID_VALUE) {}
 
 Model::Model(int shaderType) : m_shaderType(static_cast<ShaderType>(shaderType)), m_primitive(GL_TRIANGLES),
 m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE)
@@ -17,12 +17,18 @@ Model::~Model() {
 	glDeleteBuffers(1, &m_ebo);
 }
 
-void Model::draw(Shader * s, const glm::mat4& modelTransform) {
-	s->setMat4("model", modelTransform);
-	draw(s, 0, 0);
-}
+//void Model::draw(Shader * s, const glm::mat4& modelTransform) {
+//	s->setMat4("model", modelTransform);
+//	draw(s, 0, 0);
+//}
 
 void Model::draw(Shader* s, int offset, int size) {
+    if (m_texId != GL_INVALID_VALUE) {
+        s->setInt("texture_diffuse1", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_texId);
+    }
+
 	if (size == 0) size = m_size;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);

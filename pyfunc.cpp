@@ -18,6 +18,11 @@ std::shared_ptr<TiledModel> getTiled(const std::string& id) {
     return am.getTiled(id);
 }
 
+std::shared_ptr<PolyMesh> getMesh(const std::string& id) {
+    auto& am = AssetManager::instance();
+    return am.getPolymesh(id);
+}
+
 std::shared_ptr<Model> makeModel(std::shared_ptr<Shape> shape, const pybind11::kwargs& args) {
 	ModelMaker m;
 	return m.get(shape, args);

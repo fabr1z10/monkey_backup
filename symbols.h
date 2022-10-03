@@ -3,7 +3,8 @@
 
 enum ShaderType {
 	SHADER_COLOR = 0,
-	SHADER_TEXTURE
+	SHADER_TEXTURE,
+	SHADER_SKELETAL
 };
 
 enum FillType {

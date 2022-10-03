@@ -6,6 +6,10 @@
 #include "tex.h"
 #include "models/tiled.h"
 #include "models/spritesheet.h"
+#include "models/polymesh.h"
+#include "skeletal/skeletalanimation.h"
+
+
 
 
 class AssetManager {
@@ -19,10 +23,14 @@ public:
     std::shared_ptr<TiledModel> getTiled(const std::string&);
 	std::shared_ptr<Tex> getTex(const std::string&);
 	std::shared_ptr<Font> getFont(const std::string&);
+    std::shared_ptr<PolyMesh> getPolymesh(const std::string&);
+    std::shared_ptr<SkeletalAnimation> getSkeletalAnimation(const std::string&);
 
 private:
     std::unordered_map<std::string, std::shared_ptr<TiledModel>> m_tiled;
 	std::unordered_map<std::string, std::shared_ptr<Sprite>> m_sprites;
+    std::unordered_map<std::string, std::shared_ptr<PolyMesh>> m_polymesh;
+    std::unordered_map<std::string, std::shared_ptr<SkeletalAnimation>> m_skeletalAnimations;
 	std::unordered_map<std::string, std::shared_ptr<SpriteSheet>> m_spriteSheets;
 	std::unordered_map<std::string, std::shared_ptr<Tex>> m_tex;
 	std::unordered_map<std::string, std::shared_ptr<Font>> m_fonts;

@@ -15,7 +15,7 @@ public:
 	Model();
 	Model(int);
 	virtual void init(Node*) {}
-	virtual void draw(Shader*, const glm::mat4&);
+	//virtual void draw(Shader*, const glm::mat4&);
 	void draw(Shader* shader, int offset, int count);
 	virtual ~Model();
 	// ** a model can be shared by multiple nodes. **
@@ -35,6 +35,7 @@ protected:
 	GLuint m_ebo;
 	GLuint m_primitive;
 	GLuint m_elementSize;
+    GLuint m_texId;
 };
 
 

@@ -4,7 +4,8 @@
 
 Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(ShaderType::SHADER_TEXTURE) {
 
-    glm::vec2 size = dictget<glm::vec2>(args, "size", glm::vec2(0.f));
+    auto size = dictget<glm::vec2>(args, "size", glm::vec2(0.f));
+    auto a = dictget<glm::vec2>(args, "anchor", glm::vec2(0.f));
 
     auto& am = AssetManager::instance();
     auto tex = am.getTex(filename);
@@ -17,10 +18,10 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
     m_texId = tex->getTexId();
 
     auto vertices = std::vector<float>({
-        0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f,
-        size.x, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f,
-        size.x, size.y, 0.f, 1.f, 0.f, 1.f, 1.f, 1.f, 1.f,
-        0.f, size.y, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f
+        -a.x, -a.y, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f,
+        -a.x + size.x, -a.y, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f,
+        -a.x + size.x, -a.y + size.y, 0.f, 1.f, 0.f, 1.f, 1.f, 1.f, 1.f,
+        -a.x, -a.y + size.y, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f
     });
     auto elements = std::vector<unsigned>({0, 1, 2, 2, 3, 0});
 
@@ -36,12 +37,12 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
     m_size = m_elementSize;
 }
 
-
-void Image::draw(Shader* s, const glm::mat4& m) {
-
-    s->setInt("texture_diffuse1", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texId);
-
-    Model::draw(s, m);
-}
+//
+//void Image::draw(Shader* s, const glm::mat4& m) {
+//
+//    s->setInt("texture_diffuse1", 0);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, m_texId);
+//
+//    Model::draw(s, m);
+//}
