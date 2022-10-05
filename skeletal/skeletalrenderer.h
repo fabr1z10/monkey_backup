@@ -11,13 +11,13 @@ struct Pose {
     glm::mat4 offset;
 };
 
-class SkeletalRenderer : public Renderer {
+class SkeletalRenderer : public AnimatedRenderer {
 public:
     SkeletalRenderer(const std::string& defaultAnimation);
     void start() override;
     void update(double) override;
     void draw(Shader*) override;
-    void setAnimation(const std::string&);
+    void setAnimation(const std::string&) override;
     float getAnimationTime() const;
     std::type_index getType() override;
     SkeletalModel* getModel();
@@ -30,7 +30,7 @@ private:
 
     SkeletalModel* m_skeletalModel;
     SkeletalAnimation* m_currentAnimation;
-    std::string m_currentAnimationId;
+    //std::string m_currentAnimationId;
     float m_animationTime;
     std::vector<glm::mat4> m_bones;
 

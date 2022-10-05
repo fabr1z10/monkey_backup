@@ -58,11 +58,12 @@ std::shared_ptr<Model> ModelMaker::makeAABB(std::shared_ptr<Shape> s, const pybi
 std::shared_ptr<Model> ModelMaker::makeConvexPoly(std::shared_ptr<Shape> s, const pybind11::kwargs& args) {
 	auto* cp = static_cast<ConvexPoly*>(s.get());
 	auto color = dictget<glm::vec4>(args, "color", glm::vec4(1.0f));
+	auto z = dictget<float>(args, "z", 0.f);
 	std::vector<float> vertices;
 	std::vector<unsigned> elements;
 	unsigned u{0};
 	for (const auto& p : cp->getPoints()) {
-		vertices.insert(vertices.end(), {p.x, p.y, 0.0f, color.r, color.g, color.b, color.a});
+		vertices.insert(vertices.end(), {p.x, p.y, z, color.r, color.g, color.b, color.a});
 		elements.push_back(u++);
 	}
 	//elements.push_back(0);

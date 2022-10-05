@@ -47,7 +47,12 @@ void Renderer::setTransform(const glm::mat4 &m) {
     m_rendererTransform = m;
 }
 
-SpriteRenderer::SpriteRenderer(const std::string& anim) : m_animation(anim), m_frame(0), m_ticks(0) {
+AnimatedRenderer::AnimatedRenderer(const std::string& anim) : m_animation(anim) {
+
+}
+
+
+SpriteRenderer::SpriteRenderer(const std::string& anim) : AnimatedRenderer(anim), m_frame(0), m_ticks(0) {
 
 }
 
@@ -130,7 +135,7 @@ std::type_index SpriteRenderer::getType() {
 //	return std::type_index(typeid(Renderer));
 //}
 
-const std::string & SpriteRenderer::getAnimation() const {
+const std::string & AnimatedRenderer::getAnimation() const {
     return m_animation;
 }
 

@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "components/statemachine.h"
 #include "models/text.h"
+#include "util.h"
 #include <glm/gtx/transform.hpp>
 
 void Node::setModel(std::shared_ptr<Model> model) {
@@ -78,7 +79,10 @@ void Node::setFlipX(bool value) {
 }
 
 void Node::setScale(float scale) {
-    m_scaleMatrix = glm::scale(glm::vec3(scale));
+    m_modelMatrix[0][0] = sign(m_modelMatrix[0][0]) * scale;
+    m_modelMatrix[1][1] = sign(m_modelMatrix[1][1]) * scale;
+    m_modelMatrix[2][2] = sign(m_modelMatrix[2][2]) * scale;
+
 }
 
 //void Node::setScale(glm::vec3 vec) {

@@ -38,23 +38,30 @@ class Sprite;
 class ItemizedModel;
 struct AnimInfo;
 
-
-
-class SpriteRenderer : public Renderer {
+class AnimatedRenderer : public Renderer {
 public:
-	SpriteRenderer(const std::string& anim);
+    explicit AnimatedRenderer(const std::string& defaultAnimation);
+    virtual const std::string& getAnimation() const;
+    virtual void setAnimation(const std::string&) = 0;
+protected:
+    // the current animation
+    std::string m_animation;
+};
+
+class SpriteRenderer : public AnimatedRenderer {
+public:
+	explicit SpriteRenderer(const std::string& anim);
 	void setModel(std::shared_ptr<Model>) override;
 	std::type_index getType() override;
 	void start() override;
-	void setAnimation(const std::string&);
-	virtual const std::string& getAnimation() const;
+    void setAnimation(const std::string&) override;
 	Sprite* getSprite();
 	virtual int getFrame() const;
 	void draw(Shader *) override;
 private:
 	//void innerDraw(Shader*, const glm::mat4&) override;
 	const AnimInfo* m_animInfo;
-	std::string m_animation;
+	//std::string m_animation;
 	int m_frame;
 	std::shared_ptr<Sprite> m_sprite;
 	int m_ticks;

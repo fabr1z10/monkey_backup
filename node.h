@@ -16,6 +16,7 @@ public:
 	void remove();
 	void setModel(std::shared_ptr<Model> model);
 	void setPosition(float x, float y, float z);
+	void move(glm::vec3 delta);
 	void clearChildren();
 	std::vector<std::shared_ptr<Node>> getChildren();
 	int getChildrenCount() const;

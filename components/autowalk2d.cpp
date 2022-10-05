@@ -1,6 +1,6 @@
 #include "autowalk2d.h"
 #include "../pyhelper.h"
-
+#include "../node.h"
 
 AutoWalk2D::AutoWalk2D(const std::string& id, const pybind11::kwargs& kwargs): Walk2D(id, kwargs) {
 }
@@ -41,5 +41,6 @@ void AutoWalk2D::control() {
             m_inputEvents.pop_front();
         }
     }
-    m_spriteRenderer->flipHorizontal(m_left);
+    m_node->setFlipX(m_left);
+    //m_spriteRenderer->flipHorizontal(m_left);
 }

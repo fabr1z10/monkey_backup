@@ -2,8 +2,7 @@
 #include <glm/gtx/transform.hpp>
 #include "../node.h"
 
-SkeletalRenderer::SkeletalRenderer(const std::string& animId) : Renderer(), m_skeletalModel(nullptr), m_currentAnimation(nullptr),
-    m_currentAnimationId(animId) {}
+SkeletalRenderer::SkeletalRenderer(const std::string& animId) : AnimatedRenderer(animId), m_skeletalModel(nullptr), m_currentAnimation(nullptr) {}
 
 std::type_index SkeletalRenderer::getType() {
     return std::type_index(typeid(Renderer));
@@ -11,8 +10,8 @@ std::type_index SkeletalRenderer::getType() {
 
 
 void SkeletalRenderer::start() {
-    if (!m_currentAnimationId.empty()) {
-        m_currentAnimation = m_skeletalModel->getAnimation(m_currentAnimationId);
+    if (!m_animation.empty()) {
+        m_currentAnimation = m_skeletalModel->getAnimation(m_animation);
     }
 }
 
@@ -121,4 +120,16 @@ std::unordered_map<int, JointTransform> SkeletalRenderer::interpolatePoses(
         currentPose.insert(std::make_pair(jointId, localTransform));
     }
     return currentPose;
+}
+
+
+void SkeletalRenderer::setAnimation(const std::string & id) {
+    if (id == m_animation) {
+        return;
+    }
+
+    //m_complete = false;
+    m_currentAnimation = m_skeletalModel->getAnimation(id);
+    m_animation = id;
+    m_animationTime = 0.0f;
 }

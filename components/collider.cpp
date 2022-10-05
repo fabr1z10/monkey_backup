@@ -58,7 +58,9 @@ void SimpleCollider::generateDebugMesh() {
 	if (m_debugNode != nullptr) {
 		m_debugNode->remove();
 	}
-	auto model = makeModel(m_shape, pybind11::kwargs());
+	auto args = pybind11::kwargs();
+	args["z"] =1.f;
+	auto model = makeModel(m_shape, args);
 	auto node = std::make_shared<Node>();
 	node->setModel(model);
 	m_node->add(node);

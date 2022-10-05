@@ -2,6 +2,7 @@
 #include "room.h"
 #include "components/renderer.h"
 #include "engine.h"
+#include "util.h"
 #include <glm/glm.hpp>
 
 Room::Room(const std::string& id) : m_id(id) {
@@ -29,6 +30,13 @@ void Node::setPosition(float x, float y, float z) {
 	m_modelMatrix[3][0] = x;
 	m_modelMatrix[3][1] = y;
 	m_modelMatrix[3][2] = z;
+}
+
+void Node::move(glm::vec3 delta) {
+    m_modelMatrix[3][0] += sign(m_modelMatrix[0][0]) * delta.x;
+    m_modelMatrix[3][1] += delta.y;
+    m_modelMatrix[3][2] += delta.z;
+
 }
 
 Node::~Node() {

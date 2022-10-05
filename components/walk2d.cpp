@@ -40,7 +40,7 @@ void Walk2D::setParent(StateMachine * sm) {
 	m_dynamics = m_sm->getNode()->getComponent<Dynamics>();
 	assert(m_dynamics != nullptr);
 
-	m_spriteRenderer = dynamic_cast<SpriteRenderer*>(m_node->getComponent<Renderer>());
+	m_animatedRenderer = dynamic_cast<AnimatedRenderer*>(m_node->getComponent<Renderer>());
 }
 
 
@@ -96,15 +96,15 @@ void Walk2D::run(double dt) {
 	m_controller->move(delta, false);
 
 	// update animation, if we have a sprite renderer
-	if (m_spriteRenderer) {
+	if (m_animatedRenderer) {
 	    if (m_controller->grounded()) {
 	        if (fabs(m_dynamics->m_velocity.x) < 0.1f) {
-	            m_spriteRenderer->setAnimation(m_idleAnim);
+                m_animatedRenderer->setAnimation(m_idleAnim);
 	        } else {
-                m_spriteRenderer->setAnimation(m_walkAnim);
+                m_animatedRenderer->setAnimation(m_walkAnim);
 	        }
 	    } else {
-            m_spriteRenderer->setAnimation(m_jumpAnim);
+            m_animatedRenderer->setAnimation(m_jumpAnim);
 	    }
 
 	}

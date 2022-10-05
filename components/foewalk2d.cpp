@@ -1,5 +1,6 @@
 #include "foewalk2d.h"
 #include "../pyhelper.h"
+#include "../node.h"
 
 void FoeWalk2D::control() {
 
@@ -15,7 +16,8 @@ void FoeWalk2D::control() {
 
     }
     if (m_flipHorizontally) {
-        m_spriteRenderer->flipHorizontal(m_left);
+        m_node->setFlipX(m_left);
+        //m_spriteRenderer->flipHorizontal(m_left);
     }
     //m_up = true;
 }

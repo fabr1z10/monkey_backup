@@ -25,7 +25,7 @@ void Controller::setDebugShape() {
 			m_debugShape->remove();
 		}
 		AABB a(-m_center.x, -m_center.x + m_size.x, -m_center.y, -m_center.y + m_size.y);
-		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE, 1.f);
+		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE, 5.f);
 		auto node = std::make_shared<Node>();
 		node->setModel(model);
 		m_node->add(node);
@@ -116,8 +116,8 @@ void Controller2D::move(glm::vec3& delta, bool forced) {
 	if (!isEqual(delta.y, 0.0f))
 		verticalCollisions(delta, forced);
 
-    m_node->move(glm::translate(delta));
-
+    //m_node->move(glm::translate(delta));
+    m_node->move(delta);
 
 }
 

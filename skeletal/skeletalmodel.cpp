@@ -122,5 +122,8 @@ glm::ivec3 SkeletalModel::getWeightIndex(int id) const {
 }
 
 SkeletalAnimation * SkeletalModel::getAnimation(const std::string &id) {
-    return m_animations.at(id).get();
+    auto it = m_animations.find(id);
+    if (it == m_animations.end())
+        return nullptr;
+    return it->second.get();
 }

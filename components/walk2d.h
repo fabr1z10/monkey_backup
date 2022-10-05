@@ -26,7 +26,7 @@ protected:
 	Controller2D* m_controller;
 	Dynamics* m_dynamics;
 	Node* m_node;
-	SpriteRenderer* m_spriteRenderer;
+	AnimatedRenderer* m_animatedRenderer;
 	std::string m_idleAnim;
     std::string m_walkAnim;
     std::string m_jumpAnim;
