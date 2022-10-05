@@ -70,11 +70,11 @@ void Walk2D::run(double dt) {
 	a.y = -m_gravity;
 
 	if (m_left || m_right) {
-		a.x = (m_left ? -1.f : 1.f) * m_acceleration;
+		a.x = m_acceleration; // (m_left ? -1.f : 1.f) * m_acceleration;
 	} else {
 		// apply deceleration only if velocity above threshold
 		if (fabs(m_dynamics->m_velocity.x) > 0.1f) {
-			a.x = -signf(m_dynamics->m_velocity.x) * m_acceleration;
+			a.x = - m_acceleration;
 		} else {
 			a.x = 0.0f;
 			m_dynamics->m_velocity.x = 0.0f;

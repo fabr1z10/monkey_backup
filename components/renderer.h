@@ -47,9 +47,9 @@ public:
 	std::type_index getType() override;
 	void start() override;
 	void setAnimation(const std::string&);
-	const std::string& getAnimation() const;
+	virtual const std::string& getAnimation() const;
 	Sprite* getSprite();
-	int getFrame() const;
+	virtual int getFrame() const;
 	void draw(Shader *) override;
 private:
 	//void innerDraw(Shader*, const glm::mat4&) override;
@@ -60,18 +60,29 @@ private:
 	int m_ticks;
 };
 
+class CopySpriteRenderer : public SpriteRenderer {
+public:
+    CopySpriteRenderer(const std::string& anim) : SpriteRenderer(anim) {}
+    void start() override;
+    const std::string& getAnimation() const override;
+    int getFrame() const override;
+private:
+    SpriteRenderer* m_reference;
+};
+
+
 inline Sprite* SpriteRenderer::getSprite() {
     return m_sprite.get();
 }
 
-class AnimatedRenderer : public Renderer {
-public:
-	AnimatedRenderer() = default;
-	void setModel(std::shared_ptr<Model>) override;
-	std::type_index getType() override;
-	void start() override;
-private:
-	//void innerDraw(Shader*, const glm::mat4&) override;
-	SpriteRenderer* m_referenceRenderer;
-	std::shared_ptr<ItemizedModel> m_itemizedModel;
-};
+//class AnimatedRenderer : public Renderer {
+//public:
+//	AnimatedRenderer() = default;
+//	void setModel(std::shared_ptr<Model>) override;
+//	std::type_index getType() override;
+//	void start() override;
+//private:
+//	//void innerDraw(Shader*, const glm::mat4&) override;
+//	SpriteRenderer* m_referenceRenderer;
+//	std::shared_ptr<ItemizedModel> m_itemizedModel;
+//};

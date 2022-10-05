@@ -65,12 +65,16 @@ CollisionReport Intersector2D::SATAABB(const Shape * s1, const Shape * s2, const
 CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
     auto b1 = s1->getBounds();
     auto b2 = s2->getBounds();
-    glm::vec3 tr1(t1[3]);
-    glm::vec3 tr2(t2[3]);
-    auto m1 = b1.min + tr1;
-    auto M1 = b1.max + tr1;
-    auto m2 = b2.min + tr2;
-    auto M2 = b2.max + tr2;
+    //glm::vec3 tr1(t1[3]);
+    //glm::vec3 tr2(t2[3]);
+    auto b10 = t1 * glm::vec4(b1.min, 1.f);
+    auto b11 = t1 * glm::vec4(b1.max, 1.f);
+    auto b20 = t2 * glm::vec4(b2.min, 1.f);
+    auto b21 = t2 * glm::vec4(b2.max, 1.f);
+    auto m1 = glm::vec3(std::min(b10.x, b11.x), std::min(b10.y, b11.y), std::min(b10.z, b11.z));
+    auto M1 = glm::vec3(std::max(b10.x, b11.x), std::max(b10.y, b11.y), std::max(b10.z, b11.z));
+    auto m2 = glm::vec3(std::min(b20.x, b21.x), std::min(b20.y, b21.y), std::min(b20.z, b21.z));
+    auto M2 = glm::vec3(std::max(b20.x, b21.x), std::max(b20.y, b21.y), std::max(b20.z, b21.z));
     CollisionReport report;
     float overlap_x{0.f};
     float overlap_y{0.f};

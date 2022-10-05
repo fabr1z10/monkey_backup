@@ -1,4 +1,5 @@
 #include "playerwalk2d.h"
+#include "../node.h"
 #include <GLFW/glfw3.h>
 
 extern GLFWwindow* window;
@@ -15,10 +16,12 @@ void PlayerWalk2D::keyCallback(GLFWwindow *, int key, int scancode, int action, 
     if (m_current && m_spriteRenderer && action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_LEFT:
-                m_spriteRenderer->flipHorizontal(true);
+                m_node->setFlipX(true);
+                //m_spriteRenderer->flipHorizontal(true);
                 break;
             case GLFW_KEY_RIGHT:
-                m_spriteRenderer->flipHorizontal(false);
+                m_node->setFlipX(false);
+                //spriteRenderer->flipHorizontal(false);
                 break;
         }
     }

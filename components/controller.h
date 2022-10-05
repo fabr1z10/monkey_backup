@@ -30,8 +30,8 @@ protected:
 };
 
 struct RaycastOrigins {
-	glm::vec3 topRight, topLeft;
-	glm::vec3 bottomRight, bottomLeft;
+	glm::vec3 topFwd, topBack;
+	glm::vec3 bottomFwd, bottomBack;
 	//float xMin, xMax, yMin, yMax;
 };
 

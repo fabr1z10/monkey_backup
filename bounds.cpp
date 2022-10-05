@@ -51,15 +51,15 @@ void Bounds::transform(const glm::mat4& m) {
 		glm::vec3 Pt = glm::vec3(m * glm::vec4(P[i], 1.0f));
 		if (Pt.x < min.x)
 			min.x = Pt.x;
-		else if (Pt.x > max.x)
+		if (Pt.x > max.x)
 			max.x = Pt.x;
 		if (Pt.y < min.y)
 			min.y = Pt.y;
-		else if (Pt.y > max.y)
+		if (Pt.y > max.y)
 			max.y = Pt.y;
 		if (Pt.z < min.z)
 			min.z = Pt.z;
-		else if (Pt.z > max.z)
+		if (Pt.z > max.z)
 			max.z = Pt.z;
 	}
 }

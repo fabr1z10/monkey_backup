@@ -74,10 +74,10 @@ public:
     std::shared_ptr<Shape> getShapeCast (const std::string& anim, int frame) const;
     bool hasCollision(const std::string&) const;
     //const SpriteCollisionInfo& getCollisionInfo(const std::string& anim) const;
-    std::shared_ptr<Model> generateDebugModel();
+    std::shared_ptr<Sprite> generateDebugModel();
     Bounds getStaticBounds() const;
 //	void innerDraw(Shader*, const glm::mat4&, const std::string& key) override;
-
+    std::string getDefaultAnimation() const;
 private:
 
 	SpriteSheet* m_sheet;
@@ -91,6 +91,10 @@ private:
     std::unordered_map<std::pair<std::string, int>, int> m_frameToShape;
     Bounds m_staticBounds;
 };
+
+inline std::string Sprite::getDefaultAnimation() const {
+    return m_defaultAnimation;
+}
 
 inline Bounds Sprite::getStaticBounds() const {
     return m_staticBounds;

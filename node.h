@@ -28,6 +28,7 @@ public:
 	bool getFilpX() const;
 	void update(double) ;
 	void setScale(float);
+	//void setScale(glm::vec3 scaleVector);
 	void pop();
 	bool getFlipX() const;
 	std::shared_ptr<Camera> getCamera();

@@ -25,7 +25,7 @@ void Controller::setDebugShape() {
 			m_debugShape->remove();
 		}
 		AABB a(-m_center.x, -m_center.x + m_size.x, -m_center.y, -m_center.y + m_size.y);
-		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE);
+		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE, 1.f);
 		auto node = std::make_shared<Node>();
 		node->setModel(model);
 		m_node->add(node);
@@ -80,14 +80,15 @@ Controller2D::~Controller2D() {
 
 void Controller2D::updateRaycastOrigins() {
 	auto worldMatrix = m_node->getWorldMatrix();
-	m_raycastOrigins.topRight = worldMatrix * glm::vec4(m_localTopFwd, 1.0f);
-	m_raycastOrigins.topLeft = worldMatrix * glm::vec4(m_localTopBack, 1.0f);
-	m_raycastOrigins.bottomRight = worldMatrix * glm::vec4(m_localBottomFwd, 1.0f);
-	m_raycastOrigins.bottomLeft = worldMatrix * glm::vec4(m_localBottomBack, 1.0f);
-	float width = fabs(m_raycastOrigins.topRight.x - m_raycastOrigins.topLeft.x);
-	float height = m_raycastOrigins.topRight.y - m_raycastOrigins.bottomRight.y;
+	m_raycastOrigins.topFwd = worldMatrix * glm::vec4(m_localTopFwd, 1.0f);
+	m_raycastOrigins.topBack = worldMatrix * glm::vec4(m_localTopBack, 1.0f);
+	m_raycastOrigins.bottomFwd = worldMatrix * glm::vec4(m_localBottomFwd, 1.0f);
+	m_raycastOrigins.bottomBack = worldMatrix * glm::vec4(m_localBottomBack, 1.0f);
+	float width = fabs(m_raycastOrigins.topFwd.x - m_raycastOrigins.topBack.x);
+	float height = m_raycastOrigins.topFwd.y - m_raycastOrigins.bottomFwd.y;
 	m_horizontalRaySpacing = height / (m_horizontalRayCount - 1.f);
 	m_verticalRaySpacing = width / (m_verticalRayCount - 1.f);
+	std::cout << "bottom fwd/back " << m_raycastOrigins.bottomFwd.x << "; " << m_raycastOrigins.bottomBack.x << "\n";
 }
 
 void Controller::move(glm::vec3 & delta, bool) {
@@ -114,6 +115,7 @@ void Controller2D::move(glm::vec3& delta, bool forced) {
 		horizontalCollisions(delta);
 	if (!isEqual(delta.y, 0.0f))
 		verticalCollisions(delta, forced);
+
     m_node->move(glm::translate(delta));
 
 
@@ -133,7 +135,7 @@ void Controller2D::descendSlope(glm::vec3& velocity) {
 	if (velocity.x == 0.0f) return;
 	bool goingForward = velocity.x > 0.0f;
 	auto directionX = signf(velocity.x);
-	auto r0 = directionX > 0.f ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight;
+	auto r0 = directionX > 0.f ? m_raycastOrigins.bottomFwd : m_raycastOrigins.bottomBack;
 	RayCastHit hit = m_collisionEngine->rayCast(r0, glm::vec3(0.f, -1.0f, 0.f), 100.0f, m_maskDown);
 	if (hit.collide) {
 		float slopeAngle = angle(hit.normal, glm::vec3(0.f, 1.f, 0.f));
@@ -155,11 +157,13 @@ void Controller2D::descendSlope(glm::vec3& velocity) {
 
 void Controller2D::horizontalCollisions(glm::vec3& velocity) {
     float directionX = signf(velocity.x);
+    bool goingForward = directionX > 0.f;
 	float rayLength = fabs(velocity.x) + m_skinWidth;
-	auto r0 = directionX > 0.f ? m_raycastOrigins.bottomRight : m_raycastOrigins.bottomLeft;
+	auto r0 = directionX > 0.f ? m_raycastOrigins.bottomFwd : m_raycastOrigins.bottomBack;
+    float dir_x = (goingForward == m_node->getFilpX()) ? -1.f : 1.f;
 	for (int i = 0; i < m_horizontalRayCount; i++) {
 		auto rayOrigin = r0 + glm::vec3(0.0f, i * m_horizontalRaySpacing, 0.0f);
-		RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(directionX, 0.f, 0.f), rayLength, 2 | 32);
+		RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(dir_x, 0.f, 0.f), rayLength, 2 | 32);
 		if (hit.collide) {
 			float slopeAngle = angle(hit.normal, glm::vec3(0.f, 1.f, 0.f));
 			if (i == 0 && slopeAngle <= m_maxClimbAngle) {
@@ -191,6 +195,8 @@ void Controller2D::horizontalCollisions(glm::vec3& velocity) {
 void Controller2D::verticalCollisions(glm::vec3& velocity, bool forced) {
 	auto directionY = signf(velocity.y);
 	bool goingForward = velocity.x > 0.0f;
+	bool faceRight = !m_node->getFilpX();
+    float dir_x = (goingForward == m_node->getFilpX()) ? -1.f : 1.f;
 	float directionX = (goingForward == m_faceRight) ? 1.f : -1.f;
 	float rayLength = std::abs(velocity.y) + m_skinWidth;
 	float obstacleDistance = std::numeric_limits<float>::max();
@@ -199,9 +205,10 @@ void Controller2D::verticalCollisions(glm::vec3& velocity, bool forced) {
 	float speedX = fabs(velocity.x);
     bool atleast = false;
 	//glm::vec3 r0(m_raycastOrigins.xMin, 0.f, 0.f);
-	glm::vec3 r0 = directionY > 0.f ? m_raycastOrigins.topLeft : m_raycastOrigins.bottomLeft;
+	glm::vec3 r0 = directionY > 0.f ? (faceRight ? m_raycastOrigins.topBack : m_raycastOrigins.topFwd) :
+                   (faceRight ? m_raycastOrigins.bottomBack : m_raycastOrigins.bottomFwd);
 	for (int i = 0; i < m_verticalRayCount; i++) {
-		auto rayOrigin = r0 + glm::vec3(i * m_verticalRaySpacing + velocity.x, 0.f, 0.f) ;
+		auto rayOrigin = r0 + glm::vec3(i * m_verticalRaySpacing + dir_x * velocity.x, 0.f, 0.f) ;
 		int collMask = (directionY == -1 ? (m_maskDown) : m_maskUp);
 		RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, directionY, 0.f), rayLength, collMask);
 		if (hit.collide) {
@@ -306,7 +313,7 @@ void Controller2D::climbSlope(glm::vec3& velocity, float slopeAngle) {
 
 bool Controller2D::isFalling(float dir) {
     updateRaycastOrigins();
-    auto rayOrigin = (dir < 0.f ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight);
+    auto rayOrigin = m_raycastOrigins.bottomFwd; //(dir < 0.f ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight);
 
     //glm::vec2 rayOrigin = (dir == -1) ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight;
     RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, -1.f, 0.f), 5.0, 2|32);

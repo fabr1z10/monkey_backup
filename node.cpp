@@ -23,7 +23,7 @@ void Node::setModel(std::shared_ptr<Model> model) {
 }
 
 const glm::mat4 Node::getWorldMatrix() const {
-    return m_scaleMatrix * m_worldMatrix;
+    return m_worldMatrix;
 }
 
 void Node::clearChildren() {
@@ -70,13 +70,21 @@ void Node::setModelMatrix(glm::mat4 m) {
 }
 
 void Node::setFlipX(bool value) {
-	m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
+    //m_scaleMatrix[0][0] = (value ? -1.f : 1.f) * abs(m_scaleMatrix[0][0]);
+	//m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
+	m_modelMatrix[0][0] = (value ? -1.f : 1.f) * abs(m_modelMatrix[0][0]);
 	m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+
 }
 
 void Node::setScale(float scale) {
     m_scaleMatrix = glm::scale(glm::vec3(scale));
 }
+
+//void Node::setScale(glm::vec3 vec) {
+//    m_scaleMatrix = glm::scale(vec);
+//}
+
 
 bool Node::getFilpX() const {
     return m_modelMatrix[0][0] < 0.f;

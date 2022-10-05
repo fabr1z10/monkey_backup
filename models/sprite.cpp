@@ -261,7 +261,7 @@ std::shared_ptr<Shape> Sprite::getShapeCast (const std::string& anim, int frame)
 }
 
 
-std::shared_ptr<Model> Sprite::generateDebugModel() {
+std::shared_ptr<Sprite> Sprite::generateDebugModel() {
     std::vector<float> vertices;
     std::vector<unsigned> elements;
     unsigned u{0};

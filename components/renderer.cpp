@@ -77,11 +77,11 @@ void SpriteRenderer::start() {
 	m_animInfo = m_sprite->getAnimInfo(m_animation);
 }
 
-
-void AnimatedRenderer::start() {
-	m_referenceRenderer = dynamic_cast<SpriteRenderer*>(m_node->getParent()->getComponent<Renderer>());
-	assert(m_referenceRenderer != nullptr);
-}
+//
+//void AnimatedRenderer::start() {
+//	m_referenceRenderer = dynamic_cast<SpriteRenderer*>(m_node->getParent()->getComponent<Renderer>());
+//	assert(m_referenceRenderer != nullptr);
+//}
 //
 //void AnimatedRenderer::innerDraw(Shader * s, const glm::mat4& m) {
 //	auto anim = m_referenceRenderer->getAnimation();
@@ -101,8 +101,8 @@ void SpriteRenderer::draw(Shader * s) {
     s->setVec4("add_color", m_addColor);
     s->setMat4("model", m);
 
-	const auto& a = m_sprite->getFrameInfo(m_animation, m_frame);
-	std::cout << "drawing " << a.offset << ", " << a.count << "\n";
+	const auto& a = m_sprite->getFrameInfo(getAnimation(), getFrame());
+	//std::cout << "drawing " << a.offset << ", " << a.count << "\n";
 
     m_model->draw(s, a.offset, a.count);
 //	m_sprite->innerDraw(s, modelMatrix, ss.str());
@@ -126,9 +126,9 @@ std::type_index SpriteRenderer::getType() {
 	return std::type_index(typeid(Renderer));
 }
 
-std::type_index AnimatedRenderer::getType() {
-	return std::type_index(typeid(Renderer));
-}
+//std::type_index AnimatedRenderer::getType() {
+//	return std::type_index(typeid(Renderer));
+//}
 
 const std::string & SpriteRenderer::getAnimation() const {
     return m_animation;
@@ -136,4 +136,18 @@ const std::string & SpriteRenderer::getAnimation() const {
 
 int SpriteRenderer::getFrame() const {
     return m_frame;
+}
+
+void CopySpriteRenderer::start() {
+    SpriteRenderer::start();
+    m_reference = dynamic_cast<SpriteRenderer*>(m_node->getParent()->getComponent<Renderer>());
+    assert(m_reference!=nullptr);
+}
+
+const std::string & CopySpriteRenderer::getAnimation() const {
+    return m_reference->getAnimation();
+}
+
+int CopySpriteRenderer::getFrame() const {
+    return m_reference->getFrame();
 }
