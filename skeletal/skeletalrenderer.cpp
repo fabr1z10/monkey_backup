@@ -13,6 +13,7 @@ void SkeletalRenderer::start() {
     if (!m_animation.empty()) {
         m_currentAnimation = m_skeletalModel->getAnimation(m_animation);
     }
+    m_animationTime = 0.f;
 }
 
 
@@ -53,7 +54,7 @@ void SkeletalRenderer::update(double dt) {
 
 
 void SkeletalRenderer::draw(Shader * s) {
-    const auto& m = m_node->getWorldMatrix();
+    const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
     s->setVec4("mult_color", m_multColor);
     s->setVec4("add_color", m_addColor);
     s->setMat4("model", m);

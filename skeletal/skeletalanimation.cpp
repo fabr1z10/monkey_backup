@@ -26,19 +26,15 @@ SkeletalAnimation::SkeletalAnimation(const YAML::Node& node) {
     }
 
     // attack boxes
-//    if (t.has("attack")) {
-//        t.foreach("attack", [&](const ITab &dict) {
-//            AttackInfo aInfo;
-//            aInfo.startTime = dict.get<float>("start") * speedUp;
-//            aInfo.endTime = dict.get<float>("end") * speedUp;
-//            dict.foreach("box", [&](const ITab &box) {
-//                auto st = box.as<std::vector<std::string>>();
-//                aInfo.boxInfos.push_back(SkeletalBoxInfo{st[0], st[1], st[2]});
-//            });
-//            m_attacks.push_back(aInfo);
-//        });
-//    }
+    if (node["attacks"]) {
+        for (const auto& attack : node["attacks"]) {
+            auto startTime = attack[0].as<float>();
+            auto endTime = attack[1].as<float>();
+            m_attacks.emplace_back(startTime, endTime);
+        }
+    }
 }
+
 
 
 float SkeletalAnimation::getLength() {
@@ -59,4 +55,18 @@ std::tuple<KeyFrame*, KeyFrame*, float> SkeletalAnimation::getPreviousAndNextKey
     float progression = (t - m_keyFrames.back()->getTimeStamp()) / (m_length - m_keyFrames.back()->getTimeStamp());
     return std::make_tuple(m_keyFrames.back().get(), m_keyFrames.front().get(), progression);
 
+}
+
+int SkeletalAnimation::getAttack(float u) const {
+    int id = 0;
+    for (const auto& t : m_attacks) {
+        if (u >= t.first && u <= t.second) {
+            return id;
+        }
+        if (u > t.second) {
+            return -1;
+        }
+        id++;
+    }
+    return -1;
 }

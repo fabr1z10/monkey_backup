@@ -20,7 +20,7 @@ public:
     void setAnimation(const std::string&) override;
     float getAnimationTime() const;
     std::type_index getType() override;
-    SkeletalModel* getModel();
+    SkeletalModel* getSkeletalModel();
     void setModel(std::shared_ptr<Model>) override;
     const std::vector<glm::mat4>& getBonesTransform();
     Pose computePose(const std::string& anim, float t);
@@ -40,7 +40,7 @@ inline const std::vector<glm::mat4> & SkeletalRenderer::getBonesTransform() {
     return m_bones;
 }
 
-inline SkeletalModel * SkeletalRenderer::getModel() {
+inline SkeletalModel * SkeletalRenderer::getSkeletalModel() {
     return m_skeletalModel;
 }
 

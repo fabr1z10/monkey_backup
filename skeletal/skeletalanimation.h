@@ -7,17 +7,7 @@
 
 class SkModel;
 
-struct SkeletalBoxInfo {
-    std::string jointId;
-    std::string attachPoint;
-    std::string size;
-};
 
-struct AttackInfo {
-    float startTime;
-    float endTime;
-    std::vector<SkeletalBoxInfo> boxInfos;
-};
 
 class SkeletalAnimation {
 public:
@@ -29,7 +19,8 @@ public:
     float getLength();
     const std::vector<std::shared_ptr<KeyFrame>>& getKeyFrames();
     std::tuple<KeyFrame*, KeyFrame*, float> getPreviousAndNextKeyFrames (float t);
-    const std::vector<AttackInfo>& getAttacks() const;
+    const std::vector<std::pair<float, float>>& getAttacks() const;
+    int getAttack(float t) const;
     std::unordered_map<std::string, glm::mat4> getAnimTransform(float, SkModel*);
     bool hasAttacks() const;
     bool loop() const;
@@ -37,7 +28,7 @@ private:
     bool m_loop;
     float m_length;
     std::vector<std::shared_ptr<KeyFrame>> m_keyFrames;
-    std::vector<AttackInfo> m_attacks;
+    std::vector<std::pair<float, float>> m_attacks;
 };
 
 inline bool SkeletalAnimation::hasAttacks() const {
@@ -52,6 +43,7 @@ inline const std::vector<std::shared_ptr<KeyFrame>>& SkeletalAnimation::getKeyFr
     return m_keyFrames;
 }
 
-inline const std::vector<AttackInfo> & SkeletalAnimation::getAttacks() const {
+inline const std::vector<std::pair<float, float>> & SkeletalAnimation::getAttacks() const {
     return m_attacks;
 }
+

@@ -54,6 +54,7 @@ using namespace glm;
 #include "components/inputtext.h"
 #include "components/depth.h"
 #include "skeletal/skeletalmodel.h"
+#include "skeletal/skeletalcollider.h"
 
 namespace py = pybind11;
 
@@ -209,6 +210,10 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")
         .def(py::init<int, int, int>());
+
+    py::class_<SkeletalCollider, Collider, std::shared_ptr<SkeletalCollider>>(m, "skeletal_collider")
+        .def(py::init<int, int, int>());
+
 
     py::class_<HotSpotManager, Component, std::shared_ptr<HotSpotManager>>(m, "hot_spot_manager")
         .def(py::init<>());
