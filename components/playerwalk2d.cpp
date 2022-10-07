@@ -12,17 +12,14 @@ void PlayerWalk2D::control() {
     m_up = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
 }
 
-void PlayerWalk2D::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods) {
-    if (m_current && action == GLFW_PRESS) {
+void PlayerWalk2D::keyCallback(int key) {
         switch (key) {
             case GLFW_KEY_LEFT:
                 m_node->setFlipX(true);
-                //m_spriteRenderer->flipHorizontal(true);
                 break;
             case GLFW_KEY_RIGHT:
                 m_node->setFlipX(false);
-                //spriteRenderer->flipHorizontal(false);
                 break;
         }
-    }
+        State::keyCallback(key);
 }

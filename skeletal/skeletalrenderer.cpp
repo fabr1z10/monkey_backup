@@ -22,7 +22,7 @@ void SkeletalRenderer::update(double dt) {
     if (m_currentAnimation != nullptr) {
         m_animationTime += static_cast<float>(dt);
         if (m_animationTime >= m_currentAnimation->getLength()) {
-            //m_complete = true;
+            m_complete = true;
             if (m_currentAnimation->loop()) {
                 m_animationTime = fmod(m_animationTime, m_currentAnimation->getLength());
             }  else {
@@ -129,7 +129,7 @@ void SkeletalRenderer::setAnimation(const std::string & id) {
         return;
     }
 
-    //m_complete = false;
+    m_complete = false;
     m_currentAnimation = m_skeletalModel->getAnimation(id);
     m_animation = id;
     m_animationTime = 0.0f;

@@ -43,10 +43,17 @@ public:
     explicit AnimatedRenderer(const std::string& defaultAnimation);
     virtual const std::string& getAnimation() const;
     virtual void setAnimation(const std::string&) = 0;
+    bool isComplete() const;
 protected:
+    bool m_complete;
     // the current animation
     std::string m_animation;
 };
+
+inline bool AnimatedRenderer::isComplete() const {
+    return m_complete;
+}
+
 
 class SpriteRenderer : public AnimatedRenderer {
 public:

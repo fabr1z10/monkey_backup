@@ -47,7 +47,7 @@ void Renderer::setTransform(const glm::mat4 &m) {
     m_rendererTransform = m;
 }
 
-AnimatedRenderer::AnimatedRenderer(const std::string& anim) : m_animation(anim) {
+AnimatedRenderer::AnimatedRenderer(const std::string& anim) : m_animation(anim), m_complete(false) {
 
 }
 
@@ -68,7 +68,8 @@ void SpriteRenderer::setAnimation(const std::string& anim) {
 		return;
 	}
 
-	//m_complete = false;
+
+	m_complete = false;
 	m_animInfo = m_sprite->getAnimInfo(anim);
 	if (m_animInfo == nullptr) {
 	    GLIB_FAIL("mmh don't know animation: " + anim);
@@ -118,6 +119,7 @@ void SpriteRenderer::draw(Shader * s) {
 		m_frame++;
 		if (m_frame >= m_animInfo->frameCount) {
 			m_frame = (m_animInfo->loop ? 0 : m_animInfo->frameCount - 1);
+			m_complete = true;
 		}
 		m_ticks = 0;
 	} else {

@@ -8,12 +8,12 @@
 
 class StateMachine;
 
-class State : public KeyboardListener {
+class State {
 public:
 	State(const std::string& id, const pybind11::kwargs&);
 	virtual ~State() = default;
 	std::string getId() const;
-	void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override {}
+	virtual void keyCallback(int);
 	virtual void init(const pybind11::kwargs& args);
 	virtual void run(double) {}
 	virtual void end();
@@ -24,6 +24,8 @@ protected:
 	StateMachine* m_sm;
 	long m_scriptId;
 	bool m_current;
+    std::unordered_map<int, pybind11::function> m_keyCallbacks;
+
 };
 
 inline void State::setParent(StateMachine * sm) {
@@ -41,13 +43,14 @@ inline std::string State::getId() const {
  states, of which only one is active at any given time. It provides methods
  to get the current state, and change the state to a new one.
  */
-class StateMachine : public Component {
+class StateMachine : public Component, public KeyboardListener {
 public:
 	StateMachine() : Component(), m_currentState(nullptr) {}
 	void start () override;
 	void update(double) override;
 	std::shared_ptr<State> getState() const;
-	void setState(const std::string&, const pybind11::kwargs& kwargs = pybind11::kwargs());
+    void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override;
+    void setState(const std::string&, const pybind11::kwargs& kwargs = pybind11::kwargs());
 	void addState(std::shared_ptr<State> state);
 	void setInitialState(const std::string& id, const pybind11::kwargs& args);
 protected:

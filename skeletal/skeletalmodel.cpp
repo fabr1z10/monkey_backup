@@ -6,6 +6,7 @@
 #include "skeletalrenderer.h"
 #include "../shapes/aabb.h"
 #include "../shapes/compound.h"
+#include <pybind11/stl.h>
 
 
 SkeletalModel::SkeletalModel(const pybind11::kwargs& args) {
@@ -70,16 +71,16 @@ SkeletalModel::SkeletalModel(const pybind11::kwargs& args) {
             auto box = dictget(animInfo, "box", -1);
             std::vector<int> shapeVector;
             std::vector<int> attackBox;
-            if (box != -1) {
-                shapeVector.push_back(box);
-            }
+            //if (box != -1) {
+            shapeVector.push_back(box);
+            //}
             if (!path.empty()) {
                 auto anim = AssetManager::instance().getSkeletalAnimation(path);
                 attackBox = dictget<std::vector<int>>(animInfo, "attack_box", std::vector<int>());
                 m_animations[id] = anim;
             }
-            m_animShapes[id] = shapeVector;
             shapeVector.insert(shapeVector.end(), attackBox.begin(), attackBox.end());
+            m_animShapes[id] = shapeVector;
             if (m_defaultAnimation.empty()) {
                 m_defaultAnimation = id;
             }
@@ -91,12 +92,16 @@ SkeletalModel::SkeletalModel(const pybind11::kwargs& args) {
     // read offset
     // ##################
     if (args.contains("offset")) {
-        auto ids = args["offset"].cast<std::vector<std::string>>();
-        for (const auto& id : ids) {
+        for (const auto& offset : args["offset"]) {
+            auto id = offset.cast<std::string>() ;
             auto atindex = id.find('@');
             assert(atindex != std::string::npos);
             m_offsetPointIds.emplace_back(id.substr(0, atindex), id.substr(atindex+1));
         }
+
+//        auto ids = args["offset"].cast<std::vector<std::string>>();
+//        for (const auto& id : ids) {
+//        }
     }
     computeOffset();
 
@@ -246,8 +251,9 @@ std::shared_ptr<Model> SkeletalModel::generateDebugModel() {
 
 std::pair<int, int> SkeletalModel::getDebugShape(const std::string &anim, int n) {
     const auto& it = m_animShapes.find(anim);
-    if (it == m_animShapes.end())
+    if (it == m_animShapes.end() || n >= it->second.size())
         return std::make_pair(-1, -1);
+
     auto shapeId = it->second[n];
     return m_shapeInfo[shapeId];
 }

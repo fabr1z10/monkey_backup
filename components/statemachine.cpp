@@ -7,7 +7,33 @@
 
 State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), m_scriptId(-1), m_current(false) {
     m_script = dictget<pybind11::function>(kwargs, "script", pybind11::function());
+
+    if (kwargs.contains("keys")) {
+        auto keys = kwargs["keys"].cast<pybind11::dict>();
+        for (const auto& key : keys) {
+            auto keyId = key.first.cast<int>();
+            auto callback = key.second.cast<pybind11::function>();
+            m_keyCallbacks.insert(std::make_pair(keyId, callback));
+        }
+    }
+
+
 }
+
+void State::keyCallback(int key) {
+    auto it = m_keyCallbacks.find(key);
+    if (it != m_keyCallbacks.end()) {
+        it->second();
+    }
+
+}
+
+void StateMachine::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        if (m_currentState != nullptr) m_currentState->keyCallback(key);
+    }
+}
+
 
 void State::init(const pybind11::kwargs& args) {
     m_current = true;

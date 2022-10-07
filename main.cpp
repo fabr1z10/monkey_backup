@@ -55,6 +55,7 @@ using namespace glm;
 #include "components/depth.h"
 #include "skeletal/skeletalmodel.h"
 #include "skeletal/skeletalcollider.h"
+#include "components/attack.h"
 
 namespace py = pybind11;
 
@@ -336,6 +337,9 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Idle, State, std::shared_ptr<Idle>>(m, "idle")
         .def(py::init<const std::string&, const std::string&, py::kwargs&>());
+
+    py::class_<Attack, State, std::shared_ptr<Attack>>(m, "attack")
+        .def(py::init<const std::string&, py::kwargs&>());
 
 
     py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
