@@ -270,10 +270,79 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 
 }
 
+std::vector<ShapeCastHit> CollisionEngine::shapeCast (Shape* shape, const glm::mat4& transform, int mask, bool onlyFirst) {
+    std::vector<ShapeCastHit> result;
+    auto aabb = shape->getBounds();
+    aabb.transform(transform);
+    float z = transform[3][2];
+    auto loc = getLocation(aabb);
+    for (int i = loc.first.x; i <= loc.second.x; ++i) {
+        for (int j = loc.first.y; j <= loc.second.y; ++j) {
+            auto cell = m_cells.find(glm::vec3(i, j, 0));
+            if (cell != m_cells.end()) {
+                auto &colliders = cell->second.colliders;
+                for (auto &c : colliders) {
+                    if (!c->isActive()) {
+                        continue;
+                    }
+                    int flag = c->getCollisionFlag();
+                    int m = flag & mask;
+                    if (m == 0) {
+                        continue;
+                    }
+                    auto b = c->getStaticBounds();
+                    // perform a aabb testing
+                    if (!aabb.intersect2D(b)) {
+                        continue;
+                    }
+                    auto s = c->getShape();
+                    if (s != nullptr) {
+                        const auto &t = c->getNode()->getWorldMatrix();
+                        //auto s1 = s->transform(t);
+                        //auto s2 = shape->transform(transform);
+                        // bounding boxes intersect, so let's make a proper collision test
+                        auto report = m_intersector->intersect(shape, s.get(), transform, t);
+                        if (report.collide) {
+                            Bounds bb = aabb.intersection(b);
+                            ShapeCastHit res;
+                            res.report = report;
+                            res.report.direction = bb.getCenter();
+                            res.entity = c;
+                            result.push_back(res);
+                            if (onlyFirst)
+                                return result;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result;
+
+}
+
+
+
+
 const CollisionEngineCell* CollisionEngine::getColliders(glm::ivec3 pos) {
     auto it = m_cells.find(pos);
     if (it == m_cells.end())
         return nullptr;
     return &it->second;
+
+}
+
+void CollisionEngine::processCollisions(const std::vector<ShapeCastHit> & e, Node* node, int tag) {
+
+    if (m_responseManager == nullptr) {
+        return;
+    }
+    for (const auto& coll : e) {
+        auto currentNode = coll.entity->getNode();
+        if (m_responseManager->hasCollision(tag, coll.entity->getCollisionTag())) {
+            m_responseManager->onStart(node, currentNode, tag, coll.entity->getCollisionTag(), coll.report.direction);
+        }
+
+    }
 
 }

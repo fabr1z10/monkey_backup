@@ -13,11 +13,13 @@ Engine& getEngine() {
 	return engine;
 }
 
-Engine::Engine() : m_room(nullptr), m_nextId(0) {
+Engine::Engine() : m_room(nullptr), m_nextId(0), m_pixelScaleFactor(1) {
 
 	m_shaderBuilders[0] = [&] () { add_shader<Shader>(ShaderType::SHADER_COLOR, color_vs, color_fs, "3f4f"); };
 	m_shaderBuilders[1] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs, "3f2f4f"); };
     m_shaderBuilders[2] = [&] () { add_shader<Shader>(ShaderType::SHADER_SKELETAL, skeletal_vs, skeletal_fs, "3f2f3f"); };
+    m_shaderBuilders[3] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE_PALETTE, tex_vs, tex_pal_fs, "3f2f4f"); };
+
 
 }
 
@@ -27,7 +29,7 @@ void Engine::load(pybind11::object obj) {
 	m_title = settings.attr("title").cast<std::string>();
 	m_windowSize = as<glm::ivec2>(settings.attr("window_size"));
 	m_deviceSize = as<glm::ivec2>(settings.attr("device_size"));
-	m_deviceAspectRatio = static_cast<float>(m_deviceSize[0]) / m_deviceSize[1];
+	m_deviceAspectRatio = static_cast<double>(m_deviceSize[0]) / m_deviceSize[1];
 	m_roomId = settings.attr("room").cast<std::string>();
 	m_frameTime = 1.0 / 60.0;
 	m_timeLastUpdate = 0.0;
@@ -102,7 +104,10 @@ void Engine::start() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Dark blue background
+    glDisable(GL_POINT_SMOOTH);
+    // setupFramebufferRendering();
+
+    // Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	loadShaders();
     m_shutdown = false;
@@ -118,7 +123,7 @@ void Engine::start() {
             /// note: if I run the update only every frame time CPU goes to 100%. If I run it on
             /// every iter, it doesn't. Tried move the glfwSwapBuffers call (and successive) out of the loop
             /// and that seems to work.
-            if (currentTime - m_timeLastUpdate >= m_frameTime) {
+            if (true || currentTime - m_timeLastUpdate >= m_frameTime) {
                 m_timeLastUpdate = currentTime;
 
                 // remove all entities scheduled for removal
@@ -131,8 +136,10 @@ void Engine::start() {
                 }
 
 
-                // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
-                //glClear(GL_COLOR_BUFFER_BIT);
+
+                // restore if you want framebuffer rendering
+                // glBindFramebuffer(GL_FRAMEBUFFER, _fb);
+                // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 // Draw nothing, see you in tutorial 2 !
@@ -143,6 +150,20 @@ void Engine::start() {
                     shader->use();
                     m_room->draw(shader.get());
                 }
+
+                // frame buffer rendering start
+/*                glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+                glViewport(m_windowViewport.x, m_windowViewport.y, m_windowViewport.z, m_windowViewport.w);
+                glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+                glClear(GL_COLOR_BUFFER_BIT);
+                m_blitShader->use();
+                glBindVertexArray(quadVAO);
+                m_blitShader->setInt("screenTexture", 0);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, _color);	// use the color attachment texture as the texture of the quad plane
+                glDrawArrays(GL_TRIANGLES, 0, 6);*/
+                // frame buffer rendering end
+
                 //m_room->draw();
                 glfwSwapBuffers(window);
                 glfwPollEvents();
@@ -165,6 +186,58 @@ void Engine::start() {
 	glfwTerminate();
 }
 
+//void Engine::setupFramebufferRendering() {
+//    float quadVertices[] = {
+//        // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+//        // positions   // texCoords
+//        -1.0f,  1.0f,  0.0f, 1.0f,
+//        -1.0f, -1.0f,  0.0f, 0.0f,
+//        1.0f, -1.0f,  1.0f, 0.0f,
+//
+//        -1.0f,  1.0f,  0.0f, 1.0f,
+//        1.0f, -1.0f,  1.0f, 0.0f,
+//        1.0f,  1.0f,  1.0f, 1.0f
+//    };
+//    // screen quad VAO
+//
+//    glGenVertexArrays(1, &quadVAO);
+//    glGenBuffers(1, &quadVBO);
+//    glBindVertexArray(quadVAO);
+//    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+//    glEnableVertexAttribArray(1);
+//    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+//
+//    // create frame buffer
+//    glGenFramebuffers(1, &_fb);
+//    glBindFramebuffer(GL_FRAMEBUFFER, _fb);
+//    glGenTextures(1, &_color);
+//    glBindTexture(GL_TEXTURE_2D, _color);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_deviceSize.x, m_deviceSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _color, 0);
+//
+//    // We also want to make sure OpenGL is able to do depth testing (and optionally stencil testing) so we have to make
+//    // sure to add a depth (and stencil) attachment to the framebuffer. Since we'll only be sampling the color buffer
+//    // and not the other buffers we can create a renderbuffer object for this purpose.
+//
+//    // Creating a renderbuffer object isn't too hard. The only thing we have to remember is that we're creating it as a
+//    // depth and stencil attachment renderbuffer object. We set its internal format to GL_DEPTH24_STENCIL8 which
+//    // is enough precision for our purposes:
+//    glGenRenderbuffers(1, &_depth);
+//    glBindRenderbuffer(GL_RENDERBUFFER, _depth);
+//    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_deviceSize.x, m_deviceSize.y);
+//    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depth);
+//    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+//        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//}
 
 void Engine::shutdown() {
 	//	// Close OpenGL window and terminate GLFW
@@ -195,12 +268,10 @@ void Engine::loadShaders() {
 		m_shaderBuilders[sh]();
 	}
 
+    //m_blitShader = std::make_shared<Shader>(ShaderType::SHADER_TEXTURE,
+    //    blit_vs, blit_fs, "2f2f");
 
 
-//	exit(1);
-//	auto shader = std::make_shared<VCShader>("shaders/color.vs", "shaders/color.fs");
-//	m_shaders.push_back(shader);
-//	m_shaders.push_back(shader);
 }
 
 // width and height will be pixels!!
@@ -214,20 +285,32 @@ void Engine::WindowResizeCallback(GLFWwindow* win, int width, int height) {
 	auto deviceSize = engine.getDeviceSize();
 	auto dar = engine.getDeviceAspectRatio();
 	int vx, vy, vw, vh;
-	if (winAspectRatio > dar) {
-		// vertical bands
-		vw = (int) (height * dar);
-		vh = height;
-		vx = (int) ((width - vw) / 2);
-		vy = 0;
-	} else {
-		// horizontal bands
-		vw = width;
-		vh = (int) (width / dar);
-		vx = 0;
-		vy = (int) ((height - vh) / 2);
-	}
+	int sx = width / deviceSize.x;
+	int sy = height / deviceSize.y;
+	engine.m_pixelScaleFactor = std::min(sx, sy);
+//	if (winAspectRatio > dar) {
+//		// vertical bands
+//		vw = (int) (height * dar);
+//		vh = (int) (vw / dar);
+//		vx = (int) ((width - vw) / 2);
+//		vy = (int) ((height - vh) / 2);
+//	} else {
+//		// horizontal bands
+//		vw = width;
+//		vh = (int) (width / dar);
+//		vx = 0;
+//		vy = (int) ((height - vh) / 2);
+//	}
+	vw = deviceSize.x * engine.m_pixelScaleFactor;
+	vh = deviceSize.y * engine.m_pixelScaleFactor;
+	vx = (int) ((width - vw) / 2.);
+    vy = (int) ((height - vh) / 2.);
+    glPointSize(engine.m_pixelScaleFactor);
+    glLineWidth(engine.m_pixelScaleFactor);
+	engine.m_windowViewport = glm::vec4(vx, vy, vw, vh);
+    //std::cout << "cazzocane: " << vw << ", " << vh << "\n";
 	engine.setActualDeviceViewport(glm::vec4(vx, vy, static_cast<float>(vw) / deviceSize[0], static_cast<float>(vh) / deviceSize[1]));
+
 }
 
 void Engine::cursor_pos_callback(GLFWwindow * win, double xpos, double ypos) {
@@ -245,11 +328,11 @@ void Engine::mouse_button_callback(GLFWwindow* win, int button, int action, int 
 
 
 
-float Engine::getDeviceAspectRatio() const {
+double Engine::getDeviceAspectRatio() const {
 	return m_deviceAspectRatio;
 }
 
-glm::vec2 Engine::getDeviceSize() const {
+glm::ivec2 Engine::getDeviceSize() const {
 	return m_deviceSize;
 }
 
@@ -263,6 +346,7 @@ glm::vec4 Engine::getActualDeviceViewport() const {
 
 void Engine::setActualDeviceViewport(glm::vec4 viewport) {
 	m_actualDeviceViewport = viewport;
+	std::cout << m_actualDeviceViewport[2] << ", " << m_actualDeviceViewport[3] << "\n";
 }
 
 std::shared_ptr<Shader> Engine::getShader(ShaderType type) {

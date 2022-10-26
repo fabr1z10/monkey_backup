@@ -17,6 +17,8 @@ public:
 	void flipHorizontal(bool);
 	bool getFlipHorizontal() const;
 	void setTransform(const glm::mat4& m);
+	void setCount(int);
+	void setOffset(int);
 //protected:
 //	virtual void innerDraw(Shader*, const glm::mat4& modelTransform) ;
 protected:
@@ -24,6 +26,9 @@ protected:
 	glm::vec4 m_multColor;
 	glm::vec4 m_addColor;
 	glm::mat4 m_rendererTransform;
+	int m_offset;
+	int m_count;
+
 };
 
 inline std::shared_ptr<Model> Renderer::getModel() {

@@ -4,7 +4,14 @@
 enum ShaderType {
 	SHADER_COLOR = 0,
 	SHADER_TEXTURE,
-	SHADER_SKELETAL
+	SHADER_SKELETAL,
+	SHADER_TEXTURE_PALETTE
+};
+
+enum HorizontalAlign {
+    LEFT = 0,
+    CENTER,
+    RIGHT
 };
 
 enum FillType {

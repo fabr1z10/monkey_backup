@@ -80,10 +80,13 @@ void Camera::init(Shader* s) {
 	s->setMat4("projection", m_projectionMatrix);
 	//glUniformMatrix4fv(glGetUniformLocation(m_programId, name.c_str()), 1, GL_FALSE, &m_projectionMatrix[0][0]);
 	auto vp = Engine::instance().getActualDeviceViewport();
+	//glViewport(m_viewport.x, m_viewport.y, m_viewport.z, m_viewport.w);
 
+	// the actual viewport x of the current camera will be the x of the window viewport + local x scaled by the viewport
+	// scaling factor
 	float x = vp.x + m_viewport.x * vp[2];
 	float y = vp.y + m_viewport.y * vp[3];
-	float w = m_viewport[2] * vp[2];
+    float w = m_viewport[2] * vp[2];
 	float h = m_viewport[3] * vp[3];
 	m_screenViewport = glm::vec4(x, y, x+w, y+h);
 	glViewport(x, y, w, h);
@@ -95,6 +98,10 @@ void Camera::setBounds(float xMin, float xMax, float yMin, float yMax, float zMi
     m_xBounds = glm::vec2(xMin, xMax);
     m_yBounds = glm::vec2(yMin, yMax);
     m_zBounds = glm::vec2(zMin, zMax);
+    if (m_eye.x < xMin || m_eye.x > xMax) m_eye.x = xMin;
+    if (m_eye.y < yMin || m_eye.y > yMax) m_eye.x = yMin;
+    setPosition(m_eye, m_fwd, m_up);
+
 }
 
 bool Camera::isInViewport(float x, float y) {

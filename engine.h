@@ -29,8 +29,8 @@ public:
 	std::shared_ptr<Node> getNode(int);
 	void addNode(std::shared_ptr<Node>);
 	//Shader* getShader(int);
-	float getDeviceAspectRatio() const;
-	glm::vec2 getDeviceSize() const;
+	double getDeviceAspectRatio() const;
+	glm::ivec2 getDeviceSize() const;
 	glm::ivec2 getWindowSize() const;
 	glm::vec4 getActualDeviceViewport() const;
 	void setActualDeviceViewport(glm::vec4) ;
@@ -47,7 +47,9 @@ public:
 	pybind11::handle getConfig();
 	bool isRunning() const;
 	void scheduleForRemoval(Node*);
+	int getPixelScale() const;
 private:
+    //void setupFramebufferRendering();
 	Engine();
 	void loadRoom();
 	void loadShaders();
@@ -58,11 +60,12 @@ private:
 	glm::ivec2 m_windowSize;
 	glm::ivec2 m_deviceSize;
 	glm::vec4 m_actualDeviceViewport;
-	float m_deviceAspectRatio;
+	glm::vec4 m_windowViewport;
+	double m_deviceAspectRatio;
 	// the current room
 	std::shared_ptr<Room> m_room;
 	std::vector<std::shared_ptr<Shader>> m_shaders;
-
+    std::shared_ptr<Shader> m_blitShader;
 	template<typename T>
 	void add_shader(ShaderType type, const std::string& vertex, const std::string& fragment, const std::string& vertexFormat) {
 		auto shader = std::make_shared<T>(type, vertex, fragment, vertexFormat);
@@ -83,7 +86,16 @@ private:
     long m_nextId;
     std::unordered_map<int, std::weak_ptr<Node>> m_allNodes;
     bool m_enableMouse;
+
+    // frambuffer stuff
+    //GLuint _fb, _color, _depth;
+    //unsigned int quadVAO, quadVBO;
+    int m_pixelScaleFactor;
 };
+
+inline int Engine::getPixelScale() const {
+    return m_pixelScaleFactor;
+}
 
 Engine& getEngine();
 

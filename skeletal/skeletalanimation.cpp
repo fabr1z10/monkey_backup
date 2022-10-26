@@ -3,12 +3,12 @@
 
 SkeletalAnimation::SkeletalAnimation(const YAML::Node& node) {
     m_loop = node["loop"].as<bool>(true);
-    m_length = node["length"].as<float>(0.f);
     auto joints = node["joints"].as<std::vector<std::string>>();
-    //auto speedUp = 1.0f / t.get<float>("speed_up", 1.0f);
+    auto time_factor = node["time_factor"].as<float>(1.f);
+    m_length = time_factor * node["length"].as<float>(0.f);
     int index = 0;
     for (const auto& keyFrame : node["key_frames"]) {
-        auto t = keyFrame["t"].as<float>();
+        auto t = time_factor * keyFrame["t"].as<float>();
         auto data = keyFrame["data"].as<std::vector<float>>();
         std::unordered_map<std::string, JointTransform> pose;
         for (size_t i = 0, j = 0 ; i < data.size(); i+=3, ++j) {
@@ -28,8 +28,8 @@ SkeletalAnimation::SkeletalAnimation(const YAML::Node& node) {
     // attack boxes
     if (node["attacks"]) {
         for (const auto& attack : node["attacks"]) {
-            auto startTime = attack[0].as<float>();
-            auto endTime = attack[1].as<float>();
+            auto startTime = time_factor * attack[0].as<float>();
+            auto endTime = time_factor * attack[1].as<float>();
             m_attacks.emplace_back(startTime, endTime);
         }
     }

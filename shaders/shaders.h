@@ -23,3 +23,15 @@ const std::string skeletal_vs =
 const std::string skeletal_fs =
 #include "skeletal.fs"
 ;
+
+const std::string tex_pal_fs =
+#include "texpal.fs"
+;
+
+const std::string blit_vs =
+#include "blit.vs"
+;
+
+const std::string blit_fs =
+#include "blit.fs"
+;

@@ -9,6 +9,10 @@ bool CollisionResponseManager::hasCollision(Collider * a, Collider * b) {
 }
 
 
+bool CollisionResponseManager::hasCollision(int a, int b) {
+    return m_response.count(std::make_pair(a, b)) > 0 || m_response.count(std::make_pair(b, a)) > 0;
+}
+
 void CollisionResponseManager::add(int i , int j, const pybind11::kwargs& f) {
 
 	CollisionResponse resp;
@@ -28,6 +32,18 @@ void CollisionResponseManager::onStart(Collider * c1, Collider * c2, glm::vec3 v
 			handler->second.onStart(c2->getNode(), c1->getNode(), -v);
 		}
 	}
+}
+
+void CollisionResponseManager::onStart(Node* n1, Node* n2, int tag1, int tag2, glm::vec3 v) {
+    auto handler = m_response.find(std::make_pair(tag1, tag2));
+    if (handler != m_response.end() && handler->second.onStart) {
+        handler->second.onStart(n1, n2, v);
+    } else {
+        handler = m_response.find(std::make_pair(tag2, tag1));
+        if (handler != m_response.end() && handler->second.onStart) {
+            handler->second.onStart(n2, n1, -v);
+        }
+    }
 }
 
 void CollisionResponseManager::onStay(Collider * c1, Collider * c2) {

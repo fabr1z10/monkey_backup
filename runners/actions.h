@@ -2,6 +2,8 @@
 
 #include "scheduler.h"
 #include "glm/glm.hpp"
+#include "../components/renderer.h"
+#include "../keylistener.h"
 
 class Renderer;
 
@@ -20,7 +22,9 @@ public:
 	void start() override;
 	int run(double) override;
 private:
+    AnimatedRenderer* m_renderer;
 	std::string m_animation;
+	bool m_sync;
 };
 
 class Delay : public Action {
@@ -117,3 +121,38 @@ public:
     explicit RemoveNode(const pybind11::kwargs& args) : NodeAction(args) {}
     int run(double) override;
 };
+
+class AddNode : public NodeAction {
+public:
+    explicit AddNode(const pybind11::kwargs& args);
+    int run(double) override;
+private:
+    std::shared_ptr<Node> m_nodeToAdd;
+};
+
+class RevealText : public NodeAction {
+public:
+    RevealText(const pybind11::kwargs& args);
+    int run(double) override;
+    void start() override;
+private:
+    // time interval between consecutive letters
+    float m_time;
+    Renderer* m_renderer;
+    GLuint m_elSize;
+    int m_currentCount;
+    float m_timer;
+};
+
+
+class WaitForKey : public Action, public KeyboardListener {
+public:
+    WaitForKey(int key);
+    int run(double);
+    void keyCallback(GLFWwindow*, int key, int scancode, int action, int mods) override;
+private:
+    int m_key;
+    bool m_done;
+};
+
+

@@ -13,10 +13,10 @@ class Renderer;
 class Model {
 public:
 	Model();
-	Model(int);
+	Model(int, GLuint primitive = GL_TRIANGLES);
 	virtual void init(Node*) {}
 	//virtual void draw(Shader*, const glm::mat4&);
-	void draw(Shader* shader, int offset, int count);
+	virtual void draw(Shader* shader, int offset, int count);
 	virtual ~Model();
 	// ** a model can be shared by multiple nodes. **
 	// so a model does not contain information relevant on how to draw it
@@ -27,7 +27,7 @@ public:
 	virtual std::shared_ptr<Renderer> getRenderer() const;
 	void generateBuffers(const std::vector<float>& vertices, const std::vector<unsigned>& indices);
 	ShaderType getShaderType() const;
-
+    GLuint getElSize() const;
 protected:
 	ShaderType m_shaderType;
 	GLuint m_size;
@@ -36,8 +36,13 @@ protected:
 	GLuint m_primitive;
 	GLuint m_elementSize;
     GLuint m_texId;
+    GLuint m_paletteId;
+
 };
 
+inline GLuint Model::getElSize() const {
+    return m_size;
+}
 
 inline ShaderType Model::getShaderType() const {
 	return m_shaderType;

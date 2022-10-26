@@ -88,7 +88,7 @@ void Controller2D::updateRaycastOrigins() {
 	float height = m_raycastOrigins.topFwd.y - m_raycastOrigins.bottomFwd.y;
 	m_horizontalRaySpacing = height / (m_horizontalRayCount - 1.f);
 	m_verticalRaySpacing = width / (m_verticalRayCount - 1.f);
-	std::cout << "bottom fwd/back " << m_raycastOrigins.bottomFwd.x << "; " << m_raycastOrigins.bottomBack.x << "\n";
+	//std::cout << "bottom fwd/back " << m_raycastOrigins.bottomFwd.x << "; " << m_raycastOrigins.bottomBack.x << "\n";
 }
 
 void Controller::move(glm::vec3 & delta, bool) {

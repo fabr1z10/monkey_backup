@@ -56,6 +56,7 @@ using namespace glm;
 #include "skeletal/skeletalmodel.h"
 #include "skeletal/skeletalcollider.h"
 #include "components/attack.h"
+#include "models/shapes.h"
 
 namespace py = pybind11;
 
@@ -74,6 +75,10 @@ PYBIND11_MODULE(monkey, m) {
 	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
 	m.attr("FILL_OUTLINE") = static_cast<int>(FillType::OUTLINE);
 	m.attr("FILL_SOLID") = static_cast<int>(FillType::SOLID);
+    m.attr("HALIGN_CENTER") = static_cast<int>(HorizontalAlign::CENTER);
+    m.attr("HALIGN_LEFT") = static_cast<int>(HorizontalAlign::LEFT);
+    m.attr("HALIGN_RIGHT") = static_cast<int>(HorizontalAlign::RIGHT);
+
 
     py::class_<glm::vec2>(m, "vec2")
         .def_readwrite("x", &glm::vec2::x)
@@ -143,27 +148,30 @@ PYBIND11_MODULE(monkey, m) {
 		.def("add", &Node::add)
 	    .def("remove", &Node::remove);
 
-	py::class_<Model, std::shared_ptr<Model>>(m, "Model")
+	/* models */
+    py::module_ mm = m.def_submodule("models");
+	py::class_<Model, std::shared_ptr<Model>>(mm, "Model")
 		.def(py::init<int>());
-
-	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(m, "RawModel")
+	py::class_<RawModel, Model, std::shared_ptr<RawModel>>(mm, "RawModel")
 		.def(py::init<int, const py::array_t<float>&, const py::array_t<unsigned>&, const py::kwargs&>());
-
-	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(m, "sprite");
-    py::class_<SkeletalModel, Model, std::shared_ptr<SkeletalModel>>(m, "skeletal_model")
+	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(mm, "sprite");
+    py::class_<SkeletalModel, Model, std::shared_ptr<SkeletalModel>>(mm, "skeletal_model")
         .def(py::init<const pybind11::kwargs&>());
-
-    py::class_<PolyMesh, Model, std::shared_ptr<PolyMesh>>(m, "polymesh");
-
-    py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(m, "tiled")
+    py::class_<PolyMesh, Model, std::shared_ptr<PolyMesh>>(mm, "polymesh");
+    py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(mm, "tiled")
         .def(py::init<const std::string&>());
-
-    py::class_<Image, Model, std::shared_ptr<Image>>(m, "image")
+    py::class_<Image, Model, std::shared_ptr<Image>>(mm, "image")
         .def(py::init<const std::string&, const pybind11::kwargs&>());
-
-	py::class_<Text, Model, std::shared_ptr<Text>>(m, "text")
+	py::class_<Text, Model, std::shared_ptr<Text>>(mm, "text")
 	    .def_property_readonly("size", &Text::getSize)
 		.def(py::init<const py::kwargs&>());
+    py::class_<LineModel, Model, std::shared_ptr<LineModel>>(mm, "line")
+        .def(py::init<const pybind11::kwargs&>());
+    py::class_<RectModel, Model, std::shared_ptr<RectModel>>(mm, "rect")
+        .def(py::init<const pybind11::kwargs&>());
+    py::class_<Pixels, Model, std::shared_ptr<Pixels>>(mm, "pixels")
+        .def(py::init<const pybind11::kwargs&>());
+
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "camera")
 	    .def("set_bounds", &Camera::setBounds)
@@ -210,7 +218,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
 
     py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")
-        .def(py::init<int, int, int>());
+        .def(py::init<int, int, int, const pybind11::kwargs&>());
 
     py::class_<SkeletalCollider, Collider, std::shared_ptr<SkeletalCollider>>(m, "skeletal_collider")
         .def(py::init<int, int, int>());
@@ -255,7 +263,7 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Dynamics, Component, std::shared_ptr<Dynamics>>(m, "dynamics")
         .def_readwrite("velocity", &Dynamics::m_velocity)
-		.def(py::init<>());
+		.def(py::init<const pybind11::kwargs&>());
 
 	py::class_<Follow, Component, std::shared_ptr<Follow>>(m, "follow")
 		.def(py::init<std::shared_ptr<Camera>, pybind11::tuple&, pybind11::tuple&>());
@@ -304,6 +312,8 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const pybind11::kwargs&>());
     py::class_<Delay, Action, std::shared_ptr<Delay>>(ma, "delay")
         .def(py::init<float>());
+    py::class_<WaitForKey, Action, std::shared_ptr<WaitForKey>>(ma, "wait_for_key")
+        .def(py::init<int>());
     py::class_<Blink, NodeAction, std::shared_ptr<Blink>>(ma, "blink")
         .def(py::init<const pybind11::kwargs&>());
     py::class_<Walk, NodeAction, std::shared_ptr<Walk>>(ma, "walk")
@@ -312,11 +322,14 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const pybind11::kwargs&>());
     py::class_<RemoveNode, NodeAction, std::shared_ptr<RemoveNode>>(ma, "remove")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<AddNode, NodeAction, std::shared_ptr<AddNode>>(ma, "add")
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<CallFunc, Action, std::shared_ptr<CallFunc>>(ma, "callfunc")
         .def(py::init<pybind11::function>());
 	py::class_<Repeat, Action, std::shared_ptr<Repeat>>(ma, "repeat")
 		.def(py::init<pybind11::function, float>());
-
+    py::class_<RevealText, NodeAction, std::shared_ptr<RevealText>>(ma, "reveal_text")
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
         .def("add", &Script::add)
         .def(py::init<const pybind11::kwargs&>());

@@ -2,10 +2,13 @@
 
 #include "../component.h"
 #include <glm/glm.hpp>
+#include "../pyhelper.h"
 
 class Dynamics : public Component {
 public:
-	Dynamics() : m_velocity(0.0f), m_acceleration(0.0f) {}
+	Dynamics(const pybind11::kwargs& args) : m_acceleration(0.f) {
+	    m_velocity = dictget<glm::vec3>(args, "velocity", glm::vec3(0.f));
+	}
 	void start() override {}
 	void update(double) override {}
 

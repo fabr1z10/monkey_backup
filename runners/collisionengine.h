@@ -36,9 +36,13 @@ public:
 	virtual void move (Collider*) ;
 	void update(double) override;
 	virtual RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
-	void addResponse(int, int, const pybind11::kwargs&);
+    virtual std::vector<ShapeCastHit> shapeCast (Shape*, const glm::mat4& transform, int mask, bool onlyFirst = false) ;
+
+    void addResponse(int, int, const pybind11::kwargs&);
     const CollisionEngineCell* getColliders(glm::ivec3);
 	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b);
+    void processCollisions(const std::vector<ShapeCastHit>&, Node*, int);
+
 private:
 	std::unordered_map<glm::ivec3, CollisionEngineCell> m_cells;
 	std::unordered_map<Collider*, ColliderInfo> m_colliderLocations;

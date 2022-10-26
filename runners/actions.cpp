@@ -17,6 +17,7 @@ NodeAction::NodeAction(const pybind11::kwargs& args) {
 }
 
 void NodeAction::start() {
+    Action::start();
     if (m_node == nullptr) {
         m_node = Engine::instance().getNode(m_nodeId).get();
     }
@@ -24,15 +25,20 @@ void NodeAction::start() {
 
 Animate::Animate(const pybind11::kwargs& args) : NodeAction(args) {
 	m_animation = args["anim"].cast<std::string>();
+	m_sync = dictget(args, "sync", false);
+
 }
 
 void Animate::start() {
 	NodeAction::start();
-	static_cast<SpriteRenderer*>(m_node->getComponent<Renderer>())->setAnimation(m_animation);
+	m_renderer = static_cast<AnimatedRenderer*>(m_node->getComponent<Renderer>());
+	m_renderer->setAnimation(m_animation);
+
 }
 
 int Animate::run(double) {
-	return 0;
+    if (!sync) return 0;
+    return (m_renderer->isComplete() ? 0 : 1);
 }
 
 MoveBy::MoveBy(const pybind11::kwargs& args) : NodeAction(args) {
@@ -154,6 +160,16 @@ int RemoveNode::run(double) {
     return 0;
 }
 
+AddNode::AddNode(const pybind11::kwargs& args) : NodeAction(args) {
+    m_nodeToAdd = args["node"].cast<std::shared_ptr<Node>>();
+}
+
+int AddNode::run(double) {
+    m_node->add(m_nodeToAdd);
+    return 0;
+}
+
+
 CallFunc::CallFunc(pybind11::function f) {
     m_func = std::move(f);
 }
@@ -178,4 +194,43 @@ int Repeat::run(double dt) {
 		m_func();
 	}
 	return 1;
+}
+
+RevealText::RevealText(const pybind11::kwargs& args) : NodeAction(args) {
+    m_time = args["interval"].cast<float>();
+}
+
+int RevealText::run(double dt) {
+    auto dtf = static_cast<float>(dt);
+    m_timer += dtf;
+    int retval = 1;
+    if (m_timer > m_time) {
+        m_timer = 0.f;
+        m_currentCount += 6;
+        if (m_currentCount >= m_elSize) {
+            m_currentCount = m_elSize;
+            retval = 0;
+        }
+    }
+    m_renderer->setCount(m_currentCount);
+    return retval;
+}
+
+void RevealText::start() {
+    NodeAction::start();
+    m_renderer = m_node->getComponent<Renderer>();
+    m_elSize = m_renderer->getModel()->getElSize();
+    m_currentCount = 6;
+    m_timer = 0.f;
+}
+
+
+WaitForKey::WaitForKey(int key) : Action(), m_key(key), m_done(false) {}
+
+int WaitForKey::run(double) {
+    return (m_done ? 0 : 1);
+}
+
+void WaitForKey::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods) {
+    if (_status == 1 && key == m_key && action == GLFW_PRESS) m_done = true;
 }

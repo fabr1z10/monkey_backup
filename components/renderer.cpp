@@ -3,7 +3,8 @@
 #include "../error.h"
 #include "../node.h"
 
-Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f) {}
+Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f),
+    m_offset(0), m_count(0) {}
 
 void Renderer::draw(Shader * s) {
 	if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
@@ -14,7 +15,7 @@ void Renderer::draw(Shader * s) {
 	s->setVec4("mult_color", m_multColor);
 	s->setVec4("add_color", m_addColor);
     s->setMat4("model", m);
-    m_model->draw(s, 0, 0);
+    m_model->draw(s, m_offset, m_count);
 
 }
 //
@@ -40,6 +41,14 @@ void Renderer::flipHorizontal(bool value) {
 
 bool Renderer::getFlipHorizontal() const {
     return m_rendererTransform[0][0] < 0.f;
+}
+
+void Renderer::setCount(int count) {
+    m_count = count;
+}
+
+void Renderer::setOffset(int offset) {
+    m_offset = offset;
 }
 
 

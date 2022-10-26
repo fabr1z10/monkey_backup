@@ -2,7 +2,7 @@
 #include <iostream>
 #include "text.h"
 #include "../asset_manager.h"
-
+#include "../pyhelper.h"
 
 void Text::setText(const std::string& text) {
 //    if (m_vbo != GL_INVALID_VALUE) {
@@ -18,18 +18,22 @@ void Text::setText(const std::string& text) {
     // default alignment is top left
     float x{0.0f};
     float y{0.0f};
-    m_textSize.x = 0;
-    m_textSize.y = m_fontSize;
+    m_textBounds = glm::vec4(0.f);
     unsigned quadCount = 0;
+    // keep track xmax for each row (xmin is always 0)
+    std::vector<RowInfo> xBounds;
+
     for (char32_t c : s32) {
         if (c == 32) {
             x += m_fontSize;
             continue;
         }
         if (c == 10) {
+            xBounds.push_back(RowInfo{x, quadCount});
             x = 0.0f;
             y -= m_fontSize;
-            m_textSize.y += m_fontSize;
+            //m_textSize.y += m_fontSize;
+            // newline
             continue;
         }
         if (!m_font->hasCharInfo(c)) {
@@ -49,7 +53,7 @@ void Text::setText(const std::string& text) {
         vertices.insert(vertices.end(), {x + w, y + h - oy, 0.0f, info.tx + info.tw, info.ty, 1, 1, 1, 1});
         // top left
         vertices.insert(vertices.end(), {x, y + h - oy, 0.0f, info.tx, info.ty, 1, 1, 1, 1});
-        m_textSize.x = std::max(m_textSize.x, x+w);
+        //m_textSize.x = std::max(m_textSize.x, x+w);
         // generate elements for current character
         unsigned ix = quadCount * 4;
         indices.insert(indices.end(), {ix, ix + 1, ix + 2, ix + 3, ix, ix + 2});
@@ -57,6 +61,33 @@ void Text::setText(const std::string& text) {
 
         // increment cursor position
         x += w;
+    }
+    xBounds.push_back(RowInfo{x, quadCount});
+    if (m_halign != HorizontalAlign::LEFT) {
+        int j = 0;
+        float k = (m_halign == HorizontalAlign::CENTER ? 0.5f : 1.f);
+        for (int i = 0; i < xBounds.size(); ++i) {
+            float dx = xBounds[i].xMax * k;
+            for (; j < xBounds[i].endIndex; ++j) {
+                vertices[j * 36] -= dx;
+                vertices[j * 36 + 9 ] -= dx;
+                vertices[j * 36 + 18] -= dx;
+                vertices[j * 36+ 27] -= dx;
+            }
+        }
+    }
+    m_textBounds = glm::vec4(vertices[0], vertices[0], vertices[1], vertices[1]);
+    for (size_t i = 0; i < vertices.size(); i += 9) {
+        m_textBounds.x = std::min(m_textBounds.x, vertices[i]);
+        m_textBounds.y = std::max(m_textBounds.y, vertices[i]);
+        m_textBounds.z = std::min(m_textBounds.z, vertices[i+1]);
+        m_textBounds.w = std::max(m_textBounds.w, vertices[i+1]);
+
+    }
+
+
+    for (size_t i = 0; i < xBounds.size(); ++i) {
+        std::cout << "row " << i << ", " << xBounds[i].xMax << ", " << xBounds[i].endIndex << "\n";
     }
 
     // generate buffers
@@ -75,9 +106,19 @@ Text::Text(const py::kwargs& args)  : Model(ShaderType::SHADER_TEXTURE) {
 	auto fontId = args["font"].cast<std::string>();
 	auto text = args["text"].cast<std::string>();
 	m_fontSize = args["size"].cast<float>();
+	m_halign = static_cast<HorizontalAlign>(dictget<int>(args, "halign", HorizontalAlign::LEFT));
 	auto& am = AssetManager::instance();
 	m_font = am.getFont(fontId);
+	if (m_font->hasPalette()) {
+	    m_shaderType = ShaderType::SHADER_TEXTURE_PALETTE;
+	}
 	m_texId = m_font->getTexId();
+	auto palette = dictget<std::string>(args, "palette", "");
+	if (!palette.empty()) {
+	    auto pal = am.getPalette(palette);
+        m_paletteId = pal->getTexId();
+	}
+
 	setText(text);
 }
 
@@ -104,6 +145,6 @@ Text::Text(const std::string& fontId, const std::string& text, int size) : Model
 //
 //}
 
-glm::vec2 Text::getSize() const {
-    return m_textSize;
+glm::vec4 Text::getSize() const {
+    return m_textBounds;
 }

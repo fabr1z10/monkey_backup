@@ -28,6 +28,7 @@ void Walk2D::init(const pybind11::kwargs &args) {
     auto dir = dictget<float>(args, "dir", -1.0f);
     m_left = dir < 0.0f;
     m_right = !m_left;
+
 }
 
 void Walk2D::setParent(StateMachine * sm) {

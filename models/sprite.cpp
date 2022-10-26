@@ -89,7 +89,10 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 
 			frameInfo.ticks = el["ticks"].as<int>(defaultTicks);
 			int boxFrame = el["box"].as<int>(boxAnim);
+			bool fliph = el["fliph"].as<bool>(false);
+            bool flipv = el["flipv"].as<bool>(false);
 			frameInfo.box = boxFrame;
+			frameInfo.attackBox = el["attack"].as<int>(-1);
 			m_frameToShape[std::make_pair(animId, frameCount)] = boxFrame;
 			auto ciao = el["quads"].as<std::vector<int>>();
             assert(ciao.size() % 6 == 0);
@@ -101,16 +104,20 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 				float ty = ciao[1] / texh;
 				float tw = width_px / texw;
 				float th = height_px / texh;
-				float ox = ciao[4];
+                float tx1 = tx + tw;
+                float ty1 = ty + th;
+                float ox = ciao[4];
 				float oy = ciao[5];
 				float width_actual = static_cast<float>(width_px) / ppu;
 				float height_actual = static_cast<float>(height_px) / ppu;
+				if (fliph) std::swap(tx, tx1);
+                if (flipv) std::swap(ty, ty1);
 				// bottom left
-				vertices.insert(vertices.end(), {ox, oy, 0.0f, tx, ty + th, 1, 1, 1, 1});
+				vertices.insert(vertices.end(), {ox, oy, 0.0f, tx, ty1, 1, 1, 1, 1});
 				// bottom right
-				vertices.insert(vertices.end(), {ox + width_actual, oy, 0.0f, tx + tw, ty + th, 1, 1, 1, 1});
+				vertices.insert(vertices.end(), {ox + width_actual, oy, 0.0f, tx1, ty1, 1, 1, 1, 1});
 				// top right
-				vertices.insert(vertices.end(), {ox + width_actual, oy + height_actual, 0.0f, tx + tw, ty, 1, 1, 1, 1});
+				vertices.insert(vertices.end(), {ox + width_actual, oy + height_actual, 0.0f, tx1, ty, 1, 1, 1, 1});
 				// top left
 				vertices.insert(vertices.end(), {ox, oy + height_actual, 0.0f, tx, ty, 1, 1, 1, 1});
                 unsigned ix = quadCount * 4;
@@ -257,21 +264,40 @@ std::shared_ptr<Shape> Sprite::getShape (const std::string& anim, int frame) con
 }
 
 std::shared_ptr<Shape> Sprite::getShapeCast (const std::string& anim, int frame) const {
-    return nullptr;
+    const auto& a = m_animInfo.at(anim).frameInfo[frame];
+    if (a.attackBox == -1)
+        return nullptr;
+    return m_shapes[a.attackBox];
+}
+
+std::pair<int, int> Sprite::getDebugShape(const std::string &anim, int frame) {
+    int boxId = m_animInfo.at(anim).frameInfo[frame].box;
+    if (boxId == -1) {
+        return std::make_pair(-1, -1);
+    }
+    return m_shapeInfo[boxId];
+}
+
+std::pair<int, int> Sprite::getDebugAttackShape(const std::string &anim, int frame) {
+    int boxId = m_animInfo.at(anim).frameInfo[frame].attackBox;
+    if (boxId == -1) {
+        return std::make_pair(-1, -1);
+    }
+    return m_shapeInfo[boxId];
 }
 
 
-std::shared_ptr<Sprite> Sprite::generateDebugModel() {
+std::shared_ptr<Model> Sprite::generateDebugModel() {
     std::vector<float> vertices;
     std::vector<unsigned> elements;
     unsigned u{0};
     glm::vec4 color(1.f);
-    auto model = std::make_shared<Sprite>(ShaderType::SHADER_COLOR, GL_LINES);
+    auto model = std::make_shared<Model>(ShaderType::SHADER_COLOR, GL_LINES);
 //
 //    auto model = std::make_shared<AnimatedModel>(ShaderType::SHADER_COLOR, GL_LINES);
 //
     // every shape is associated an offset and a count
-    std::unordered_map<int, std::pair<int, int>> m_shapeInfo;
+
     auto lambda = [&] (const Bounds& b) {
         vertices.insert(vertices.end(), {b.min.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
         vertices.insert(vertices.end(), {b.max.x, b.min.y, 0.0f, color.r, color.g, color.b, color.a});
@@ -297,21 +323,21 @@ std::shared_ptr<Sprite> Sprite::generateDebugModel() {
     }
 	model->generateBuffers(vertices, elements);
 
-    // make a copy of the anim info
-    std::unordered_map<std::string, AnimInfo> animInfo(m_animInfo);
-    for (auto& a : animInfo) {
-        for (auto& f : a.second.frameInfo) {
-            if (f.box == -1) {
-                f.count = 0;
-                f.offset = 0;
-            } else {
-                auto& p = m_shapeInfo[f.box];
-                f.offset = p.first;
-                f.count = p.second;
-            }
-        }
-    }
-    model->m_animInfo = animInfo;
+//    // make a copy of the anim info
+//    std::unordered_map<std::string, AnimInfo> animInfo(m_animInfo);
+//    for (auto& a : animInfo) {
+//        for (auto& f : a.second.frameInfo) {
+//            if (f.box == -1) {
+//                f.count = 0;
+//                f.offset = 0;
+//            } else {
+//                auto& p = m_shapeInfo[f.box];
+//                f.offset = p.first;
+//                f.count = p.second;
+//            }
+//        }
+//    }
+//    model->m_animInfo = animInfo;
     return model;
     //return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, GL_LINES, vertices, elements);
 

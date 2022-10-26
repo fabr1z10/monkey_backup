@@ -12,6 +12,7 @@ struct FrameInfo {
 	int count;
 	int ticks;
 	int box;
+	int attackBox;
 };
 
 struct AnimInfo {
@@ -74,10 +75,13 @@ public:
     std::shared_ptr<Shape> getShapeCast (const std::string& anim, int frame) const;
     bool hasCollision(const std::string&) const;
     //const SpriteCollisionInfo& getCollisionInfo(const std::string& anim) const;
-    std::shared_ptr<Sprite> generateDebugModel();
+    std::shared_ptr<Model> generateDebugModel();
     Bounds getStaticBounds() const;
 //	void innerDraw(Shader*, const glm::mat4&, const std::string& key) override;
     std::string getDefaultAnimation() const;
+    std::pair<int, int> getDebugShape(const std::string& anim, int frame);
+    std::pair<int, int> getDebugAttackShape(const std::string& anim, int frame);
+
 private:
 
 	SpriteSheet* m_sheet;
@@ -90,6 +94,7 @@ private:
     std::vector<std::shared_ptr<Shape>> m_shapes;
     std::unordered_map<std::pair<std::string, int>, int> m_frameToShape;
     Bounds m_staticBounds;
+    std::unordered_map<int, std::pair<int, int>> m_shapeInfo;
 };
 
 inline std::string Sprite::getDefaultAnimation() const {

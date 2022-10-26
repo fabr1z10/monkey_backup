@@ -217,7 +217,7 @@ std::shared_ptr<Model> SkeletalModel::generateDebugModel() {
     std::vector<unsigned> elements;
     unsigned u{0};
     glm::vec4 color(1.f);
-    auto model = std::make_shared<Sprite>(ShaderType::SHADER_COLOR, GL_LINES);
+    auto model = std::make_shared<Model>(ShaderType::SHADER_COLOR, GL_LINES);
 
     // every shape is associated an offset and a count
     auto lambda = [&] (const Bounds& b) {

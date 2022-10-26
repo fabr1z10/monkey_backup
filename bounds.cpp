@@ -76,3 +76,17 @@ void Bounds::expandWith(const Bounds & b) {
         max.y = std::max(max.y, b.max.y);
     }
 }
+
+Bounds Bounds::intersection(const Bounds &other) {
+    Bounds b;
+    b.min.x = std::max(this->min.x, other.min.x);
+    b.min.y = std::max(this->min.y, other.min.y);
+    b.max.x = std::min(this->max.x, other.max.x);
+    b.max.y = std::min(this->max.y, other.max.y);
+    return b;
+
+}
+
+glm::vec3 Bounds::getCenter() {
+    return 0.5f * (min + max);
+}

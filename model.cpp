@@ -4,11 +4,13 @@
 #include "components/renderer.h"
 #include <iostream>
 
-Model::Model() : m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE), m_texId(GL_INVALID_VALUE) {}
+Model::Model() : m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE), m_texId(GL_INVALID_VALUE), m_paletteId(GL_INVALID_VALUE) {}
 
-Model::Model(int shaderType) : m_shaderType(static_cast<ShaderType>(shaderType)), m_primitive(GL_TRIANGLES),
-m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE)
+Model::Model(int shaderType, GLuint primitive) : m_shaderType(static_cast<ShaderType>(shaderType)), m_primitive(primitive),
+m_vbo(GL_INVALID_VALUE), m_ebo(GL_INVALID_VALUE), m_texId(GL_INVALID_VALUE), m_paletteId(GL_INVALID_VALUE)
 {}
+
+
 
 Model::~Model() {
 	// Cleanup VBO
@@ -27,6 +29,11 @@ void Model::draw(Shader* s, int offset, int size) {
         s->setInt("texture_diffuse1", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_texId);
+    }
+    if (m_paletteId != GL_INVALID_VALUE) {
+        s->setInt("texture_palette", 1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_1D, m_paletteId);
     }
 
 	if (size == 0) size = m_size;

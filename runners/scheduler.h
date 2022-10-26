@@ -10,18 +10,28 @@ class Node;
 
 class Action {
 public:
+    Action() : _status(0), _id(-1) {}
     // return 0 when completed
-    virtual void start() = 0;
+    virtual void start();
     virtual int run(double) = 0;
-    virtual void end() {}
+    virtual void end();
     long getId() const;
     void setId(long);
     void init(Node*);
 
 protected:
+    int _status; // 0 not started, 1 running, 2 done
     long _id;
 
 };
+
+inline void Action::start() {
+    _status = 1;
+}
+
+inline void Action::end() {
+    _status = 2;
+}
 
 class Script {
 public:

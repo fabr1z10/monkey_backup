@@ -20,6 +20,7 @@ Font::Font(const std::string& fontId) {
 	auto tex = am.getTex(textureFilepath);
 	float tw = tex->getWidth();
 	float th = tex->getHeight();
+    m_hasPalette = tex->hasPalette();
 	m_texId = tex->getTexId();
 
 

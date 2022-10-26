@@ -19,9 +19,13 @@ private:
     // the animations to play
     std::vector<std::string> m_anims;
     Node* m_node;
-
+    Controller2D* m_controller;
+    Dynamics* m_dynamics;
     std::string m_exitState;
-
+    float m_gravity;
+    float m_acceleration;
+    float m_maxSpeed;
+    float m_accelerationTime;
     // index to the animation to play
     int m_currentAnim;
     AnimatedRenderer* m_renderer;

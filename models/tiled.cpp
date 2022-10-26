@@ -34,7 +34,7 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
     const auto& game = Engine::instance().getConfig();
     auto cane = game.attr("settings").attr("tilesets").cast<pybind11::dict>();
     auto imgName = cane[py::int_(sheetId)]["img"].cast<std::string>();
-    auto ts = cane[py::int_(0)]["tile_size"].cast<pybind11::tuple>();
+    auto ts = cane[py::int_(sheetId)]["tile_size"].cast<pybind11::tuple>();
     glm::vec2 tileSize(ts[0].cast<int>(), ts[1].cast<int>());
     auto& am = AssetManager::instance();
     auto tex = am.getTex(imgName);
@@ -53,6 +53,7 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
     int y = 0;
     std::stack<std::pair<int, int>> loopStack;
     unsigned i0 = 0;
+    bool horizontalFlip = false;
     while (n < tokens.size()) {
         if (tokens[n][0] == 'W') {
             width = std::stoi(tokens[n+1]);
@@ -82,23 +83,35 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
             n++;
             continue;
         }
+        if (tokens[n][0] == 'H') {
+            // flip hor
+            n++;
+            horizontalFlip = true;
+            continue;
+        }
         int tx = std::stoi(tokens[n++]);
         if (tx != -1) {
             int ty = std::stoi(tokens[n++]);
+            float tx0 = tx * t1;
+            float tx1 = (tx + 1.f) * t1;
+            if (horizontalFlip) {
+                std::swap(tx0, tx1);
+                horizontalFlip = false;
+            }
             // bottom left
             vertices.insert(vertices.end(),
-                            {x * tileSize[0], y * tileSize[1], 0.0f, tx * t1, (ty + 1.f) * t2, 1, 1, 1, 1});
+                            {x * tileSize[0], y * tileSize[1], 0.0f, tx0, (ty + 1.f) * t2, 1, 1, 1, 1});
             // bottom right
             vertices.insert(vertices.end(),
-                            {x * tileSize[0] + tileSize[0], y * tileSize[1], 0.0f, (tx + 1.f) * t1, (ty + 1) * t2, 1, 1,
+                            {x * tileSize[0] + tileSize[0], y * tileSize[1], 0.0f, tx1, (ty + 1) * t2, 1, 1,
                              1, 1});
             // top right
             vertices.insert(vertices.end(),
-                            {x * tileSize[0] + tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, (tx + 1.f) * t1,
+                            {x * tileSize[0] + tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, tx1,
                              ty * t2, 1, 1, 1, 1});
             // top left
             vertices.insert(vertices.end(),
-                            {x * tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, tx * t1, ty * t2, 1, 1, 1, 1});
+                            {x * tileSize[0], y * tileSize[1] + tileSize[1], 0.0f, tx0, ty * t2, 1, 1, 1, 1});
             indices.insert(indices.end(), {i0, i0 + 1, i0 + 2, i0 + 3, i0, i0 + 2});
             i0 += 4;
         }

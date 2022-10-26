@@ -14,6 +14,8 @@ struct Bounds {
 	bool intersect2D(Bounds& other) const;
     void expandWith(const Bounds&);
     glm::vec3 getSize() const;
+    Bounds intersection(const Bounds& other);
+    glm::vec3 getCenter();
 
 };
 
