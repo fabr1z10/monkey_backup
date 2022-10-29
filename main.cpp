@@ -66,9 +66,11 @@ PYBIND11_MODULE(monkey, m) {
 	m.def("get_node", &getNode);
 	m.def("get_sprite", &getSprite);
     m.def("get_tiled", &getTiled);
+    m.def("root",&getRoot);
     m.def("get_mesh", &getMesh);
 	m.def("make_model", &makeModel);
 	m.def("play", &playScript);
+    m.def("close_room", &closeRoom);
 	m.attr("TRIANGLES") = GL_TRIANGLES;
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
@@ -108,7 +110,6 @@ PYBIND11_MODULE(monkey, m) {
 		//.def(py::init<>())
 		.def("start", &Engine::start)
 		.def("shutdown", &Engine::shutdown)
-		.def("close_room", &Engine::closeRoom)
 		.def("load",&Engine::load)
         .def("get_node", &Engine::getNode, py::return_value_policy::reference);
 		//.def("instance", &Engine::instance, py::return_value_policy::reference);
@@ -137,6 +138,7 @@ PYBIND11_MODULE(monkey, m) {
         .def("get_controller", &Node::getComponent<Controller>, py::return_value_policy::reference)
         .def("get_collider", &Node::getComponent<Collider>, py::return_value_policy::reference)
 		.def("get_renderer", &Node::getComponent<Renderer>, py::return_value_policy::reference)
+		.def("get_keyboard", &Node::getComponent<Keyboard>, py::return_value_policy::reference)
 		.def("clear_children", &Node::clearChildren)
 		.def("get_children", &Node::getChildren)
 		.def("set_scale", &Node::setScale)

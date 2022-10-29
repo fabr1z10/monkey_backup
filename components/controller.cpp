@@ -185,8 +185,10 @@ void Controller2D::horizontalCollisions(glm::vec3& velocity) {
 				if (m_details.climbingSlope) {
 					velocity.y = tan(m_details.slopeAngle)* fabs(velocity.x);
 				}
-				m_details.left = directionX == -1;
-				m_details.right = directionX == 1;
+                bool faceRight = !m_node->getFilpX();
+                auto dir_x = (goingForward == m_node->getFilpX()) ? -1 : 1;
+				m_details.left = dir_x == -1;
+				m_details.right = dir_x == 1;
 			}
 		}
 	}
