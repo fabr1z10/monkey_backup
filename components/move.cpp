@@ -7,6 +7,59 @@
 #include "../util.h"
 #include "../pyhelper.h"
 
+MoveTranslate::MoveTranslate(const pybind11::kwargs& args) {
+    auto pts = args["points"].cast<pybind11::dict>();
+    m_z = dictget<float>(args, "z", 0.f);
+    m_loopType = dictget<int>(args, "loop", 0);
+    int current{0};
+    float previousTime;
+    glm::vec2 previous;
+    for (const auto& p : pts) {
+        auto time = p.first.cast<float>();
+        auto pos = p.second.cast<glm::vec2>();
+        if (current > 0) {
+            Step step;
+            step.startPosition = previous;
+            step.endPosition = pos;
+            step.endTime = time;
+            step.velocity = (pos - previous) / (time - previousTime);
+            m_steps.push_back(step);
+        }
+        current++;
+        previousTime = time;
+        previous = pos;
+    }
+    m_maxIndex = m_steps.size()-1;
+}
+
+
+void MoveTranslate::start() {
+    m_index = 0;
+    const auto& step = m_steps[0];
+    m_node->setPosition(step.startPosition.x, step.startPosition.y, m_z);
+    m_time = 0.f;
+}
+
+void MoveTranslate::update(double dt) {
+    auto dtf = static_cast<float>(dt);
+    m_time += dtf;
+    const auto& currentStep = m_steps[m_index];
+    glm::vec3 delta;
+    if (m_time < currentStep.endTime) {
+        delta = glm::vec3(currentStep.velocity * dtf, 0.f);
+    } else {
+        delta = glm::vec3(currentStep.endPosition, 0.f) - m_node->getLocalPosition();
+        m_index++;
+        if (m_index > m_maxIndex) {
+           m_index = 0;
+           m_time = 0;
+           delta = glm::vec3(m_steps[0].startPosition, 0.f) - m_node->getLocalPosition();
+        }
+    }
+    m_node->move(delta);
+
+}
+
 Move::Move(pybind11::function f) : Component(), m_func(f), m_time(0.0f) {
 	std::cout << "qui\n";
 

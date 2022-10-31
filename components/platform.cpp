@@ -23,9 +23,9 @@ void Platform::start() {
 
 void Platform::unregisterComponent(Controller2D* character) {
     //m_characters.erase(character);
-    //m_removeBuffer.push_back(character);
+    m_removeBuffer.push_back(character);
     character->getNode()->onRemove.unreg(m_pippo.at(character));
-    m_characters.erase(character);
+    //m_characters.erase(character);
 }
 
 void Platform::forceRemove(Controller2D * c) {
@@ -51,6 +51,7 @@ void Platform::move(Node* node) {
     for (const auto& b : m_removeBuffer) {
         m_characters.erase(b);
     }
+    m_removeBuffer.clear();
     glm::vec3 currentPosition = node->getWorldPosition();
     glm::vec3 delta = currentPosition - m_lastPosition;
     if (delta.x != 0.0f || delta.y != 0.0f) {
@@ -75,7 +76,8 @@ void Platform::move(Node* node) {
                                 lambda >= 0.f && lambda <= 1.f && mu >= 0.f && mu <= 1.f) {
                                 auto *controller2D = dynamic_cast<Controller2D *>(c->getNode()->getComponent<Controller>());
                                 if (controller2D != nullptr && m_characters.count(controller2D) == 0) {
-                                    m_characters.insert(controller2D);
+                                    registerComponent(controller2D);
+                                    //m_characters.insert(controller2D);
                                     controller2D->setPlatform(this);
                                 }
                             }

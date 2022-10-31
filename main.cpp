@@ -57,6 +57,7 @@ using namespace glm;
 #include "skeletal/skeletalcollider.h"
 #include "components/attack.h"
 #include "models/shapes.h"
+#include "components/hit.h"
 
 namespace py = pybind11;
 
@@ -243,6 +244,8 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<Move, Component, std::shared_ptr<Move>>(m, "move")
 		.def(py::init<py::function>());
+    py::class_<MoveTranslate, Component, std::shared_ptr<MoveTranslate>>(m, "move_translate")
+        .def(py::init<const pybind11::kwargs&>());
 
     py::class_<MoveQuat, Component, std::shared_ptr<MoveQuat>>(m, "movequat")
         .def(py::init<const pybind11::kwargs&>());
@@ -345,6 +348,9 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
+        .def(py::init<const std::string&, py::kwargs&>());
+
+    py::class_<Hit, State, std::shared_ptr<Hit>>(m, "hit")
         .def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<AutoWalk2D, State, std::shared_ptr<AutoWalk2D>>(m, "walk_2d_auto")

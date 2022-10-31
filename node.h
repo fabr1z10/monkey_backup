@@ -61,7 +61,7 @@ public:
 	std::string getAnimation() const;
     void setText(const std::string& text);
 	Event<Node*> onMove;						// fires when this node moves
-    Event<Node*> onRemove;
+    Event<Node*> onRemove;                      // fires when node is deleted
 	void setParent(Node*);
 	void setMultColor(glm::vec4 color);
 	void setAddColor(glm::vec4 color);

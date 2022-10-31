@@ -286,7 +286,7 @@ void Controller2D::verticalCollisions(glm::vec3& velocity, bool forced) {
 
 void Controller2D::setPlatform(Platform * p) {
     m_details.below = true;
-    if (m_platforms != nullptr) {
+    if (m_platforms != nullptr && m_platforms != p) {
         m_platforms->unregisterComponent(this);
     }
     m_platforms = p;
