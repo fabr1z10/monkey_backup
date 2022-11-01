@@ -140,6 +140,7 @@ void Room::draw(Shader* s) {
 		// setup modelview
 		auto renderer = current->getComponent<Renderer>();
 		if (renderer != nullptr) {
+		    s->preDraw(current);
 			renderer->draw(s);
 		}
 		for (const auto& [k, v] : current->children()) {
@@ -163,4 +164,14 @@ void Room::start() {
 }
 void Room::end() {
     if (m_onEnd) m_onEnd();
+}
+
+void Room::addLight(std::shared_ptr<Light> light) {
+    m_lights.push_back(light);
+}
+
+void Room::useLights(Shader * s) {
+    for (const auto& light : m_lights) {
+        light->setup(s);
+    }
 }

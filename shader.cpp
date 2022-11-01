@@ -98,12 +98,11 @@ void Shader::use() {
 	glUseProgram(m_programId);
 	glBindVertexArray(m_vao);
 	setupVertices();
+	for (const auto& init : m_initializers) {
+	    init->init(this);
+	}
 }
-void Shader::setup() {
-	glUseProgram(m_programId);
-	glBindVertexArray(m_vao);
 
-}
 
 void Shader::setupVertices() {
     GLuint i{0};
@@ -152,7 +151,33 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 	glUniformMatrix4fv(glGetUniformLocation(m_programId, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
+
+void Shader::setMat3(const std::string &name, const glm::mat3 &mat) const
+{
+    auto pippo = glGetUniformLocation(m_programId, name.c_str());
+    glUniformMatrix3fv(glGetUniformLocation(m_programId, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
 void Shader::setVec4(const std::string &name, const glm::vec4 &value) const
 {
 	glUniform4fv(glGetUniformLocation(m_programId, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
+{
+    glUniform3fv(glGetUniformLocation(m_programId, name.c_str()), 1, &value[0]);
+}
+
+void Shader::addInitializer(std::shared_ptr<ShaderInitializer> i) {
+    m_initializers.push_back(i);
+}
+
+void Shader::addPredraw(std::shared_ptr<ShaderPreDraw> i) {
+    m_preDraw.push_back(i);
+}
+
+void Shader::preDraw(Node * node) {
+    for (const auto& p : m_preDraw) {
+        p->init(this, node);
+    }
 }

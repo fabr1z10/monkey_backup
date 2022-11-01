@@ -316,10 +316,13 @@ void Controller2D::climbSlope(glm::vec3& velocity, float slopeAngle) {
 bool Controller2D::isFalling(float dir) {
     updateRaycastOrigins();
     auto rayOrigin = m_raycastOrigins.bottomFwd; //(dir < 0.f ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight);
-
+    rayOrigin.x += (m_node->getFilpX() ? -1.f : 1.f) * 8.f;
     //glm::vec2 rayOrigin = (dir == -1) ? m_raycastOrigins.bottomLeft : m_raycastOrigins.bottomRight;
-    RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, -1.f, 0.f), 5.0, 2|32);
-    if (!hit.collide)
+    RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, -1.f, 0.f), 0.5f, 2|32);
+    if (!hit.collide) {
+        std::cout << "called true\n";
         return true;
+    }
+    std::cout << "called false\n";
     return false;
 }

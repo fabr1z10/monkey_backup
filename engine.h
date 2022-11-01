@@ -71,9 +71,8 @@ private:
 		auto shader = std::make_shared<T>(type, vertex, fragment, vertexFormat);
 		m_shaderTypeToIndex[type] = m_shaders.size();
 		m_shaders.push_back(shader);
-
-
 	}
+	void addShader(std::shared_ptr<Shader> shader);
 	std::unordered_map<ShaderType, int> m_shaderTypeToIndex;
 	std::unordered_map<int, std::function<void()>> m_shaderBuilders;
 	double m_frameTime;

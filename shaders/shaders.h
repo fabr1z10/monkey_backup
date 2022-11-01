@@ -35,3 +35,11 @@ const std::string blit_vs =
 const std::string blit_fs =
 #include "blit.fs"
 ;
+
+const std::string tex_light_vs =
+#include "texlight.vs"
+;
+
+const std::string tex_light_fs =
+#include "texlight.fs"
+;

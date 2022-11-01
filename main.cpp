@@ -58,6 +58,7 @@ using namespace glm;
 #include "components/attack.h"
 #include "models/shapes.h"
 #include "components/hit.h"
+#include "models/plane.h"
 
 namespace py = pybind11;
 
@@ -76,6 +77,9 @@ PYBIND11_MODULE(monkey, m) {
 	m.attr("LINES") = GL_LINES;
 	m.attr("SHADER_COLOR") = static_cast<int>(ShaderType::SHADER_COLOR);
 	m.attr("SHADER_TEXTURE") = static_cast<int>(ShaderType::SHADER_TEXTURE);
+    m.attr("SHADER_SKELETAL") = static_cast<int>(ShaderType::SHADER_SKELETAL);
+    m.attr("SHADER_TEXTURE_PALETTE") = static_cast<int>(ShaderType::SHADER_TEXTURE_PALETTE);
+    m.attr("SHADER_TEXTURE_LIGHT") = static_cast<int>(ShaderType::SHADER_TEXTURE_LIGHT);
 	m.attr("FILL_OUTLINE") = static_cast<int>(FillType::OUTLINE);
 	m.attr("FILL_SOLID") = static_cast<int>(FillType::SOLID);
     m.attr("HALIGN_CENTER") = static_cast<int>(HorizontalAlign::CENTER);
@@ -160,9 +164,11 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Sprite, Model, std::shared_ptr<Sprite>>(mm, "sprite");
     py::class_<SkeletalModel, Model, std::shared_ptr<SkeletalModel>>(mm, "skeletal_model")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<Plane, Model, std::shared_ptr<Plane>>(mm, "plane")
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<PolyMesh, Model, std::shared_ptr<PolyMesh>>(mm, "polymesh");
     py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(mm, "tiled")
-        .def(py::init<const std::string&>());
+        .def(py::init<const pybind11::kwargs&>());
     py::class_<Image, Model, std::shared_ptr<Image>>(mm, "image")
         .def(py::init<const std::string&, const pybind11::kwargs&>());
 	py::class_<Text, Model, std::shared_ptr<Text>>(mm, "text")
@@ -208,6 +214,11 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
         .def("add_shape", &CompoundShape::addShape)
         .def(py::init<>());
+
+    /// --- lights ---
+    py::class_<Light, std::shared_ptr<Light>>(m, "light");
+    py::class_<DirectionalLight, Light, std::shared_ptr<DirectionalLight>>(m, "light_directional")
+        .def(py::init<glm::vec3, glm::vec4, glm::vec4>());
 
 	/// --- components ---
 	py::class_<Component, std::shared_ptr<Component>>(m, "component");
@@ -383,6 +394,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("add_runner", &Room::addRunner)
 		.def("set_on_start", &Room::setOnStart)
 		.def("set_on_end", &Room::setOnEnd)
+		.def("add_light", &Room::addLight)
 	    .def("root", &Room::getRoot, py::return_value_policy::reference);
 
 //	py::module_ submodule = m.def_submodule("my_submodule");

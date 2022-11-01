@@ -4,6 +4,7 @@
 #include <memory>
 #include "node.h"
 #include "runner.h"
+#include "light.h"
 
 class Room {
 public:
@@ -33,11 +34,15 @@ public:
 
     void start();
     void end();
+
+    void addLight(std::shared_ptr<Light>);
+    void useLights(Shader*);
 private:
 
 	std::string m_id;
 	std::shared_ptr<Node> m_root;
 	std::unordered_map<std::type_index, std::shared_ptr<Runner> > m_runners;
+    std::vector<std::shared_ptr<Light>> m_lights;
 
     pybind11::function m_onStart;
     pybind11::function m_onEnd;

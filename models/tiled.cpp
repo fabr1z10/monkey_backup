@@ -3,6 +3,7 @@
 #include "../engine.h"
 #include "../asset_manager.h"
 #include <stack>
+#include "../pyhelper.h"
 
 //void TiledModel::draw(Shader * s, const glm::mat4 & m) {
 //    if (m_texId != GL_INVALID_VALUE) {
@@ -13,8 +14,11 @@
 //    Model::draw(s, m);
 //}
 
-TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE) {
+TiledModel::TiledModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_TEXTURE) {
     // Vector of string to save tokens
+    auto s = args["desc"].cast<std::string>();
+    int x0 = dictget<float>(args, "x", 0.f);
+    int y0 = dictget<float>(args, "y", 0.f);
     std::string u(s);
     std::transform(u.begin(), u.end(), u.begin(), ::toupper);
     std::vector <std::string> tokens;
@@ -49,8 +53,8 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
     bool fliph = false;
     bool flipv = false;
     int width = -1;
-    int x = 0;
-    int y = 0;
+    int x = x0;
+    int y = y0;
     std::stack<std::pair<int, int>> loopStack;
     unsigned i0 = 0;
     bool horizontalFlip = false;
@@ -78,7 +82,7 @@ TiledModel::TiledModel(const std::string& s) : Model(ShaderType::SHADER_TEXTURE)
             continue;
         }
         if (tokens[n][0] == 'U') {
-            x = 0;
+            x = x0;
             y += 1;
             n++;
             continue;

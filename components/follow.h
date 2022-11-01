@@ -12,6 +12,6 @@ protected:
 	glm::vec3 m_relativePos;
 	glm::vec3 m_up;
 	std::shared_ptr<Camera> m_cam;
-	glm::mat4 m_previous;
+	glm::vec3 m_previous;
 };
 

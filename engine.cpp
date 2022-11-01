@@ -4,6 +4,7 @@
 #include "pyhelper.h"
 #include "symbols.h"
 #include "shaders/shaders.h"
+#include "shaderinit.h"
 
 
 GLFWwindow* window;
@@ -19,7 +20,23 @@ Engine::Engine() : m_room(nullptr), m_nextId(0), m_pixelScaleFactor(1) {
 	m_shaderBuilders[1] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs, "3f2f4f"); };
     m_shaderBuilders[2] = [&] () { add_shader<Shader>(ShaderType::SHADER_SKELETAL, skeletal_vs, skeletal_fs, "3f2f3f"); };
     m_shaderBuilders[3] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE_PALETTE, tex_vs, tex_pal_fs, "3f2f4f"); };
+    // light shader
+    m_shaderBuilders[4] = [&] () {
+        auto lshader = std::make_shared<Shader>(ShaderType::SHADER_TEXTURE_LIGHT, tex_light_vs, tex_light_fs, "3f2f3f");
+        lshader->addInitializer(std::make_shared<LightInitializer>());
+        lshader->addPredraw(std::make_shared<LightPreDraw>());
+        addShader(lshader);
+    };
 
+    //m_shaderBuilders[4] = [&] () { add_shader<Shader>(); };
+
+
+}
+
+void Engine::addShader(std::shared_ptr<Shader> shader) {
+
+    m_shaderTypeToIndex[shader->getShaderType()] = m_shaders.size();
+    m_shaders.push_back(shader);
 
 }
 
@@ -147,6 +164,7 @@ void Engine::start() {
 
 
                 for (const auto &shader : m_shaders) {
+                    // here it makes sense to
                     shader->use();
                     m_room->draw(shader.get());
                 }

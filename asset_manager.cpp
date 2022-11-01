@@ -13,7 +13,9 @@ std::shared_ptr<TiledModel> AssetManager::getTiled(const std::string & id) {
             auto currId = it->first.as<std::string>();
             std::string cspr = id.substr(0, u+1) + currId;
             if (currId == tiledName) {
-                m_tiled[cspr] = std::make_shared<TiledModel>(it->second.as<std::string>());
+                pybind11::kwargs args;
+                args["desc"] = it->second.as<std::string>();
+                m_tiled[cspr] = std::make_shared<TiledModel>(args);
             }
         }
         return m_tiled.at(id);
