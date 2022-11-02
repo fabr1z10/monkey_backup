@@ -63,3 +63,5 @@ float cross2D (glm::vec2 a, glm::vec2 b) ;
 bool pnpoly(const std::vector<glm::vec2>& points, glm::vec2 P);
 
 glm::vec2 rot90(glm::vec2 in, bool clockwise = false);
+
+std::vector<glm::vec2> DouglasPeucker(std::vector<glm::vec2>& pointList, float epsilon, int i0, int i1) ;

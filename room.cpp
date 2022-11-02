@@ -171,7 +171,12 @@ void Room::addLight(std::shared_ptr<Light> light) {
 }
 
 void Room::useLights(Shader * s) {
+	s->setFloat("ambient", m_ambientStrength);
     for (const auto& light : m_lights) {
         light->setup(s);
     }
+}
+
+void Room::setAmbientStrength(float ambient) {
+	m_ambientStrength = ambient;
 }

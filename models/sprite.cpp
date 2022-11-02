@@ -75,7 +75,7 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 	for (YAML::const_iterator anit = node["animations"].begin(); anit != node["animations"].end(); ++anit) {
 		auto animId = anit->first.as<std::string>();
 		if (m_defaultAnimation.empty()) m_defaultAnimation = animId;
-		std::cerr << " reading animation:" << animId << "\n";
+		//std::cerr << " reading animation:" << animId << "\n";
 		AnimInfo animInfo;
 		std::vector<FrameInfo> frameInfos;
 		animInfo.loop = anit->second["loop"].as<bool>(true);

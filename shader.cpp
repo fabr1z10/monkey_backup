@@ -140,6 +140,10 @@ void Shader:: setInt(const std::string &name, int value) const
 	glUniform1i(glGetUniformLocation(m_programId, name.c_str()), value);
 }
 
+void Shader::setFloat(const std::string &name, float value) const {
+    glUniform1f(glGetUniformLocation(m_programId, name.c_str()), value);
+}
+
 void Shader::bind() {
 	glBindVertexArray(m_vao);
 

@@ -59,6 +59,7 @@ using namespace glm;
 #include "models/shapes.h"
 #include "components/hit.h"
 #include "models/plane.h"
+#include "components/contourcollider.h"
 
 namespace py = pybind11;
 
@@ -218,7 +219,7 @@ PYBIND11_MODULE(monkey, m) {
     /// --- lights ---
     py::class_<Light, std::shared_ptr<Light>>(m, "light");
     py::class_<DirectionalLight, Light, std::shared_ptr<DirectionalLight>>(m, "light_directional")
-        .def(py::init<glm::vec3, glm::vec4, glm::vec4>());
+        .def(py::init<glm::vec3, glm::vec3>());
 
 	/// --- components ---
 	py::class_<Component, std::shared_ptr<Component>>(m, "component");
@@ -230,6 +231,10 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
+
+    py::class_<ContourCollider, Collider, std::shared_ptr<ContourCollider>>(m, "contour_collider")
+        .def(py::init<const std::string&, float, int, int, int>());
+
 
     py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")
         .def(py::init<int, int, int, const pybind11::kwargs&>());
@@ -395,6 +400,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_on_start", &Room::setOnStart)
 		.def("set_on_end", &Room::setOnEnd)
 		.def("add_light", &Room::addLight)
+		.def("set_ambient", &Room::setAmbientStrength)
 	    .def("root", &Room::getRoot, py::return_value_policy::reference);
 
 //	py::module_ submodule = m.def_submodule("my_submodule");

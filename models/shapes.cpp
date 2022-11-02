@@ -2,6 +2,7 @@
 #include "../pyhelper.h"
 #include "../engine.h"
 #include <glm/gtx/transform.hpp>
+#include "../shapes/earcut.h"
 
 
 void Pixels::PixelRenderer::draw(Shader * s) {
@@ -72,6 +73,34 @@ LineModel::LineModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_CO
 
     m_elementSize = elements.size();
     m_size = m_elementSize;
+}
+
+PolygonModel::PolygonModel(const std::vector<glm::vec2>& data) : Model(ShaderType::SHADER_COLOR) {
+    using Coord = float;
+    using Point = std::array<Coord, 2>;
+    using N = uint32_t;
+
+    m_primitive = GL_LINES;
+    std::vector<float> vertices ;
+    std::vector<unsigned> elements;
+    std::vector<Point> polygon;
+    size_t n = 0;
+    for (size_t i = 0; i < data.size(); i ++) {
+        float x = data[i].x;
+        float y = data[i].y;
+        polygon.push_back({x, y});
+        vertices.insert(vertices.end(), {x, y, 0.0f, 1.f, 0.f, 0.f, 1.f});
+        elements.push_back(n++);
+    }
+    elements.push_back(0);
+
+    std::vector<std::vector<Point>> p;
+    p.push_back(polygon);
+    auto tri = mapbox::earcut<N>(p);
+    std::cout << "number of triangles: " << tri.size() / 3 << "\n";
+
+    this->generateBuffers(vertices, elements);
+
 }
 
 RectModel::RectModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_COLOR) {

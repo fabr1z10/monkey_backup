@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <vector>
 
 enum TexFilter { nearest, linear, linear_mipmap };
 
@@ -13,6 +14,7 @@ public:
 	int getHeight() const;
 	GLuint getTexId() const;
 	bool hasPalette() const;
+	static std::vector<unsigned char> getRaw(const std::string& , int&, int&);
 private:
     void load_png(const std::string& file);
     void load_generic(const std::string& file);

@@ -12,11 +12,11 @@ public:
 
 class DirectionalLight : public Light {
 public:
-    DirectionalLight(glm::vec3 direction, glm::vec4 ambient, glm::vec4 diffuse);
+    DirectionalLight(glm::vec3 direction, glm::vec3 color);
     void setup(Shader*) override;
 private:
     glm::vec3 m_direction;
-    glm::vec4 m_ambientColor;
-    glm::vec4 m_diffuseColor;
+    //glm::vec4 m_ambientColor;
+    glm::vec3 m_diffuseColor;
 };
 

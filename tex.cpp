@@ -12,6 +12,21 @@
 
 using namespace cimg_library;
 
+std::vector<unsigned char> Tex::getRaw(const std::string &file, int& width, int& height) {
+    CImg<unsigned char> data (file.c_str());
+    width = data.width();
+    height = data.height();
+    std::cout << "width " << data.width() << "\n";
+    std::cout << "height " << data.height() << "\n";
+    data.permute_axes ("cxyz");
+    std::vector<unsigned char> out;
+    for (auto it = data.begin(); it != data.end(); it+=4) {
+        out.push_back(*(it+3) == 0 ? 0 : 1);
+    }
+    return out;
+
+}
+
 void Tex::load_png(const std::string &file) {
     unsigned char sig[8];
     FILE* infile;
@@ -91,8 +106,8 @@ void Tex::load_png(const std::string &file) {
         load_generic(file);
         return;
     } else {
-        std::cout << " --- not handled;\n";
-        exit(1);
+        load_generic(file);
+        return;
     }
 
     auto _row_pointers = new png_bytep[imgHeight];

@@ -1,6 +1,7 @@
 #include <locale>
 #include <codecvt>
 #include "util.h"
+#include <iostream>
 
 std::u32string getString32(const std::string& str) {
 	return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>().from_bytes(str.c_str());
@@ -93,4 +94,44 @@ bool pnpoly(const std::vector<glm::vec2>& points, glm::vec2 p) {
 
 glm::vec2 rot90(glm::vec2 vec, bool clockwise) {
     return (clockwise ? -1.f : 1.f) * glm::vec2(-vec.y, vec.x);
+}
+
+float shortestDistanceToSegment(glm::vec2 P0, glm::vec2 P1, glm::vec2 P2) {
+    float den = (P2.x - P1.x) * (P2.x - P1.x) + (P2.y - P1.y) * (P2.y - P1.y);
+    float num = (P2.x - P1.x) * (P1.y - P0.y) - (P1.x - P0.x) * (P2.y - P1.y);
+    return (num * num) / den;
+}
+
+
+std::vector<glm::vec2> DouglasPeucker(std::vector<glm::vec2>& pointList, float epsilon, int i0, int i1) {
+    // troviamo il punto con la massima distanza
+    std::cout << " called DP with " << i0 << " --> " << i1 << "\n";
+    float dmax = 0.f;
+    int index = 0;
+    auto end = i1 - i0 + 1;
+    //se ha meno di 3 punti non vi è nulla da semplificare e torniamo l'array (di 1 o 2 punti)
+    if (end < 3) return pointList;
+    for (size_t i = i0 + 1; i < i1; i++) {
+        float d2 = shortestDistanceToSegment(pointList[i], pointList[i0], pointList[i1]);
+        if (d2 > dmax) {
+            index = i;
+            dmax = d2;
+        }
+    }
+    // se la massima distanza è maggiore di epsilon, semplifichiamo ricorsivamente
+    std::cout << " max sq dist is " << dmax << " at index " << index << ", " << pointList[index].x << ", " << pointList[index].y << "\n";
+    std::vector<glm::vec2> resultList;
+    if (dmax > epsilon*epsilon) {
+        // Chiamate ricorsiva
+        resultList = DouglasPeucker(pointList, epsilon, i0, index-1);
+        auto recResults2 = DouglasPeucker(pointList, epsilon, index, i1);
+        // Concateniamo le liste risultanti
+        resultList.insert( resultList.end(), recResults2.begin(), recResults2.end() );
+
+    } else {
+        //prendiamo i due punti estremi
+        resultList = {pointList[i0], pointList[i1]};
+    }
+    // Ritorna il risultato
+    return resultList;
 }

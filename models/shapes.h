@@ -28,3 +28,8 @@ class RectModel : public Model {
 public:
     RectModel(const pybind11::kwargs& args);
 };
+
+class PolygonModel : public Model {
+public:
+    PolygonModel(const std::vector<glm::vec2>& data);
+};
