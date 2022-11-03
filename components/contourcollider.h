@@ -5,7 +5,7 @@
 
 class ContourCollider : public Collider {
 public:
-    ContourCollider(const std::string& imageFile, float eps, int flag, int mask, int tag);
+    ContourCollider(const std::string& imageFile, float eps, int flag, int mask, int tag, glm::vec2 anchorPoint = glm::vec2(0.f));
     std::shared_ptr<Shape> getShape() override;
     int getCollisionTag() const override;
     int getCollisionFlag() const override;

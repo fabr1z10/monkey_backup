@@ -128,55 +128,43 @@ void MoveDynamics::update(double dt) {
 MoveQuat::MoveQuat(const pybind11::kwargs& args) : m_t(0.f), m_i(0), m_loop(true), m_z(0.f) {
     auto l = args["key_frames"].cast<pybind11::list>();
     m_loop = dictget(args, "loop", true);
-    m_z = dictget(args, "z", 0.f);
+
     for (const auto& keyFrame : l) {
+
         auto t = keyFrame["t"].cast<float>();
-        auto axis = glm::vec3(0, 0, 1); // keyFrame["axis"].cast<glm::vec3>();
-        auto angle = glm::radians(keyFrame["angle"].cast<float>());
-        auto pos = keyFrame["pos"].cast<glm::vec2>();
-        auto dir = keyFrame["dir"].cast<glm::vec2>();
-        m_keyFrames.push_back(KeyFrame{t, glm::angleAxis(angle, axis), pos, dir});
-    }
-    // compute control points
-    for (size_t i = 0; i < m_keyFrames.size() - 1; ++i) {
-        float t{0.f};
-        if (seg2seg(m_keyFrames[i].pos, m_keyFrames[i].pos + m_keyFrames[i].dir,
-                m_keyFrames[i+1].pos, m_keyFrames[i+1].pos + m_keyFrames[i+1].dir, t)) {
-            m_keyFrames[i].controlPoint = m_keyFrames[i].pos + t * m_keyFrames[i].dir;
-            m_keyFrames[i].bezierType = 2;
-        } else {
-            m_keyFrames[i].bezierType = 1;
+        if (!m_keyFrames.empty()) {
+            m_keyFrames.back().endTime = t;
         }
+        auto scale = dictget<float>(keyFrame.cast<pybind11::object>(), "scale", 1.f);
+        auto angle = glm::radians(keyFrame["angle"].cast<float>());
+        auto pos = keyFrame["pos"].cast<glm::vec3>();
+        m_keyFrames.push_back(KeyFrame{t, t, pos, angle, scale});
     }
 
 }
 
 void MoveQuat::update(double dt) {
-    int next = m_i + 1;
-    const auto& frame0 = m_keyFrames[m_i];
-    const auto& frame1 = m_keyFrames[next];
-    float length = frame1.time - frame0.time;
-    float t = (m_t - frame0.time) / length;
-    float t2 = t * t;
-
-    glm::vec2 pos = frame0.bezierType == 2 ? (1.f - t2) * frame0.pos + 2.f * t * (1.f - t) * frame0.controlPoint + t2 * frame1.pos :
-            frame0.pos + t * (frame1.pos -frame0.pos);
-    // This is called a SLERP: Spherical Linear intERPolation. With GLM, you can do this with mix:
-    glm::quat interpolatedquat = glm::mix(frame0.quat, frame1.quat, t); // or whatever factor
-    glm::mat4 mat = glm::translate(glm::vec3(pos.x, pos.y, m_z)) * glm::toMat4(interpolatedquat);
+    const auto& currentFrame = m_keyFrames[m_i];
+    const auto& nextFrame = m_keyFrames[m_i + 1];
+    float k = (m_t - currentFrame.startTime) / (currentFrame.endTime - currentFrame.startTime);
+    // interpolate position angle and scale
+    glm::vec3 pos = currentFrame.position + k * (nextFrame.position - currentFrame.position);
+    float angle = currentFrame.angle + k * (nextFrame.angle - currentFrame.angle);
+    float scale = currentFrame.scale + k * (nextFrame.scale - currentFrame.scale);
+    //glm::mat4 mat = glm::scale(glm::vec3(scale)) * glm::rotate(angle, glm::vec3(0.f, 0.f, 1.f)) * glm::translate(pos);
+    auto mat =  glm::translate(pos) * glm::rotate(angle, glm::vec3(0.f, 0.f, 1.f))* glm::scale(glm::vec3(scale));
     m_node->setModelMatrix(mat);
+    // increment time
     m_t += static_cast<float>(dt);
-    if (m_t >= frame1.time) {
-        m_i++;
+    if (m_t >= currentFrame.endTime) {
+        // increment keyframe
+        m_i ++;
         if (m_i == m_keyFrames.size() - 1) {
-            if (m_loop) {
-                m_i = 0;
-                m_t = 0;
-            } else {
-                m_i--;
-                m_t = frame1.time;
-            }
+            m_i = 0;
+            m_t = 0.f;
         }
+
     }
+
 
 }

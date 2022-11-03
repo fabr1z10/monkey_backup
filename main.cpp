@@ -233,7 +233,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<std::shared_ptr<Shape>, int, int, int>());
 
     py::class_<ContourCollider, Collider, std::shared_ptr<ContourCollider>>(m, "contour_collider")
-        .def(py::init<const std::string&, float, int, int, int>());
+        .def(py::init<const std::string&, float, int, int, int, glm::vec2>());
 
 
     py::class_<SpriteCollider, Collider, std::shared_ptr<SpriteCollider>>(m, "sprite_collider")

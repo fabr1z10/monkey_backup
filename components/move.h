@@ -46,12 +46,11 @@ public:
     void update(double) override;
 private:
     struct KeyFrame {
-        float time;
-        glm::quat quat;
-        glm::vec2 pos;
-        glm::vec2 dir;
-        glm::vec2 controlPoint;
-        int bezierType;
+        float startTime;
+        float endTime;
+        glm::vec3 position;
+        float angle;
+        float scale;
     };
     bool m_loop;
     float m_t;                           // current time

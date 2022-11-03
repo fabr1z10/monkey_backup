@@ -4,6 +4,7 @@
 #include "../util.h"
 #include "../shapes/compound.h"
 #include "aabb.h"
+#include "triangles.h"
 
 
 Intersector2D::Intersector2D() {
@@ -30,6 +31,7 @@ Intersector2D::Intersector2D() {
     add<AABB, Rect>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATAABB(s1, s2, t1, t2); });
     add<AABB, Segment>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATAABB(s1, s2, t1, t2); });
     add<AABB, AABB>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return AABB2(s1, s2, t1, t2); });
+    add<AABB, Triangles>([&] (const Shape* s1, const Shape* s2, const glm::mat4& t1, const glm::mat4& t2) { return SATTriAABB(s1, s2, t1, t2); });
 }
 
 CollisionReport Intersector2D::compound(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
@@ -119,6 +121,19 @@ CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const g
     //report.collide = !notCollide;
     return report;
 
+}
+
+CollisionReport Intersector2D::SATTriAABB(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
+    const auto* sh2 = static_cast<const AABB*>(s1);
+    const auto* cp1 = static_cast<const Triangles*>(s2);
+
+    std::vector<glm::vec2> axes;
+    for (const auto& localAxis : cp1->axes()) {
+        axes.push_back(t1 * glm::vec4(localAxis, 0.f, 0.f));
+    }
+    axes.push_back(glm::vec2(1.f, 0.f));
+    axes.push_back(glm::vec2(0.f, 1.f));
+    return performSAT(axes, cp1, sh2, t1, t2);
 }
 
 

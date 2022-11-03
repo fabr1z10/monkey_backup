@@ -5,9 +5,12 @@
 #include "../models/shapes.h"
 #include <iostream>
 #include "../util.h"
+#include "../shapes/triangles.h"
 
 
-ContourCollider::ContourCollider(const std::string& file, float epsilon, int, int, int) : Collider() {
+ContourCollider::ContourCollider(const std::string& file, float epsilon,  int flag, int mask, int tag, glm::vec2 anchor) : Collider(),
+    m_flag(flag), m_mask(mask), m_tag(tag) {
+
 
     m_data = Tex::getRaw(file, m_width, m_height);
     m_size = m_width * m_height;
@@ -21,7 +24,7 @@ ContourCollider::ContourCollider(const std::string& file, float epsilon, int, in
     std::vector<glm::vec2> pointList;
     for (size_t i = 0; i < m_contour.size(); i+=2) {
         std::cout << m_contour[i] << ", " << m_contour[i+1] << std::endl;
-        pointList.push_back(glm::vec2(m_contour[i], m_contour[i+1]));
+        pointList.push_back(glm::vec2(m_contour[i], m_contour[i+1]) - anchor);
     }
     int midPoint = pointList.size() / 2;
     std::cout << "midpoint is " << midPoint << " and it's " << pointList[midPoint].x << ", " << pointList[midPoint].y << "\n";
@@ -31,7 +34,12 @@ ContourCollider::ContourCollider(const std::string& file, float epsilon, int, in
     //for (const auto& p : ciao) {
     //    std::cout << ": " << p.x << ", " << p.y << ":\n";
     //}
+    auto shape = std::make_shared<Triangles>(mm);
+    m_staticBounds = shape->getBounds();
 
+    // ...
+
+    m_shape = shape;
 }
 
 void ContourCollider::generateDebugMesh() {
