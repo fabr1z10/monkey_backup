@@ -110,7 +110,13 @@ std::vector<glm::vec2> DouglasPeucker(std::vector<glm::vec2>& pointList, float e
     int index = 0;
     auto end = i1 - i0 + 1;
     //se ha meno di 3 punti non vi è nulla da semplificare e torniamo l'array (di 1 o 2 punti)
-    if (end < 3) return pointList;
+    if (end < 3) {
+        if (i0 == i1) {
+            return {pointList[i0]};
+        } else {
+            return {pointList[i0], pointList[i1]};
+        }
+    }
     for (size_t i = i0 + 1; i < i1; i++) {
         float d2 = shortestDistanceToSegment(pointList[i], pointList[i0], pointList[i1]);
         if (d2 > dmax) {
@@ -123,9 +129,10 @@ std::vector<glm::vec2> DouglasPeucker(std::vector<glm::vec2>& pointList, float e
     std::vector<glm::vec2> resultList;
     if (dmax > epsilon*epsilon) {
         // Chiamate ricorsiva
-        resultList = DouglasPeucker(pointList, epsilon, i0, index-1);
+        resultList = DouglasPeucker(pointList, epsilon, i0, index);
         auto recResults2 = DouglasPeucker(pointList, epsilon, index, i1);
         // Concateniamo le liste risultanti
+        resultList.pop_back();
         resultList.insert( resultList.end(), recResults2.begin(), recResults2.end() );
 
     } else {

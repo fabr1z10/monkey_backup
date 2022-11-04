@@ -29,7 +29,8 @@ ContourCollider::ContourCollider(const std::string& file, float epsilon,  int fl
     int midPoint = pointList.size() / 2;
     std::cout << "midpoint is " << midPoint << " and it's " << pointList[midPoint].x << ", " << pointList[midPoint].y << "\n";
     mm = DouglasPeucker(pointList, epsilon, 0, midPoint);
-    auto secondHalf = DouglasPeucker(pointList, epsilon, midPoint+1, pointList.size()-1);
+    auto secondHalf = DouglasPeucker(pointList, epsilon, midPoint, pointList.size()-1);
+    mm.pop_back();
     mm.insert( mm.end(), secondHalf.begin(), secondHalf.end() );
     //for (const auto& p : ciao) {
     //    std::cout << ": " << p.x << ", " << p.y << ":\n";

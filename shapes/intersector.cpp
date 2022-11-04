@@ -5,6 +5,7 @@
 #include "../shapes/compound.h"
 #include "aabb.h"
 #include "triangles.h"
+#include "projection.h"
 
 
 Intersector2D::Intersector2D() {
@@ -124,16 +125,65 @@ CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const g
 }
 
 CollisionReport Intersector2D::SATTriAABB(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
-    const auto* sh2 = static_cast<const AABB*>(s1);
-    const auto* cp1 = static_cast<const Triangles*>(s2);
-
-    std::vector<glm::vec2> axes;
-    for (const auto& localAxis : cp1->axes()) {
-        axes.push_back(t1 * glm::vec4(localAxis, 0.f, 0.f));
+    const auto* aabb = static_cast<const AABB*>(s1);
+    const auto* trimesh = static_cast<const Triangles*>(s2);
+    CollisionReport report;
+    report.collide = true;
+    auto triDisplacement = glm::vec3(t2[3]);
+    // first get the world coordinates of the AABB points
+    std::array<glm::vec2, 4> m_aabbPointsWorld;
+    const auto& localPoints = aabb->getPoints();
+    Projection p_own_aabb_x;
+    Projection p_own_aabb_y;
+    for (size_t i = 0; i < localPoints.size(); ++i) {
+        m_aabbPointsWorld[i] = glm::vec2(t1 * glm::vec4(localPoints[i], 0.f, 1.f));
+        p_own_aabb_x.update(m_aabbPointsWorld[i].x);
+        p_own_aabb_y.update(m_aabbPointsWorld[i].y);
     }
-    axes.push_back(glm::vec2(1.f, 0.f));
-    axes.push_back(glm::vec2(0.f, 1.f));
-    return performSAT(axes, cp1, sh2, t1, t2);
+
+    // get the own projection
+
+
+    for (const auto& tri : trimesh->getTri()) {
+        // for each triangle, I get the projection of the AABB onto each transformed axis
+        Projection p_aabb;
+        bool collideWithCurrentTriangle = true;
+        std::array<glm::vec2, 3> tri_points_w;
+        for (size_t j = 0; j < 3; ++j) {
+            tri_points_w[j] = glm::vec2(t2 * glm::vec4(tri.points[j], 0.f, 1.f));
+        }
+
+        for (size_t i = 0; i < 3; ++i) {
+            glm::vec2 tri_axis_w = glm::vec2(t2 *glm::vec4(tri.axes[i], 0.f, 0.f));
+            for (size_t j = 0; j < 4; ++j) {
+                p_aabb.update(glm::dot(m_aabbPointsWorld[j], tri_axis_w));
+            }
+            Projection p_tri;
+            // translate own projection by the correct amount
+            for (size_t j = 0; j < 3; ++j) {
+                p_tri.update(glm::dot(tri_points_w[j], tri_axis_w));
+            }
+            if (!p_aabb.intersect(p_tri)) {
+                // found non-overlapping axis -> does not collide with this triangle
+                collideWithCurrentTriangle = false;
+            }
+        }
+        Projection p_tri_x, p_tri_y;
+        for (size_t j = 0; j < 3; ++j) {
+            p_tri_x.update(glm::dot(tri_points_w[j], glm::vec2(1.f, 0.f)));
+            p_tri_y.update(glm::dot(tri_points_w[j], glm::vec2(0.f, 1.f)));
+        }
+        if (!p_own_aabb_x.intersect(p_tri_x) || !p_own_aabb_y.intersect(p_tri_y)) {
+            collideWithCurrentTriangle = false;
+        }
+        if (collideWithCurrentTriangle) {
+            return report;
+        }
+
+    }
+
+    report.collide = false;
+    return report;
 }
 
 

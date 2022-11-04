@@ -8,6 +8,8 @@ AABB::AABB(float xm, float xM, float ym, float yM) : m_xMin(xm), m_xMax(xM), m_y
     m_points[3] = glm::vec2(xm, yM);
     m_bounds.min = glm::vec3(xm, ym, 0.f);
     m_bounds.max = glm::vec3(xM, yM, 0.f);
+    center = 0.5f * (m_points[0] + m_points[2]);
+    halfDiag = 0.5f * sqrt((xM-xm)*(xM-xm) + (yM-ym)*(yM-ym));
 }
 
 glm::vec2 AABB::project(glm::vec2 axis, const glm::mat4 & t) const {
