@@ -16,9 +16,9 @@ void main()
 	if (texColor.a < 0.5) {
 		discard;
 	}
-	//texColor *= col;
-	//texColor *= mult_color;
-	//texColor += add_color;
+	texColor *= col;
+	texColor *= mult_color;
+	texColor += add_color;
 	fragColor = texColor;
 }
 )"

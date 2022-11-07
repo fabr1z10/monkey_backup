@@ -5,7 +5,8 @@
 // orientation (can be x y z)
 Plane::Plane(const pybind11::kwargs& args) : Model(ShaderType::SHADER_TEXTURE_LIGHT) {
     m_primitive = GL_TRIANGLES;
-    auto orientation = dictget<char>(args, "normal", 'x');
+    glm::vec3 normal = args["normal"].cast<glm::vec3>();
+
     auto width = args["width"].cast<float>();
     auto height = args["height"].cast<float>();
 
@@ -18,24 +19,24 @@ Plane::Plane(const pybind11::kwargs& args) : Model(ShaderType::SHADER_TEXTURE_LI
     m_texId = tex->getTexId();
 
     std::vector<float> vertices;
-    if (orientation == 'x') {
+    if (normal.x != 0.f) {
         vertices = std::vector<float>({
-                                              0.f, 0.f, width, 0.f, 0.f, 1.f, 0.f, 0.f,
-                                              0.f, 0.f, 0.f, tw, 0.f, 1.f, 0.f, 0.f,
-                                              0.f, height, 0.f, tw, th, 1.f, 0.f, 0.f,
-                                              0.f, height, width, 0.f, th, 1.f, 0.f, 0.f});
-    } else if (orientation == 'y') {
+                                              0.f, 0.f, width, 0.f, 0.f, normal.x, 0.f, 0.f,
+                                              0.f, 0.f, 0.f, tw, 0.f, normal.x, 0.f, 0.f,
+                                              0.f, height, 0.f, tw, th, normal.x, 0.f, 0.f,
+                                              0.f, height, width, 0.f, th, normal.x, 0.f, 0.f});
+    } else if (normal.y != 0.f) {
         vertices = std::vector<float>({
-                                              0.f, 0.f, height, 0.f, 0.f, 0.f, 1.f, 0.f,
-                                              width, 0.f, height, tw, 0.f, 0.f, 1.f, 0.f,
-                                              width, 0.f, 0.f, tw, th, 0.f, 1.f, 0.f,
-                                              0.f, 0.f, 0.f, 0.f, th, 0.f, 1.f, 0.f});
-    } else if (orientation == 'z') {
+                                              0.f, 0.f, height, 0.f, 0.f, 0.f, normal.y, 0.f,
+                                              width, 0.f, height, tw, 0.f, 0.f, normal.y, 0.f,
+                                              width, 0.f, 0.f, tw, th, 0.f, normal.y, 0.f,
+                                              0.f, 0.f, 0.f, 0.f, th, 0.f, normal.y, 0.f});
+    } else if (normal.z != 0.f) {
         vertices = std::vector<float>({
-                                              0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f,
-                                              width, 0.f, 0.f, tw, 0.f, 0.f, 0.f, 1.f,
-                                              width, height, 0.f, tw, th, 0.f, 0.f, 1.f,
-                                              0.f, height, 0.f, 0.f, th, 0.f, 0.f, 1.f});
+                                              0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, normal.z,
+                                              width, 0.f, 0.f, tw, 0.f, 0.f, 0.f, normal.z,
+                                              width, height, 0.f, tw, th, 0.f, 0.f, normal.z,
+                                              0.f, height, 0.f, 0.f, th, 0.f, 0.f, normal.z});
     }
     auto elements = std::vector<unsigned>({0, 1, 2, 3, 0, 2});
 

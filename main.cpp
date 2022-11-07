@@ -60,6 +60,7 @@ using namespace glm;
 #include "components/hit.h"
 #include "models/plane.h"
 #include "components/contourcollider.h"
+#include "components/shadow.h"
 
 namespace py = pybind11;
 
@@ -269,6 +270,9 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Renderer, Component, std::shared_ptr<Renderer>>(m, "renderer")
 		.def("flip", &Renderer::flipHorizontal)
 		.def(py::init<>());
+
+    py::class_<Shadow, Component, std::shared_ptr<Shadow>>(m, "shadow")
+        .def(py::init<const pybind11::kwargs&>());
 
 
     py::class_<MoveDynamics, Component, std::shared_ptr<MoveDynamics>>(m, "move_dynamics")

@@ -141,7 +141,9 @@ void Room::draw(Shader* s) {
 		auto renderer = current->getComponent<Renderer>();
 		if (renderer != nullptr) {
 		    s->preDraw(current);
-			renderer->draw(s);
+		    if (renderer->setup(s) == 0) {
+                renderer->draw(s);
+            }
 		}
 		for (const auto& [k, v] : current->children()) {
 			li.push_back(v.get());

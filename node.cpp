@@ -78,6 +78,10 @@ void Node::setFlipX(bool value) {
 
 }
 
+float Node::getScale() const {
+    return (fabs(m_modelMatrix[0][0]));
+}
+
 void Node::setScale(float scale) {
     m_modelMatrix[0][0] = sign(m_modelMatrix[0][0]) * scale;
     m_modelMatrix[1][1] = sign(m_modelMatrix[1][1]) * scale;

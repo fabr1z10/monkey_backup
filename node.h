@@ -28,6 +28,7 @@ public:
 	void setFlipX(bool);
 	bool getFilpX() const;
 	void update(double) ;
+	float getScale() const;
 	void setScale(float);
 	//void setScale(glm::vec3 scaleVector);
 	void pop();

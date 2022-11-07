@@ -8,6 +8,7 @@
 class Renderer : public Component {
 public:
 	Renderer();
+	virtual int setup(Shader*);
 	virtual void draw(Shader*);
 	std::shared_ptr<Model> getModel();
 	virtual void setModel(std::shared_ptr<Model>);
