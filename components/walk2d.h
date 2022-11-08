@@ -21,7 +21,8 @@ protected:
 	float m_timeToJumpApex;
 	float m_jumpVelocity;           // calculated
 	float m_acceleration;
-	float m_maxSpeed;
+	float m_maxSpeedGround;
+	float m_maxSpeedAir;
 	float m_accelerationTime;
 	Controller2D* m_controller;
 	Dynamics* m_dynamics;

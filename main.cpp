@@ -61,6 +61,8 @@ using namespace glm;
 #include "models/plane.h"
 #include "components/contourcollider.h"
 #include "components/shadow.h"
+#include "runners/break.h"
+#include "components/cleardepthbuffer.h"
 
 namespace py = pybind11;
 
@@ -130,7 +132,9 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_camera", &Node::getCamera)
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
+		.def("set_transform", &Node::setTransformation)
 		.def("get_animation", &Node::getAnimation)
+
 		.def("set_animation", &Node::setAnimation)
 		.def("set_text", &Node::setText)
 		.def("add_component", &Node::addComponent)
@@ -228,6 +232,7 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<KeyboardListener, std::shared_ptr<KeyboardListener>>(m, "keyboard_listener");
 
 	py::class_<Collider, Component, std::shared_ptr<Collider>>(m, "icollider")
+	    .def_property_readonly("bounds", &Collider::bounds)
 	    .def("set_collision_flag", &Collider::setCollisionFlag);
 
 	py::class_<SimpleCollider, Collider, std::shared_ptr<SimpleCollider>>(m, "collider")
@@ -246,6 +251,8 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<HotSpotManager, Component, std::shared_ptr<HotSpotManager>>(m, "hot_spot_manager")
         .def(py::init<>());
+
+
 
 	py::class_<PanZoom, Component, std::shared_ptr<PanZoom>>(m, "panzoom")
 		.def(py::init<>());
@@ -273,6 +280,10 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Shadow, Component, std::shared_ptr<Shadow>>(m, "shadow")
         .def(py::init<const pybind11::kwargs&>());
+
+    py::class_<ClearDepthBuffer, Component, std::shared_ptr<ClearDepthBuffer>>(m, "clear_depth_buffer")
+        .def(py::init<>());
+
 
 
     py::class_<MoveDynamics, Component, std::shared_ptr<MoveDynamics>>(m, "move_dynamics")
@@ -355,6 +366,8 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<pybind11::function, float>());
     py::class_<RevealText, NodeAction, std::shared_ptr<RevealText>>(ma, "reveal_text")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<Break, NodeAction, std::shared_ptr<Break>>(ma, "bre")
+            .def(py::init<const pybind11::kwargs&>());
     py::class_<Script, std::shared_ptr<Script>>(m, "script")
         .def("add", &Script::add)
         .def(py::init<const pybind11::kwargs&>());

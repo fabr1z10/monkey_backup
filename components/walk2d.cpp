@@ -14,9 +14,13 @@ Walk2D::Walk2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id
 	m_jumpHeight = kwargs["jump_height"].cast<float>();
     m_timeToJumpApex = kwargs["time_to_jump_apex"].cast<float>();
     m_jumpVelocity = (m_jumpHeight + 0.5f * m_gravity * m_timeToJumpApex * m_timeToJumpApex) / m_timeToJumpApex;
-	m_maxSpeed = kwargs["speed"].cast<float>();
+	m_maxSpeedGround = kwargs["speed"].cast<float>();
+    m_maxSpeedAir = dictget<float>(kwargs, "speed_air", m_maxSpeedGround);
 	m_accelerationTime = dictget<float>(kwargs, "acc_time", 0.1f);
-	m_acceleration = m_maxSpeed / m_accelerationTime;
+	if (m_accelerationTime == 0.f)
+	    m_acceleration = 0.f;
+	else
+	    m_acceleration = m_maxSpeedGround / m_accelerationTime;
     m_idleAnim = dictget<std::string>(kwargs, "idle_anim", "idle");
     m_walkAnim = dictget<std::string>(kwargs, "walk_anim", "walk");
     m_jumpAnim = dictget<std::string>(kwargs, "jump_anim", "jump");
@@ -51,8 +55,9 @@ void Walk2D::run(double dt) {
 	control();
 
 
-
+    float maxSpeed {0.f};
     if (m_controller->grounded()) {
+        maxSpeed = m_maxSpeedGround;
         if (m_up) {
             m_dynamics->m_velocity.y = m_jumpVelocity;
         } else {
@@ -60,6 +65,7 @@ void Walk2D::run(double dt) {
         }
     } else {
         // bump head
+        maxSpeed = m_maxSpeedAir;
         if (m_controller->ceiling()) {
             m_dynamics->m_velocity.y = 0;
         }
@@ -86,8 +92,8 @@ void Walk2D::run(double dt) {
 
 	// limit horizontal vel to max speed
 	if (m_left || m_right) {
-		if (fabs(m_dynamics->m_velocity.x) > m_maxSpeed) {
-			m_dynamics->m_velocity.x = signf(m_dynamics->m_velocity.x) * m_maxSpeed;
+		if (fabs(m_dynamics->m_velocity.x) > maxSpeed) {
+			m_dynamics->m_velocity.x = signf(m_dynamics->m_velocity.x) * maxSpeed;
 		}
 	}
 

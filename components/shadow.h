@@ -21,4 +21,5 @@ private:
     Renderer* m_parentRenderer;
     Node* m_parent;
     Controller2D* m_controller;
+    float m_groundBase;
 };

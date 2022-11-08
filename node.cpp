@@ -5,6 +5,8 @@
 #include "models/text.h"
 #include "util.h"
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 
 void Node::setModel(std::shared_ptr<Model> model) {
 
@@ -63,10 +65,20 @@ void Node::move(glm::mat4 m) {
 }
 
 
+void Node::setTransformation(float angle, glm::vec3 axis, glm::vec3 pos) {
+    auto quat = glm::angleAxis(glm::radians(angle), axis);
+    auto mat = glm::toMat4(quat);
+    mat[3][0] = pos.x;
+    mat[3][1] = pos.y;
+    mat[3][2] = pos.z;
+    setModelMatrix(mat);
+}
 
 void Node::setModelMatrix(glm::mat4 m) {
     m_modelMatrix = m;
-    m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+    if (m_parent != nullptr) {
+        m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
+    }
     onMove.fire(this);
 }
 

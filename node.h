@@ -41,6 +41,7 @@ public:
 	const glm::mat4& getModelMatrix() const;
 	const glm::mat4 getWorldMatrix() const;
 	void setModelMatrix(glm::mat4);
+	void setTransformation(float angle, glm::vec3 axis, glm::vec3 pos);
 	void move(glm::mat4);
 
 	pybind11::tuple getPos() const;

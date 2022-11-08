@@ -15,6 +15,9 @@ int Renderer::setup(Shader * s) {
     s->setVec4("mult_color", m_multColor);
     s->setVec4("add_color", m_addColor);
     s->setMat4("model", m);
+
+
+
     return 0;
 }
 

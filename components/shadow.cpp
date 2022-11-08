@@ -10,6 +10,7 @@ Shadow::Shadow(const pybind11::kwargs& args) {
 //    m_translate = t.get<glm::vec3>("translate", glm::vec3(0.0f));
     m_shear = dictget(args, "shear", 0.0f);
     m_multColor = args["color"].cast<glm::vec4>() / 255.f;
+    m_groundBase = dictget<float>(args, "base", 0.f);
 }
 
 std::type_index Shadow::getType() {
@@ -20,7 +21,7 @@ void Shadow::start() {
     m_parent = m_node->getParent();
     m_parentRenderer = m_parent->getComponent<Renderer>();
     m_controller = dynamic_cast<Controller2D*>(m_parent->getComponent<Controller>());
-    assert(m_controller != nullptr);
+    //assert(m_controller != nullptr);
     //m_entity->SetPosition(glm::vec3(1/m_parent->GetScale(),0,0));
     m_multColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
 }
@@ -43,8 +44,10 @@ void Shadow::draw(Shader * shader) {
 
 void Shadow::update(double) {
     auto currentPos = m_parent->getWorldPosition();
-    if (m_controller->grounded()) {
+    if (m_controller && m_controller->grounded()) {
         m_ground = currentPos.y;
+    } else {
+        m_ground = m_groundBase;
     }
 
     auto jump_height = currentPos.y - m_ground;

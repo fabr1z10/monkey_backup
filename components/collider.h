@@ -11,6 +11,7 @@ public:
 	Collider();
 	virtual ~Collider();
 	Bounds getStaticBounds() const;
+	glm::vec4 bounds() const;
     std::type_index getType() final override;
     virtual std::shared_ptr<Shape> getShape() = 0;
 	virtual int getCollisionTag() const = 0;

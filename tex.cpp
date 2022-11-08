@@ -244,6 +244,7 @@ Tex::Tex (const std::string& file) : m_palette(false) { //const std::string& fil
         load_png(file);
 	} else {
 	    // default to cimg
+	    load_generic(file);
 	}
 
 

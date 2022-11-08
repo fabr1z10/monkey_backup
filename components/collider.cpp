@@ -36,6 +36,12 @@ Bounds Collider::getStaticBounds() const {
 	auto b = m_staticBounds;
 	b.transform(m_node->getWorldMatrix());
 	return b;
+
+}
+
+glm::vec4 Collider::bounds() const {
+    auto b = getStaticBounds();
+    return glm::vec4(b.min.x, b.min.y, b.max.x, b.max.y);
 }
 
 std::type_index Collider::getType() {

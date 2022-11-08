@@ -143,6 +143,7 @@ void Room::draw(Shader* s) {
 		    s->preDraw(current);
 		    if (renderer->setup(s) == 0) {
                 renderer->draw(s);
+
             }
 		}
 		for (const auto& [k, v] : current->children()) {

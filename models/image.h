@@ -5,7 +5,5 @@
 class Image : public Model {
 public:
     Image(const std::string& file, const pybind11::kwargs& args);
-//    void draw(Shader*, const glm::mat4& modelMatrix) override;
-
-
+    void draw(Shader* s, int, int) override;
 };

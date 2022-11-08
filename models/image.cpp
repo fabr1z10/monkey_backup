@@ -13,7 +13,12 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
     if (size == glm::vec2(0.f)) {
         size.x = tex->getWidth();
         size.y = tex->getHeight();
+    } else {
+        a.x = (a.x / tex->getWidth()) * size.x;
+        a.y = (a.y / tex->getHeight()) * size.y;
+
     }
+    //m_depth = dictget<GLuint>(args, "depth", GL_LESS);
 
     m_texId = tex->getTexId();
 
@@ -37,12 +42,11 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
     m_size = m_elementSize;
 }
 
-//
-//void Image::draw(Shader* s, const glm::mat4& m) {
-//
-//    s->setInt("texture_diffuse1", 0);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, m_texId);
-//
-//    Model::draw(s, m);
-//}
+
+
+
+void Image::draw(Shader* s, int o, int c) {
+
+
+    Model::draw(s, o, c);
+}
