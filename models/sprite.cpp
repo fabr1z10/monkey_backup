@@ -93,6 +93,9 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
             bool flipv = el["flipv"].as<bool>(false);
 			frameInfo.box = boxFrame;
 			frameInfo.attackBox = el["attack"].as<int>(-1);
+			if (frameInfo.attackBox != -1) {
+                m_attackRange.expandWith(m_shapes[frameInfo.attackBox]->getBounds());
+            }
 			m_frameToShape[std::make_pair(animId, frameCount)] = boxFrame;
 			auto ciao = el["quads"].as<std::vector<int>>();
             assert(ciao.size() % 6 == 0);
@@ -135,68 +138,7 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 		m_animInfo.insert(std::make_pair(animId, animInfo));
 	}
     generateBuffers(vertices, indices);
-//		if (m_defaultAnimation.empty()) m_defaultAnimation = anit->first.as<std::string>();
-//		std::vector<FrameInfo> frameInfos;
-//		AnimInfo animInfo;
-//		animInfo.loop = anit->second["loop"].as<bool>(true);
-//		animInfo.frames = 0;
-//		int boxAnim = anit->second["box"].as<int>(-1);
-//		int nframe = 0;
-//		for (const auto& el : anit->second["frames""]) {
-//			FrameInfo fi;
-//			fi.offset = indices.size();
-//			fi.count = 0;
-//			fi.ticks = el["ticks"].as<int>(1);//el.dictget<int>(el, "ticks", 1);
-//			int boxFrame = el["frame"].as<int>(boxAnim);
-//			if (boxFrame != -1) m_frameToShape[std::make_pair(anit->first.as<std::string>(), nframe)] = boxFrame;
-//			nframe++;
-//			animInfo.frames++;
-//			for (const auto& quad : el["quads"]) {
-//				auto n = quad.size();
-//				int width_px = quad[2].as<int>();						// quad width in pixels
-//				int height_px = quad[3].as<int>();						// quad height in pixels
-//				float tx = quad[0].as<float>() / texw;
-//				float ty = quad[1].as<float>() / texh;
-//				float tw = static_cast<float>(width_px) / texw;
-//				float th = static_cast<float>(height_px) / texh;
-//				float ox = (n > 4) ? -quad[4].as<float>() : 0.f;
-//				float oy = (n > 5) ? -quad[5].as<float>() : 0.f;
-//				float width_actual = static_cast<float>(width_px) / ppu;
-//				float height_actual = static_cast<float>(height_px) / ppu;
-//				// TODO add flip
-//				// bottom left
-//				vertices.insert(vertices.end(), {ox, oy, 0.0f, tx, ty + th, 1, 1, 1, 1});
-//				// bottom right
-//				vertices.insert(vertices.end(), {ox + width_actual, oy, 0.0f, tx + tw, ty + th, 1, 1, 1, 1});
-//				// top right
-//				vertices.insert(vertices.end(), {ox + width_actual, oy + height_actual, 0.0f, tx + tw, ty, 1, 1, 1, 1});
-//				// top left
-//				vertices.insert(vertices.end(), {ox, oy + height_actual, 0.0f, tx, ty, 1, 1, 1, 1});
-//				unsigned ix = quadCount * 4;
-//				indices.insert(indices.end(), {ix, ix + 1, ix + 2, ix + 3, ix, ix + 2});
-//				quadCount++;
-//				fi.count += 6;
-//			}
-//			frameInfos.push_back(fi);
-//				//frit->second["quads"];
-//			//for (auto quit = frit->second["quads"].begin(); quit != frit->second["quads"].end(); ++quit) {
-//			//	//quit->second.as<std::vector<float>>();
-//			//}
-//		}
-//		m_frameInfo[anit->first.as<std::string>()] = frameInfos;
-//		m_animInfo[anit->first.as<std::string>()] = animInfo;
-//	}
-//
-//	// generate buffers
-//	glGenBuffers(1, &m_vbo);
-//	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-//
-//	glGenBuffers(1, &m_ebo);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
-//
-//	m_size = indices.size();
+
 
 }
 

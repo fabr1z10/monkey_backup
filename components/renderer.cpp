@@ -118,6 +118,12 @@ void SpriteRenderer::start() {
 //	m_itemizedModel->innerDraw(s, m, ss.str());
 //}
 //
+
+Bounds SpriteRenderer::getAttackRange() const {
+
+    return m_sprite->getAttackRange();
+}
+
 void SpriteRenderer::draw(Shader * s) {
 //    if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
 //        return;

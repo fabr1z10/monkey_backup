@@ -101,3 +101,4 @@ inline std::string SkeletalModel::getDefaultAnimation() const {
 inline Bounds SkeletalModel::getStaticBounds() const {
     return m_staticBounds;
 }
+

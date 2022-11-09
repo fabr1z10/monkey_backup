@@ -50,6 +50,7 @@ public:
     virtual const std::string& getAnimation() const;
     virtual void setAnimation(const std::string&) = 0;
     bool isComplete() const;
+    virtual Bounds getAttackRange() const = 0;
 protected:
     bool m_complete;
     // the current animation
@@ -71,6 +72,8 @@ public:
 	Sprite* getSprite();
 	virtual int getFrame() const;
 	void draw(Shader *) override;
+    Bounds getAttackRange() const override;
+
 private:
 	//void innerDraw(Shader*, const glm::mat4&) override;
 	const AnimInfo* m_animInfo;

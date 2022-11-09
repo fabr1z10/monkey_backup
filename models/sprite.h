@@ -81,9 +81,9 @@ public:
     std::string getDefaultAnimation() const;
     std::pair<int, int> getDebugShape(const std::string& anim, int frame);
     std::pair<int, int> getDebugAttackShape(const std::string& anim, int frame);
-
+    Bounds getAttackRange() const;
 private:
-
+    Bounds m_attackRange;
 	SpriteSheet* m_sheet;
 	std::string m_defaultAnimation;
 	std::unordered_map<std::string, AnimInfo> m_animInfo;
@@ -96,6 +96,10 @@ private:
     Bounds m_staticBounds;
     std::unordered_map<int, std::pair<int, int>> m_shapeInfo;
 };
+
+inline Bounds Sprite::getAttackRange() const {
+    return m_attackRange;
+}
 
 inline std::string Sprite::getDefaultAnimation() const {
     return m_defaultAnimation;

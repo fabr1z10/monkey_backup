@@ -134,3 +134,9 @@ void SkeletalRenderer::setAnimation(const std::string & id) {
     m_animation = id;
     m_animationTime = 0.0f;
 }
+
+
+Bounds SkeletalRenderer::getAttackRange() const {
+    // TODO
+    return Bounds();
+}

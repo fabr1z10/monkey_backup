@@ -24,6 +24,8 @@ public:
     void setModel(std::shared_ptr<Model>) override;
     const std::vector<glm::mat4>& getBonesTransform();
     Pose computePose(const std::string& anim, float t);
+    Bounds getAttackRange() const override;
+
 private:
     std::unordered_map<int, JointTransform> interpolatePoses(
             KeyFrame* previousFrame, KeyFrame* nextFrame, float progression);

@@ -63,6 +63,7 @@ using namespace glm;
 #include "components/shadow.h"
 #include "runners/break.h"
 #include "components/cleardepthbuffer.h"
+#include "components/foechase.h"
 
 namespace py = pybind11;
 
@@ -381,6 +382,9 @@ PYBIND11_MODULE(monkey, m) {
 		.def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
+        .def(py::init<const std::string&, py::kwargs&>());
+
+    py::class_<FoeChase2D, State, std::shared_ptr<FoeChase2D>>(m, "chase_2d_foe")
         .def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<Hit, State, std::shared_ptr<Hit>>(m, "hit")
