@@ -154,8 +154,10 @@ void MoveQuat::update(double dt) {
     //glm::mat4 mat = glm::scale(glm::vec3(scale)) * glm::rotate(angle, glm::vec3(0.f, 0.f, 1.f)) * glm::translate(pos);
     auto mat =  glm::translate(pos) * glm::rotate(angle, glm::vec3(0.f, 0.f, 1.f))* glm::scale(glm::vec3(scale));
     m_node->setModelMatrix(mat);
-    // increment time
+    m_previousTime = m_t;
     m_t += static_cast<float>(dt);
+
+    // increment time
     if (m_t >= currentFrame.endTime) {
         // increment keyframe
         m_i ++;

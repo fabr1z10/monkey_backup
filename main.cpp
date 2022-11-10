@@ -154,11 +154,13 @@ PYBIND11_MODULE(monkey, m) {
 		.def("clear_children", &Node::clearChildren)
 		.def("get_children", &Node::getChildren)
 		.def("set_scale", &Node::setScale)
+		.def_property_readonly("scale", &Node::getScale)
         .def_property_readonly("flip_x",&Node::getFlipX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
 		.def_property_readonly("x", &Node::getX)
 		.def_property_readonly("y", &Node::getY)
+		.def_property_readonly("get_move_time", &Node::getMoveTime)
 		.def("add", &Node::add)
 	    .def("remove", &Node::remove);
 
@@ -307,8 +309,10 @@ PYBIND11_MODULE(monkey, m) {
 
 
 	py::class_<Controller, Component, std::shared_ptr<Controller>>(m, "controller")
-        .def("set_size", &Controller::setSize)
-	    .def(py::init<const py::kwargs&>());
+        .def_property_readonly("grounded", &Controller::grounded)
+        .def_property_readonly("size", &Controller::getSize)
+	    .def("set_size", &Controller::setSize);
+	    //.def(py::init<const py::kwargs&>());
 
 	py::class_<Controller2D, Controller, std::shared_ptr<Controller2D>>(m, "controller_2d")
 		.def(py::init<py::kwargs&>());
@@ -387,7 +391,9 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<FoeChase2D, State, std::shared_ptr<FoeChase2D>>(m, "chase_2d_foe")
         .def(py::init<const std::string&, py::kwargs&>());
 
-    py::class_<Hit, State, std::shared_ptr<Hit>>(m, "hit")
+
+
+    py::class_<Hit2D, State, std::shared_ptr<Hit2D>>(m, "hit")
         .def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<AutoWalk2D, State, std::shared_ptr<AutoWalk2D>>(m, "walk_2d_auto")

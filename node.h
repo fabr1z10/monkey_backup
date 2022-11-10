@@ -35,7 +35,7 @@ public:
 	bool getFlipX() const;
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera>);
-
+    float getMoveTime() const;
 	glm::vec3 getLocalPosition() const;
 	glm::vec3 getWorldPosition() const;
 	const glm::mat4& getModelMatrix() const;
@@ -137,3 +137,4 @@ inline void Node::setCamera(std::shared_ptr<Camera> cam) {
 inline long Node::getId() const {
     return _id;
 }
+

@@ -4,6 +4,7 @@
 #include "components/statemachine.h"
 #include "models/text.h"
 #include "util.h"
+#include "components/move.h"
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -105,6 +106,9 @@ void Node::setScale(float scale) {
 //    m_scaleMatrix = glm::scale(vec);
 //}
 
+float Node::getMoveTime() const {
+    return getComponent<MoveQuat>()->getCurrentTime();
+}
 
 bool Node::getFilpX() const {
     return m_modelMatrix[0][0] < 0.f;

@@ -36,7 +36,7 @@ void SpriteCollider::update(double) {
     bool hit = false;
     if (box != nullptr) {
         auto t = m_node->getWorldMatrix();
-        auto e = m_engine->shapeCast(box.get(), t, m_castMask);
+        auto e = m_engine->shapeCast(box.get(), t, m_castMask, true);
         if (!e.empty()) {
             hit = true;
             m_engine->processCollisions(e, m_node, m_castTag);

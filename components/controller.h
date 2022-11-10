@@ -13,8 +13,10 @@ class Controller : public Component {
 public:
 	Controller(const pybind11::kwargs&);
 	void start() override;
+    virtual bool grounded() const = 0;
     void setSize(glm::vec3 size, glm::vec3 offset);
 	virtual void move(glm::vec3&, bool forced);
+	glm::vec3 getSize() const;
 protected:
 	void setDebugShape();
 	Node* m_debugShape;
@@ -28,6 +30,10 @@ protected:
     glm::vec3 m_localBottomFwd;
     glm::vec3 m_localBottomBack;
 };
+
+inline glm::vec3 Controller::getSize() const {
+    return m_size;
+}
 
 struct RaycastOrigins {
 	glm::vec3 topFwd, topBack;
@@ -43,7 +49,7 @@ public:
 	void move(glm::vec3&, bool forced) override;
 	std::type_index getType() override;
 	void updateRaycastOrigins();
-	bool grounded() const;
+	bool grounded() const override;
 	bool ceiling() const;
 	bool left() const;
     bool right() const;

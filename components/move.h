@@ -44,6 +44,8 @@ class MoveQuat : public Component {
 public:
     explicit MoveQuat(const pybind11::kwargs&);
     void update(double) override;
+    std::type_index getType() override;
+    float getCurrentTime() const;
 private:
     struct KeyFrame {
         float startTime;
@@ -54,10 +56,20 @@ private:
     };
     bool m_loop;
     float m_t;                           // current time
+    float m_previousTime;
     int m_i;                            // index to the current quat
     std::vector<KeyFrame> m_keyFrames;
     float m_z;
 };
+
+inline std::type_index MoveQuat::getType() {
+    return std::type_index(typeid(MoveQuat));
+}
+
+inline float MoveQuat::getCurrentTime() const {
+    return m_previousTime;
+}
+
 
 
 class MoveDynamics : public Component {
