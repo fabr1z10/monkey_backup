@@ -68,59 +68,66 @@ CollisionReport Intersector2D::SATAABB(const Shape * s1, const Shape * s2, const
 CollisionReport Intersector2D::AABB2(const Shape * s1, const Shape * s2, const glm::mat4 & t1, const glm::mat4 & t2) {
     auto b1 = s1->getBounds();
     auto b2 = s2->getBounds();
-    //glm::vec3 tr1(t1[3]);
-    //glm::vec3 tr2(t2[3]);
-    auto b10 = t1 * glm::vec4(b1.min, 1.f);
-    auto b11 = t1 * glm::vec4(b1.max, 1.f);
-    auto b20 = t2 * glm::vec4(b2.min, 1.f);
-    auto b21 = t2 * glm::vec4(b2.max, 1.f);
-    auto m1 = glm::vec3(std::min(b10.x, b11.x), std::min(b10.y, b11.y), std::min(b10.z, b11.z));
-    auto M1 = glm::vec3(std::max(b10.x, b11.x), std::max(b10.y, b11.y), std::max(b10.z, b11.z));
-    auto m2 = glm::vec3(std::min(b20.x, b21.x), std::min(b20.y, b21.y), std::min(b20.z, b21.z));
-    auto M2 = glm::vec3(std::max(b20.x, b21.x), std::max(b20.y, b21.y), std::max(b20.z, b21.z));
-    CollisionReport report;
-    float overlap_x{0.f};
-    float overlap_y{0.f};
-    if (M1.x < m2.x) {
-        // do nothing
-    } else {
-        if (M1.x < M2.x) {
-            float x1 = fabs(M1.x - m2.x);
-            float x2 = fabs(M2.x - m1.x);
-            overlap_x = (x1 < x2) ? -x1 : x2;
-        } else {
-            if (m1.x < M2.x) {
-                overlap_x = M2.x - m1.x;
-            }
-        }
-    }
-    if (M1.y < m2.y) {
-        // do nothing
-    } else {
-        if (M1.y < M2.y) {
-            float y1 = fabs(M1.y - m2.y);
-            float y2 = fabs(M2.y - m1.y);
-            overlap_y = (y1 < y2) ? -y1 : y2;
-        } else {
-            if (m1.y < M2.y) {
-                overlap_y = M2.y - m1.y;
-            }
-        }
-    }
-    report.collide = overlap_x != 0.f && overlap_y != 0.f;
-    if (report.collide) {
-        if (fabs(overlap_x) > fabs(overlap_y)) {
-            report.direction = glm::vec3(0.f, sign(overlap_y), 0.f);
-            report.distance = fabs(overlap_y);
-        } else {
-            report.direction = glm::vec3(sign(overlap_x), 0.f, 0.f);
-            report.distance = fabs(overlap_x);
-        }
-    }
 
-    //#line  "" notCollide =(m2.x > M1.x || M2.x < m1.x) || (m2.y > M2.y || M2.y < m1.y);
-    //report.collide = !notCollide;
+    b1.transform(t1);
+    b2.transform(t2);
+
+    CollisionReport report;
+    report.collide = !(b1.min.x > b2.max.x || b2.min.x > b1.max.x || b1.min.y > b2.max.y || b2.min.y > b1.max.y);
     return report;
+//    //glm::vec3 tr1(t1[3]);
+//    //glm::vec3 tr2(t2[3]);
+//    auto b10 = t1 * glm::vec4(b1.min, 1.f);
+//    auto b11 = t1 * glm::vec4(b1.max, 1.f);
+//    auto b20 = t2 * glm::vec4(b2.min, 1.f);
+//    auto b21 = t2 * glm::vec4(b2.max, 1.f);
+//    auto m1 = glm::vec3(std::min(b10.x, b11.x), std::min(b10.y, b11.y), std::min(b10.z, b11.z));
+//    auto M1 = glm::vec3(std::max(b10.x, b11.x), std::max(b10.y, b11.y), std::max(b10.z, b11.z));
+//    auto m2 = glm::vec3(std::min(b20.x, b21.x), std::min(b20.y, b21.y), std::min(b20.z, b21.z));
+//    auto M2 = glm::vec3(std::max(b20.x, b21.x), std::max(b20.y, b21.y), std::max(b20.z, b21.z));
+//    CollisionReport report;
+//    float overlap_x{0.f};
+//    float overlap_y{0.f};
+//    if (M1.x < m2.x) {
+//        // do nothing
+//    } else {
+//        if (M1.x < M2.x) {
+//            float x1 = fabs(M1.x - m2.x);
+//            float x2 = fabs(M2.x - m1.x);
+//            overlap_x = (x1 < x2) ? -x1 : x2;
+//        } else {
+//            if (m1.x < M2.x) {
+//                overlap_x = M2.x - m1.x;
+//            }
+//        }
+//    }
+//    if (M1.y < m2.y) {
+//        // do nothing
+//    } else {
+//        if (M1.y < M2.y) {
+//            float y1 = fabs(M1.y - m2.y);
+//            float y2 = fabs(M2.y - m1.y);
+//            overlap_y = (y1 < y2) ? -y1 : y2;
+//        } else {
+//            if (m1.y < M2.y) {
+//                overlap_y = M2.y - m1.y;
+//            }
+//        }
+//    }
+//    report.collide = overlap_x != 0.f && overlap_y != 0.f;
+//    if (report.collide) {
+//        if (fabs(overlap_x) > fabs(overlap_y)) {
+//            report.direction = glm::vec3(0.f, sign(overlap_y), 0.f);
+//            report.distance = fabs(overlap_y);
+//        } else {
+//            report.direction = glm::vec3(sign(overlap_x), 0.f, 0.f);
+//            report.distance = fabs(overlap_x);
+//        }
+//    }
+//
+//    //#line  "" notCollide =(m2.x > M1.x || M2.x < m1.x) || (m2.y > M2.y || M2.y < m1.y);
+//    //report.collide = !notCollide;
+//    return report;
 
 }
 

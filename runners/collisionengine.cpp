@@ -337,6 +337,7 @@ void CollisionEngine::processCollisions(const std::vector<ShapeCastHit> & e, Nod
     if (m_responseManager == nullptr) {
         return;
     }
+
     for (const auto& coll : e) {
         auto currentNode = coll.entity->getNode();
         if (m_responseManager->hasCollision(tag, coll.entity->getCollisionTag())) {

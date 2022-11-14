@@ -11,6 +11,7 @@ Shadow::Shadow(const pybind11::kwargs& args) {
     m_shear = dictget(args, "shear", 0.0f);
     m_multColor = args["color"].cast<glm::vec4>() / 255.f;
     m_groundBase = dictget<float>(args, "base", 0.f);
+    m_offset = dictget<glm::vec3>(args, "offset", glm::vec3(0.f));
 }
 
 std::type_index Shadow::getType() {
@@ -66,8 +67,9 @@ void Shadow::update(double) {
     auto rot = glm::rotate(glm::radians<float>(-89.9f), glm::vec3(1.f, 0.f, 0.f));
     rot[1][0] = (m_parent->getFilpX() ? -1 : 1) * m_shear;
     rot[1][2] *= m_length;
-    rot[3][1] = -jump_height / m_parent->getScale();
-    rot[3][2] = -0.2f*jump_height / m_parent->getScale();
+    rot[3][1] = m_offset.y - jump_height / m_parent->getScale();
+    rot[3][2] = m_offset.z -0.2f*jump_height / m_parent->getScale();
+    //rot[3][2] = -0.2f*jump_height / m_parent->getScale();
     m_node->setModelMatrix(rot);
     //node->setPosition(10.f, 0.f, 0.f);
 }

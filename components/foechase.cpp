@@ -2,49 +2,7 @@
 #include "../engine.h"
 #include "../random.h"
 
-Hit2D::Hit2D(const std::string& id, const pybind11::kwargs& kwargs) : State(id, kwargs) {
-    m_speed = kwargs["speed"].cast<float>();
-    m_anim = kwargs["anim"].cast<std::string>();
-    m_gravity = dictget<float>(kwargs, "gravity", 0.0f);
-    m_timeToStop = kwargs["time"].cast<float>();
-    m_exitState = kwargs["exit_state"].cast<std::string>();
-}
 
-void Hit2D::setParent(StateMachine * sm) {
-    State::setParent(sm);
-    m_controller = dynamic_cast<Controller2D*>(m_sm->getNode()->getComponent<Controller>());
-    assert(m_controller != nullptr);
-    m_dynamics = m_sm->getNode()->getComponent<Dynamics>();
-    assert(m_dynamics != nullptr);
-    m_animatedRenderer = dynamic_cast<AnimatedRenderer*>(m_sm->getNode()->getComponent<Renderer>());
-
-}
-
-void Hit2D::init(const pybind11::kwargs &args) {
-    // where is the hitter relative to the hit
-    auto xOther = args["x"].cast<float>();
-    float xSelf = m_sm->getNode()->getWorldPosition().x;
-    m_actualSpeed = ((xSelf >= xOther) == m_sm->getNode()->getFilpX()) ? -m_speed : m_speed;
-    State::init(args);
-    m_animatedRenderer->setAnimation(m_anim);
-    m_ax = -m_actualSpeed / m_timeToStop;
-    m_dynamics->m_velocity = glm::vec3(m_actualSpeed, 0.f, 0.f);
-}
-
-void Hit2D::run(double dt) {
-    auto dtf = static_cast<float>(dt);
-    //m_dynamics->m_velocity = glm::vec3(m_actualSpeed, 0.f, 0.f);
-    auto delta = m_dynamics->m_velocity * dtf;
-    m_dynamics->m_acceleration = glm::vec3(m_ax,  -m_gravity, 0.f);
-    //m_dynamics->update(dt);
-
-    m_controller->move(delta, false);
-    // when horizontal velocity is 0 -> exit
-    if (fabs(m_dynamics->m_velocity.x) < 0.001f) {
-        m_sm->setState(m_exitState);
-    }
-
-}
 
 
 FoeChase2D::FoeChase2D(const std::string& id, const pybind11::kwargs& kwargs) : Walk2D(id, kwargs), m_attackDistance(0.f) {
@@ -53,8 +11,9 @@ FoeChase2D::FoeChase2D(const std::string& id, const pybind11::kwargs& kwargs) : 
     m_right = !m_left;
     m_targetId = dictget<int>(kwargs, "target", -1);
     m_maxSpeed = dictget<float>(kwargs, "speed", 0.f);
-
-
+    m_leftBound = dictget<float>(kwargs, "left", -std::numeric_limits<float>::infinity());
+    m_rightBound = dictget<float>(kwargs, "right", std::numeric_limits<float>::infinity());
+    m_chaseRange = kwargs["range"].cast<glm::vec3>();
     // attack information
     if (kwargs.contains("attacks")) {
         for (const auto& k : kwargs["attacks"]) {
@@ -113,29 +72,49 @@ void FoeChase2D::run(double dt) {
 
 
     // find current displacement
-    auto displacement = targetPoint.x - entityPos.x;
+
+
+    glm::vec3 displacement = targetPoint - entityPos;
     if (m_controller->grounded()) {
         m_dynamics->m_velocity.y = 0.0f;
     }
     m_dynamics->m_velocity.y += -m_gravity * dtf;
-    auto dl = fabs(displacement);
+    auto dl = fabs(displacement.x);
+    auto dly = fabs(displacement.y);
+
     m_inRange = !(dl < attackRange.x || dl > attackRange.y);
     if (randomAttack()) {
         return;
     }
 
     if (!m_inRange) {
-        m_animatedRenderer->setAnimation(m_walkAnim);
-        //float velo = (dl / dtf) > m_maxSpeed ? m_maxSpeed : (dl /dtf);
-        float velo = dl < attackRange.x ? - m_maxSpeed : m_maxSpeed;
-        //auto velocity = glm::normalize(displacement) * maxSpeed;
-        //m_dynamics->m_velocity.x = fabs(entityPos.x - targetPos.x) > m_attackDistance ? fabs(velocity.x) : -fabs(velocity.x);
-        //m_dynamics->m_velocity.z = velocity.z;
-        m_dynamics->m_velocity.x = velo;
+        std::string anim;
+        if (entityPos.x < m_leftBound || entityPos.x > m_rightBound) {
+            // try to move back to bounds
+            m_node->setFlipX(entityPos.x > m_rightBound);
+            m_dynamics->m_velocity.x = m_maxSpeed;
+            anim= m_walkAnim;
+        } else {
+            if (dl <= m_chaseRange.x && dly <= m_chaseRange.y) {
+                // walk towards player only if within chaserange
+                m_animatedRenderer->setAnimation(m_walkAnim);
+                //float velo = (dl / dtf) > m_maxSpeed ? m_maxSpeed : (dl /dtf);
+                float velo = dl < attackRange.x ? -m_maxSpeed : m_maxSpeed;
+                //auto velocity = glm::normalize(displacement) * maxSpeed;
+                //m_dynamics->m_velocity.x = fabs(entityPos.x - targetPos.x) > m_attackDistance ? fabs(velocity.x) : -fabs(velocity.x);
+                //m_dynamics->m_velocity.z = velocity.z;
+                m_dynamics->m_velocity.x = velo;
+                anim = m_walkAnim;
+            } else {
+                m_dynamics->m_velocity.x = 0.f;
+                anim = m_idleAnim;
+            }
+        }
+
         auto delta = m_dynamics->m_velocity * dtf;
         m_controller->move(delta, false);
         if (m_controller->grounded()) {
-            m_animatedRenderer->setAnimation(m_walkAnim);
+            m_animatedRenderer->setAnimation(anim);
         } else {
             m_animatedRenderer->setAnimation(m_jumpAnim);
         }
@@ -163,10 +142,15 @@ bool FoeChase2D::randomAttack() {
     float u = Random::instance().getUniformReal(0.0f, 1.0f);
     auto iter = m_attackMap.lower_bound(u);
     while (iter != m_attackMap.end()) {
-        if (!iter->second.inRange || m_inRange) {
-            m_sm->setState(iter->second.attackId);
-            return true;
+        if (u < iter->first) {
+            if (!iter->second.inRange || m_inRange) {
+                m_sm->setState(iter->second.attackId);
+                return true;
+            } else {
+                break;
+            }
         }
+
         iter++;
     }
     return false;
