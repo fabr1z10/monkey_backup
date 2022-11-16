@@ -9,7 +9,7 @@
 #include <pybind11/stl.h>
 
 
-SkeletalModel::SkeletalModel(const pybind11::kwargs& args) {
+SkeletalModel::SkeletalModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_SKELETAL) {
     for (const auto& j : args["joints"]) {
         auto dict = j.cast<pybind11::dict>();
         int id = m_jointInfos.size();
@@ -36,6 +36,8 @@ SkeletalModel::SkeletalModel(const pybind11::kwargs& args) {
         }
         auto scale = dictget<float>(dict, "scale", 1.f);
         auto z = dictget<float>(dict, "z", 0.f);
+        auto offset = dictget<glm::vec2>(dict, "offset", glm::vec2(0.f));
+        attachPoint += offset;
         JointTransform tr;
         tr.scale = glm::vec3(scale);
         tr.translation = glm::vec3(attachPoint, 0.0f);

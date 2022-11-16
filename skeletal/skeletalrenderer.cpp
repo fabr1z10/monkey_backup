@@ -55,9 +55,9 @@ void SkeletalRenderer::update(double dt) {
 
 void SkeletalRenderer::draw(Shader * s) {
     const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
-    s->setVec4("mult_color", m_multColor);
-    s->setVec4("add_color", m_addColor);
-    s->setMat4("model", m);
+//    s->setVec4("mult_color", m_multColor);
+//    s->setVec4("add_color", m_addColor);
+//    s->setMat4("model", m);
     if (s->getShaderType() == ShaderType::SHADER_SKELETAL) {
         auto boneLoc = glGetUniformLocation(s->getProgId(), "Bone");
         auto l2m = glGetUniformLocation(s->getProgId(), "local_to_model");
