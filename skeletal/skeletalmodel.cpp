@@ -207,6 +207,20 @@ std::shared_ptr<Shape> SkeletalModel::getShape (const std::string& anim) const {
     return m_shapes[it->second[0]];
 }
 
+std::shared_ptr<Shape> SkeletalModel::getShapeCast(const std::string &animId, float t) const {
+	const auto& shapes = m_animShapes.find(animId);
+	if (shapes == m_animShapes.end() || shapes->second.size() <= 1) {
+		return nullptr;
+	}
+	auto anim = m_animations.at(animId);
+	auto attackId = anim->getAttack(t);
+	if (attackId == -1 || shapes->second.size() < attackId + 2) {
+		return nullptr;
+	}
+	return m_shapes[shapes->second[attackId+1]];
+
+}
+
 
 
 bool SkeletalModel::hasCollision(const std::string & anim) const {
@@ -242,7 +256,7 @@ std::shared_ptr<Model> SkeletalModel::generateDebugModel() {
         } else {
             lambda(s->getBounds());
         }
-        m_shapeInfo.emplace_back(offset, elements.size() - offset);
+        m_shapeInfo.emplace_back(offset, elements.size());
     }
     model->generateBuffers(vertices, elements);
 

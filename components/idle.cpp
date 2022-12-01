@@ -5,7 +5,7 @@
 
 Idle::Idle(const std::string& id, const std::string& anim, const pybind11::kwargs& args) : State(id, args), m_animation(anim) {
 
-    m_exitState = args["exit_state"].cast<std::string>();
+    m_exitState = dictget<std::string>(args, "exit_state", "");
     m_exitOnComplete = dictget<bool>(args, "exit_on_complete", false);
     m_timeOut = dictget<float>(args, "timeout", 0.f);
 }

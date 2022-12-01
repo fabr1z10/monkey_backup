@@ -1,9 +1,15 @@
 #include "skeletalcollider.h"
 #include "../node.h"
+#include "../runners/collisionengine.h"
+#include "../pyhelper.h"
 
 
-SkeletalCollider::SkeletalCollider(int flag, int mask, int tag) : Collider(),
-    m_model(nullptr), m_renderer(nullptr), m_flag(flag), m_mask(mask), m_tag(tag) {}
+SkeletalCollider::SkeletalCollider(int flag, int mask, int tag, const pybind11::kwargs& args) : Collider(),
+    m_model(nullptr), m_renderer(nullptr), m_flag(flag), m_mask(mask), m_tag(tag) {
+	m_castMask = dictget<int>(args, "cast_mask", 0);
+	m_castTag = dictget<int>(args, "cast_tag", 0);
+
+}
 
 
 std::shared_ptr<Shape> SkeletalCollider::getShape() {
@@ -116,5 +122,28 @@ void SkeletalColliderRenderer::draw(Shader * s) {
 //        // if it's not time to update frame, increment current frame length
 //        m_ticks++;
 //    }
+
+}
+
+void SkeletalCollider::update(double) {
+	// check if current (anim, t) has a shape to cast
+	auto animId = m_renderer->getAnimation();
+	auto time = m_renderer->getAnimationTime();
+	auto box = m_model->getShapeCast(animId, time);
+	bool hit = false;
+	if (box != nullptr) {
+		auto t = m_node->getWorldMatrix();
+		auto e = m_engine->shapeCast(box.get(), t, m_castMask, true);
+		if (!e.empty()) {
+			hit = true;
+			m_engine->processCollisions(e, m_node, m_castTag);
+		}
+	}
+	if (!hit) {
+		// m_lastHit = nullptr;
+	}
+
+
+
 
 }

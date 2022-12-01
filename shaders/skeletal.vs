@@ -30,7 +30,7 @@ void main()
     totalLocalPos.z = z;//modelpos.z;
     pass_texCoord= vTexture;
     //totalLocalPos = vec4(vPosition, 1.0);
-    gl_Position = projection * model * view * totalLocalPos;
+    gl_Position = projection * view * model * totalLocalPos;
     //gl_Position.z =z;
 }
 )"

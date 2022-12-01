@@ -45,7 +45,9 @@ public:
     glm::ivec3 getWeightIndex(int id) const;
     const JointInfo& getJointInfo(int id) const;
     std::shared_ptr<Shape> getShape (const std::string& anim) const;
-    bool hasCollision(const std::string & anim) const;
+	std::shared_ptr<Shape> getShapeCast (const std::string& anim, float t) const;
+
+	bool hasCollision(const std::string & anim) const;
     Bounds getStaticBounds() const;
     std::string getDefaultAnimation() const;
     std::shared_ptr<Model> generateDebugModel();

@@ -20,6 +20,7 @@ public:
 	void setTransform(const glm::mat4& m);
 	void setCount(int);
 	void setOffset(int);
+	ShaderType getShaderType() const;
 //protected:
 //	virtual void innerDraw(Shader*, const glm::mat4& modelTransform) ;
 protected:
@@ -31,6 +32,7 @@ protected:
 	int m_count;
 
 };
+
 
 inline std::shared_ptr<Model> Renderer::getModel() {
     return m_model;

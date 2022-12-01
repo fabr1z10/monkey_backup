@@ -98,7 +98,7 @@ float Node::getScale() const {
 void Node::setScale(float scale) {
     m_modelMatrix[0][0] = sign(m_modelMatrix[0][0]) * scale;
     m_modelMatrix[1][1] = sign(m_modelMatrix[1][1]) * scale;
-    m_modelMatrix[2][2] = sign(m_modelMatrix[2][2]) * scale;
+    //m_modelMatrix[2][2] = sign(m_modelMatrix[2][2]) * scale;
 
 }
 

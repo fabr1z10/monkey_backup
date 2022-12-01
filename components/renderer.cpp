@@ -6,11 +6,17 @@
 Renderer::Renderer() : Component(), m_multColor(glm::vec4(1.0f)), m_addColor(0.0f), m_rendererTransform(1.f),
     m_offset(0), m_count(0) {}
 
+ShaderType Renderer::getShaderType() const {
+	if (m_model == nullptr) {
+		return ShaderType::NONE;
+	}
+	return m_model->getShaderType();
+}
+
+
 
 int Renderer::setup(Shader * s) {
-    if (m_model == nullptr || s->getShaderType() != m_model->getShaderType()) {
-        return 1;
-    }
+
     const auto& m = m_node->getWorldMatrix() * m_rendererTransform;
     s->setVec4("mult_color", m_multColor);
     s->setVec4("add_color", m_addColor);

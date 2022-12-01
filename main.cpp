@@ -250,7 +250,7 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<int, int, int, const pybind11::kwargs&>());
 
     py::class_<SkeletalCollider, Collider, std::shared_ptr<SkeletalCollider>>(m, "skeletal_collider")
-        .def(py::init<int, int, int>());
+        .def(py::init<int, int, int, const pybind11::kwargs&>());
 
 
     py::class_<HotSpotManager, Component, std::shared_ptr<HotSpotManager>>(m, "hot_spot_manager")
