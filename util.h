@@ -5,6 +5,12 @@
 #include <glm/glm.hpp>
 
 
+const int key_left = 0x1;
+const int key_right = 0x2;
+const int key_up =  0x4;
+const int key_down = 0x8;
+const int key_jmp = 0x10;
+
 
 const float epsilon = 0.0001f;
 

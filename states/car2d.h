@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "statemachine.h"
-#include "controller.h"
-#include "dynamics.h"
+#include "../components/statemachine.h"
+#include "../components/controller.h"
+#include "../components/dynamics.h"
 
 class Node;
 

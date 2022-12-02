@@ -1,9 +1,9 @@
 #pragma once
 
-#include "statemachine.h"
-#include "controller.h"
-#include "dynamics.h"
-#include "renderer.h"
+#include "../components/statemachine.h"
+#include "../components/controller.h"
+#include "../components/dynamics.h"
+#include "../components/renderer.h"
 
 
 class Attack : public State {
