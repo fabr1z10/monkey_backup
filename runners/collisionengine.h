@@ -30,12 +30,12 @@ struct ColliderInfo {
 
 class CollisionEngine : public Runner {
 public:
-	CollisionEngine(float, float);
-	virtual void add (Collider*);
-	virtual void remove (Collider*);
-	virtual void move (Collider*) ;
+	CollisionEngine(float, float, float);
+	void add (Collider*);
+	void remove (Collider*);
+	void move (Collider*) ;
 	void update(double) override;
-	virtual RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
+	RayCastHit rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask);
     virtual std::vector<ShapeCastHit> shapeCast (Shape*, const glm::mat4& transform, int mask, bool onlyFirst = false) ;
 
     void addResponse(int, int, const pybind11::kwargs&);
@@ -43,7 +43,7 @@ public:
 	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b);
     void processCollisions(const std::vector<ShapeCastHit>&, Node*, int);
 
-private:
+protected:
 	std::unordered_map<glm::ivec3, CollisionEngineCell> m_cells;
 	std::unordered_map<Collider*, ColliderInfo> m_colliderLocations;
 	void pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M);
@@ -60,5 +60,18 @@ private:
 
 	std::unordered_map<std::pair<Collider*, Collider*>, CollisionInfo> m_previouslyCollidingPairs;
     std::unordered_set<Collider*> m_removed;
+    bool m_2d;
 };
+
+//class CollisionEngine2D : public CollisionEngine {
+//public:
+//	CollisionEngine2D(float, float);
+//	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b) override;
+//};
+//
+//class CollisionEngine3D : public CollisionEngine {
+//public:
+//	CollisionEngine3D(float, float, float);
+//	std::pair<glm::ivec3, glm::ivec3> getLocation(const Bounds& b) override;
+//};
 

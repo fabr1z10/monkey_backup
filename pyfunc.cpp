@@ -24,7 +24,7 @@ std::shared_ptr<PolyMesh> getMesh(const std::string& id) {
 }
 
 std::shared_ptr<Model> makeModel(std::shared_ptr<Shape> shape, const pybind11::kwargs& args) {
-	ModelMaker m;
+	auto& m = ModelMaker::instance();
 	return m.get(shape, args);
 }
 

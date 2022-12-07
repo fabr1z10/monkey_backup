@@ -17,6 +17,7 @@ struct CollisionDetails3D {
 	bool descendingSlope;
 
 	float slopeAngle, slopeAngleOld;
+	// TODO
 	void reset();
 };
 
@@ -24,8 +25,10 @@ class Controller3D : public Controller {
 public:
 	Controller3D(const pybind11::kwargs&);
 	void move(glm::vec3&, bool forced) override;
-
+	bool grounded() const override;
+	std::type_index getType() override;
 private:
+	std::shared_ptr<Model> getDebugModel() override;
 	float m_skinWidth;
 	// TODO replace later
 	//float m_maxClimbAngle;

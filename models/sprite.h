@@ -88,8 +88,8 @@ private:
 	std::string m_defaultAnimation;
 	std::unordered_map<std::string, AnimInfo> m_animInfo;
 	//std::unordered_map<std::string, std::vector<FrameInfo>> m_frameInfo;
-
-
+	std::shared_ptr<Shape> getRect(int mode, int, int, int, int);
+	float m_halfThickness;
 	// collision shapes (if any)
     std::vector<std::shared_ptr<Shape>> m_shapes;
     std::unordered_map<std::pair<std::string, int>, int> m_frameToShape;

@@ -19,6 +19,7 @@ Walk3D::Walk3D(const std::string& id, const pybind11::kwargs& kwargs) : State(id
 	m_idleAnim = dictget<std::string>(kwargs, "idle_anim", "idle");
 	m_walkAnim = dictget<std::string>(kwargs, "walk_anim", "walk");
 	m_jumpAnim = dictget<std::string>(kwargs, "jump_anim", "jump");
+	m_velocityThreshold =0.01f;
 
 }
 
@@ -80,19 +81,22 @@ void Walk3D::run(double dt) {
 	}
 	// acceleration along z axis
 	if (m_keys & 0x04u) {
-		a.z = m_acceleration;
+		a.z = -m_acceleration; // going inside screen (up)
 	} else if (m_keys & 0x08u) {
-		a.z = -m_acceleration;
+		a.z = m_acceleration;
 	}
 
+
 	// no direction keys pressed --> apply deceleration
-	if (!(m_keys & 0x0Fu)) {
+	if (!(m_keys & 0x03u)) {            // test first left or right
 		if (fabs(m_dynamics->m_velocity.x) > m_velocityThreshold) {
-			a.x = - m_acceleration;
+			a.x = -m_acceleration;
 		} else {
 			a.x = 0.0f;
 			m_dynamics->m_velocity.x = 0.0f;
 		}
+	}
+	if (!(m_keys & 0x0Cu)) {			// then test up or down
 		if (fabs(m_dynamics->m_velocity.z) > m_velocityThreshold) {
 			a.z = - signf(m_dynamics->m_velocity.z) * m_acceleration;
 		} else {
@@ -118,10 +122,10 @@ void Walk3D::run(double dt) {
 	// update animation, if we have a sprite renderer
 	if (m_animatedRenderer) {
 		if (m_controller->grounded()) {
-			if (fabs(m_dynamics->m_velocity.x) < 0.1f) {
-				m_animatedRenderer->setAnimation(m_idleAnim);
-			} else {
+			if (fabs(m_dynamics->m_velocity.x) > m_velocityThreshold || fabs(m_dynamics->m_velocity.z) > m_velocityThreshold) {
 				m_animatedRenderer->setAnimation(m_walkAnim);
+			} else {
+				m_animatedRenderer->setAnimation(m_idleAnim);
 			}
 		} else {
 			m_animatedRenderer->setAnimation(m_jumpAnim);

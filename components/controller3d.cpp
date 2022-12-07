@@ -2,6 +2,17 @@
 #include "../pyhelper.h"
 #include "../node.h"
 #include "../util.h"
+#include "../shapes/shapes3d/aabb3d.h"
+#include "../modelmake.h"
+
+void CollisionDetails3D::reset() {
+	above = below = false;
+	left = right = false;
+	climbingSlope = false;
+	descendingSlope = false;
+	slopeAngleOld = slopeAngle;
+	slopeAngle = 0.0f;
+}
 
 
 Controller3D::Controller3D (const pybind11::kwargs& kwargs) : Controller(kwargs) {
@@ -16,21 +27,30 @@ Controller3D::Controller3D (const pybind11::kwargs& kwargs) : Controller(kwargs)
 
 }
 
+std::shared_ptr<Model> Controller3D::getDebugModel() {
+	auto shape = std::make_shared<AABB3D>(m_center.x, m_center.x + m_size.x, m_center.y, m_center.y + m_size.y, m_center.z, m_center.z + m_size.z);
+	auto& mm = ModelMaker::instance();
+	auto args = pybind11::kwargs();
+	args["color"] = glm::vec4(1.f, 0.f, 0.f, 1.f);
+	auto model = mm.get(shape, args);
+	return model;
+}
+
 void Controller3D::updateRaycastOrigins() {
 	auto scale = m_node->getScale();
 	glm::vec3 pos = m_node->getWorldPosition();
 
 	pos += scale * m_center;
-	auto scaledHalfSize = scale * m_halfSize;
+	auto scaledSize = scale * m_size;
 
-	m_raycastOrigins.left = pos.x - scaledHalfSize.x;
-	m_raycastOrigins.right = pos.x + scaledHalfSize.x;
+	m_raycastOrigins.left = pos.x;
+	m_raycastOrigins.right = pos.x + scaledSize.x;
 
-	m_raycastOrigins.bottom = pos.y - scaledHalfSize.y;
-	m_raycastOrigins.top = pos.y + scaledHalfSize.y;
+	m_raycastOrigins.bottom = pos.y;
+	m_raycastOrigins.top = pos.y + scaledSize.y;
 
-	m_raycastOrigins.back = pos.z - scaledHalfSize.z;
-	m_raycastOrigins.front = pos.z + scaledHalfSize.z;
+	m_raycastOrigins.back = pos.z;
+	m_raycastOrigins.front = pos.z + scaledSize.z;
 }
 
 void Controller3D::move(glm::vec3& delta, bool forced) {
@@ -44,7 +64,7 @@ void Controller3D::move(glm::vec3& delta, bool forced) {
 			horizontalCollisions(delta);
 		if (!isEqual(delta.y, 0.0f))
 			verticalCollisions(delta);
-		glm::vec3 actualMove = delta / scale;
+		glm::vec3 actualMove = delta; /// scale;
 		m_node->move(actualMove);
 //		if (!m_wasGnd && m_details.below) {
 //			glm::vec3 p=m_entity->GetPosition();
@@ -131,10 +151,23 @@ void Controller3D::verticalCollisions(glm::vec3& velocity) {
 			m_obstacle = hit.entity->getNode();
 		}
 	}
+	if (m_obstacle == nullptr) {
+		std::cout << "qui\n";
+	}
 
 
 
 
 
 
+}
+
+bool Controller3D::grounded() const {
+	return m_details.below;
+}
+
+
+
+std::type_index Controller3D::getType() {
+	return std::type_index(typeid(Controller));
 }

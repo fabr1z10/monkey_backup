@@ -11,6 +11,7 @@
 #include "../modelmake.h"
 #include "rawmodel.h"
 #include "../node.h"
+#include "../shapes/shapes3d/aabb3d.h"
 
 //
 //void ItemizedModel::draw(Shader * s, const glm::mat4& model) {
@@ -36,6 +37,17 @@ Sprite::Sprite(ShaderType type, GLenum primitive) : Model(type) {
     m_primitive = primitive;
 }
 
+
+std::shared_ptr<Shape> Sprite::getRect(int mode, int x0, int x1, int y0, int y1) {
+	if (mode == 0) {
+		return std::make_shared<AABB>(x0, x1, y0, y1);
+	} else {
+		return std::make_shared<AABB3D>(x0, x1, y0, y1, -m_halfThickness, m_halfThickness);
+	}
+
+}
+
+
 Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), m_defaultAnimation(std::string()) {
 
     m_shaderType = ShaderType::SHADER_TEXTURE;
@@ -47,7 +59,13 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
     m_texId = tex->getTexId();
 
 	auto& engine = Engine::instance();
+
+	// mode = 0 --> 2D, mode = 1 --> 3D
+	auto mode = pyget<int>(engine.getConfig().attr("settings"),"game_mode", 0);
+
+	m_halfThickness = (mode == 0) ? 0 : node["thickness"].as<float>();
 	auto defaultTicks = pyget<int>(engine.getConfig().attr("settings"),"ticks", 5);
+
 
 	// read collision boxes
     for (YAML::const_iterator anit = node["boxes"].begin(); anit != node["boxes"].end(); ++anit) {
@@ -55,11 +73,11 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
         assert(a.size() % 4 == 0);
         std::shared_ptr<Shape> shape;
         if (a.size() == 4) {
-            shape = std::make_shared<AABB>(a[0], a[1], a[2], a[3]);
+            shape = getRect(mode, a[0], a[1], a[2], a[3]);
         } else {
             auto s1 = std::make_shared<CompoundShape>();
             for (size_t i = 0; i < a.size(); i+=4) {
-                s1->addShape(std::make_shared<AABB>(a[i], a[i+1], a[i+2], a[i+3]));
+                s1->addShape(getRect(mode, a[i], a[i+1], a[i+2], a[i+3]));
             }
             shape = s1;
         }

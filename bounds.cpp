@@ -32,6 +32,12 @@ bool Bounds::intersect2D(Bounds& other) const {
 			 other.min.y > max.y || other.max.y < min.y);
 }
 
+bool Bounds::intersect3D(Bounds& other) const {
+	return !(other.min.x > max.x || other.max.x < min.x ||
+			 other.min.y > max.y || other.max.y < min.y ||
+			 other.min.z > max.z || other.max.z < min.z);
+}
+
 void Bounds::transform(const glm::mat4& m) {
 	glm::vec3 P[] = {
 			glm::vec3(min.x, min.y, min.z),

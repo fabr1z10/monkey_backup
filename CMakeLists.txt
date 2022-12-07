@@ -16,7 +16,7 @@ add_subdirectory(pybind11)
 
 include_directories(${PYBIND_INCLUDE_DIR})
 
-file(GLOB MONKEY_SOURCE *.cpp components/*.cpp models/*.cpp shapes/*.cpp runners/*.cpp skeletal/*.cpp states/*.cpp)
+file(GLOB MONKEY_SOURCE *.cpp components/*.cpp models/*.cpp shapes/*.cpp shapes/shapes3d/*.cpp runners/*.cpp skeletal/*.cpp states/*.cpp)
 
 #add_executable(pino main.cpp shader.cpp)
 pybind11_add_module(monkey ${MONKEY_SOURCE})

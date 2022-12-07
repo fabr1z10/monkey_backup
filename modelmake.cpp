@@ -5,6 +5,7 @@
 #include "models/rawmodel.h"
 #include "shapes/compound.h"
 #include "shapes/aabb.h"
+#include "shapes/shapes3d/aabb3d.h"
 #include "pyhelper.h"
 #include "models/multi.h"
 #include "shapes/shapemodel.h"
@@ -17,6 +18,7 @@ ModelMaker::ModelMaker() {
     m_builders[std::type_index(typeid(ConvexPoly))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeConvexPoly(s, args); };
     m_builders[std::type_index(typeid(CompoundShape))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCompoundShape(s, args); };
     m_builders[std::type_index(typeid(AABB))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeAABB(s, args); };
+	m_builders[std::type_index(typeid(AABB3D))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeAABB3D(s, args); };
 
 }
 
@@ -27,6 +29,28 @@ std::shared_ptr<Model> ModelMaker::makeCompoundShape(std::shared_ptr<Shape> s, c
         model->addModel(this->get(shape, args));
     }
     return model;
+}
+
+
+std::shared_ptr<Model> ModelMaker::makeAABB3D(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
+	std::vector<float> vertices;
+	std::vector<unsigned> elements;
+	unsigned u{0};
+	auto color = dictget<glm::vec4>(args, "color", glm::vec4(1.0f));
+
+	auto b = s->getBounds();
+	vertices.insert(vertices.end(), {b.min.x, b.min.y, b.min.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.max.x, b.min.y, b.min.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.max.x, b.max.y, b.min.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.min.x, b.max.y, b.min.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.min.x, b.min.y, b.max.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.max.x, b.min.y, b.max.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.max.x, b.max.y, b.max.z, color.r, color.g, color.b, color.a});
+	vertices.insert(vertices.end(), {b.min.x, b.max.y, b.max.z, color.r, color.g, color.b, color.a});
+
+	GLuint prim {GL_LINES};
+	elements.insert(elements.end(), {0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 1, 5, 2, 6, 0, 4, 3, 7});
+	return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, prim, vertices, elements);
 }
 
 std::shared_ptr<Model> ModelMaker::makeAABB(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {

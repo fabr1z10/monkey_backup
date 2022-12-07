@@ -24,14 +24,20 @@ void Controller::setDebugShape() {
 		if (m_debugShape != nullptr) {
 			m_debugShape->remove();
 		}
-		AABB a(-m_center.x, -m_center.x + m_size.x, -m_center.y, -m_center.y + m_size.y);
-		auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE, 0.01f);
+
 		auto node = std::make_shared<Node>();
+		auto model = getDebugModel();
 		node->setModel(model);
 		m_node->add(node);
 		m_debugShape = node.get();
 	}
 
+}
+
+std::shared_ptr<Model> Controller2D::getDebugModel() {
+	AABB a(-m_center.x, -m_center.x + m_size.x, -m_center.y, -m_center.y + m_size.y);
+	auto model = AABBmodel(&a, glm::vec4(1.f, 0.f, 0.f, 1.f), FillType::OUTLINE, 0.01f);
+	return model;
 }
 
 

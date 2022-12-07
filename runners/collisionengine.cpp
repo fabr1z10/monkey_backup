@@ -3,11 +3,27 @@
 #include "../node.h"
 #include "../upair.h"
 #include "../shapes/convexpoly.h"
+#include "../shapes/shapes3d/intersector3d.h"
+#include "../shapes/shapes3d/raycast3d.h"
+#include "../shapes/shapes3d/segment3d.h"
 
-CollisionEngine::CollisionEngine(float width, float height) : m_size(width, height, 0.0f) {
+
+// to specify a 2D engine, just set depth to 0
+CollisionEngine::CollisionEngine(float width, float height, float depth) : m_size(width, height, depth) {
+	assert(width > 0.f);
+	assert(height > 0.f);
+	assert(depth >= 0.f);
+	m_2d = depth == 0.f;
 	m_responseManager = std::make_shared<CollisionResponseManager>();
-	m_intersector = std::make_shared<Intersector2D>();
-    m_raycast = std::make_shared<RayCaster>();
+
+	if (m_2d) {
+		m_intersector = std::make_shared<Intersector2D>();
+		m_raycast = std::make_shared<RayCaster2D>();
+	} else {
+		m_intersector = std::make_shared<Intersector3D>();
+		m_raycast = std::make_shared<RayCaster3D>();
+
+	}
 }
 
 void CollisionEngine::add(Collider * c) {
@@ -25,10 +41,12 @@ void CollisionEngine::remove(Collider * c) {
     auto d = m_colliderLocations.at(c);
     for (auto i = d.min.x; i <= d.max.x; ++i) {
         for (auto j = d.min.y; j <= d.max.y; ++j) {
-            auto aa = m_cells.find(glm::vec3(i, j, 0));
-            if (aa != m_cells.end()) {
-                aa->second.colliders.erase(c);
-            }
+        	for (auto k = d.min.z; k <= d.max.z; ++k) {
+				auto aa = m_cells.find(glm::vec3(i, j, k));
+				if (aa != m_cells.end()) {
+					aa->second.colliders.erase(c);
+				}
+			}
         }
     }
     m_colliderLocations.erase(c);
@@ -64,46 +82,48 @@ void CollisionEngine::update(double) {
 			// loop through cells occupied by collider
 			for (auto i = c.second.min.x; i <= c.second.max.x; ++i) {
 				for (auto j = c.second.min.y; j <= c.second.max.y; ++j) {
-					// doing cell (i, j)
-					const auto &colliders = m_cells.at(glm::ivec3(i, j, 0)).colliders;
-					if (colliders.size() <= 1) {
-						continue;
-					}
-					for (const auto &c2 : colliders) {
-					    if (m_removed.count(c2) > 0) {
-					        //std::cout << "HEY\n";
-					    }
-						// don't collide with itself
-						auto pair = UPair<Collider *>(c1, c2);
-						if (processed.find(pair) != processed.end()) continue;
-						processed.insert(UPair<Collider *>(c1, c2));
-						if (c1 == c2 || !c2->isActive()) continue;
-						if (((c1->getCollisionMask() & c2->getCollisionFlag()) == 0) &&
-							((c2->getCollisionMask() & c1->getCollisionFlag()) == 0)) {
+					for (auto k = c.second.min.z; k <= c.second.max.z; ++k) {
+						// doing cell (i, j, k)
+						const auto &colliders = m_cells.at(glm::ivec3(i, j, k)).colliders;
+						if (colliders.size() <= 1) {
 							continue;
 						}
-						// if no response is provided for these tags, then skip it
-						if (m_responseManager == nullptr || !m_responseManager->hasCollision(c1, c2)) {
-							continue;
-						}
-						// we have a collision response, so let's calculate collision
-						collisionChecks++;
-						auto b1 = c1->getStaticBounds();
-						auto b2 = c2->getStaticBounds();
-						if (!b1.intersect2D(b2)) {
-							continue;
-						}
+						for (const auto &c2 : colliders) {
+							if (m_removed.count(c2) > 0) {
+								//std::cout << "HEY\n";
+							}
+							// don't collide with itself
+							auto pair = UPair<Collider *>(c1, c2);
+							if (processed.find(pair) != processed.end()) continue;
+							processed.insert(UPair<Collider *>(c1, c2));
+							if (c1 == c2 || !c2->isActive()) continue;
+							if (((c1->getCollisionMask() & c2->getCollisionFlag()) == 0) &&
+								((c2->getCollisionMask() & c1->getCollisionFlag()) == 0)) {
+								continue;
+							}
+							// if no response is provided for these tags, then skip it
+							if (m_responseManager == nullptr || !m_responseManager->hasCollision(c1, c2)) {
+								continue;
+							}
+							// we have a collision response, so let's calculate collision
+							collisionChecks++;
+							auto b1 = c1->getStaticBounds();
+							auto b2 = c2->getStaticBounds();
+							if (!b1.intersect2D(b2)) {
+								continue;
+							}
 
-						// get the shape in local coordinates
-						const auto &t1 = c1->getNode()->getWorldMatrix();
-						const auto &t2 = c2->getNode()->getWorldMatrix();
+							// get the shape in local coordinates
+							const auto &t1 = c1->getNode()->getWorldMatrix();
+							const auto &t2 = c2->getNode()->getWorldMatrix();
 
-						auto report = m_intersector->intersect(c1->getShape().get(), c2->getShape().get(), t1, t2);
-						if (report.collide) {
-							CollisionInfo ci;
-							ci.report = report;
-							ci.pos = glm::vec3(i, j, 0);
-							currentlyCollidingPairs.insert(std::make_pair(std::make_pair(c1, c2), ci));
+							auto report = m_intersector->intersect(c1->getShape().get(), c2->getShape().get(), t1, t2);
+							if (report.collide) {
+								CollisionInfo ci;
+								ci.report = report;
+								ci.pos = glm::vec3(i, j, k);
+								currentlyCollidingPairs.insert(std::make_pair(std::make_pair(c1, c2), ci));
+							}
 						}
 					}
 				}
@@ -146,33 +166,41 @@ void CollisionEngine::pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M) {
         if (it->second.min != m || it->second.max != M) {
             for (int i = it->second.min.x; i <= it->second.max.x; ++i) {
                 for (int j = it->second.min.y; j <= it->second.max.y; ++j) {
-                    m_cells[glm::ivec3(i, j, 0)].colliders.erase(c);
+                	for (int k = it->second.min.z; k <= it->second.max.z; ++k) {
+						m_cells[glm::ivec3(i, j, k)].colliders.erase(c);
+					}
                 }
             }
         }
     }
 	for (int i = m.x; i <= M.x; ++i) {
 		for (int j = m.y; j <= M.y; ++j) {
-			auto &cell = m_cells[glm::ivec3(i, j, 0)];
-			cell.colliders.insert(c);
-			cell.dirty = true;
+			for (int k = m.z; k <= M.z; ++k) {
+				auto &cell = m_cells[glm::ivec3(i, j, k)];
+				cell.colliders.insert(c);
+				cell.dirty = true;
+			}
 		}
 	}
 	m_colliderLocations[c] = ColliderInfo {m, M, true};
 }
+
+
 
 std::pair<glm::ivec3, glm::ivec3> CollisionEngine::getLocation(const Bounds &b) {
 	glm::ivec3 min(0);
 	glm::ivec3 max(0);
 	min.x = getIndex(b.min.x, m_size[0]);
 	min.y = getIndex(b.min.y, m_size[1]);
+	min.z = getIndex(b.min.z, m_size[2]);
 	max.x = getIndex(b.max.x, m_size[0]);
 	max.y = getIndex(b.max.y, m_size[1]);
+	max.z = getIndex(b.max.z, m_size[2]);
 	return std::make_pair(min, max);
 }
 
 int CollisionEngine::getIndex(float x, float s) {
-	return -1 * (x < 0) + static_cast<int>(x / s);
+	return s == 0.f ? 0 : (-1 * (x < 0) + static_cast<int>(x / s));
 }
 
 void CollisionEngine::addResponse(int i, int j, const pybind11::kwargs& args) {
@@ -180,35 +208,65 @@ void CollisionEngine::addResponse(int i, int j, const pybind11::kwargs& args) {
 }
 
 RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float length, int mask) {
+	if (m_2d) {
+		rayOrigin.z = 0.f;
+		rayDir.z = 0.f;
+	}
 	glm::vec3 P = rayOrigin;
 	glm::vec3 P1 = P;
 	glm::vec3 P2 = P;
-	float z = rayOrigin.z;
+	//float z = rayOrigin.z;
 
 	// initialize current cell
 	int i = getIndex(P.x, m_size[0]);
 	int j = getIndex(P.y, m_size[1]);
-	//int k = (m_3d ? static_cast<int>(P.z / m_size.z) : 0);
+	// for 2D coll engine --> k must always be 0 ?
+	int k = getIndex(P.z, m_size[2]);			// for 2D m_size[2] == 0 --> k = 0
 
 	int n = (rayDir.x > 0 ? 1 : 0);
 	int m = (rayDir.y > 0 ? 1 : 0);
+	int q = (rayDir.z > 0 ? 1 : 0);
 
+	// length traversed so far
 	float l = 0.0f;
 	bool endReached = false;
+
+	// increments
 	int id = 0, jd = 0, kd = 0;
 	RayCastHit out;
 	out.length = length;
 
 	// we can (and we MUST) exit the loop as soon as we find a collision
+	glm::ivec3 increments(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1, rayDir.z > 0 ? 1 : -1);
 	while (!endReached && !out.collide) {
-		// get the next point into this cell
-		// compute how much distance you need to cover to hit the cell boundary,
-		// and what boundary you hit first (x, y or z)
+
+		// gets the unit increments along the different axis to hit the cell boundary
+		// tx , ty and tz should always be positive: if say raidir.x < 0 also the numerator should be neg
+		// this allow us to see what is the next cell to examine
+		id = increments.x;
+		jd = 0;
+		kd = 0;
 		float tx = (rayDir.x == 0.0f) ? std::numeric_limits<float>::infinity() : ((i+n) * m_size.x - P.x) / rayDir.x;
+		float tbest = tx;
 		float ty = (rayDir.y == 0.0f) ? std::numeric_limits<float>::infinity() : ((j+m) * m_size.y - P.y) / rayDir.y;
+		if (ty <= tbest) {
+			id = 0;
+			jd = increments.y;
+			tbest = ty;
+		}
+		// for 2D tz must always be inf
+		float tz = (rayDir.z == 0.0f) ? std::numeric_limits<float>::infinity() : ((k+q) * m_size.z - P.z) / rayDir.z;
+		if (tz <= tbest) {
+			id = 0;
+			jd = 0;
+			kd = increments.z;
+			tbest = tz;
+		}
+
 		float tm {0.0f};
 		id = 0;
 		jd = 0;
+		kd = 0;
 		if (tx <= ty) {
 			tm = tx;
 			id = rayDir.x > 0 ? 1 : -1;
@@ -217,7 +275,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 			jd = rayDir.y > 0 ? 1 : -1;
 		}
 
-		// advance by tm
+		// advance by tm TODO are u sure?
 		if (l + tm < length) {
 			// need to add a tiny extra bit in case the colliding object is a line that lies exactly at the border
 			// of two neighboring cell!
@@ -231,8 +289,8 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 		}
 
 		// get the colliders at the current cell
-		auto it = m_cells.find(glm::ivec3(i, j, 0));
-		Segment line(P.x, P.y, P1.x, P1.y);
+		auto it = m_cells.find(glm::ivec3(i, j, k));
+		Segment3D line(P, P1);
 		auto lineBounds = line.getBounds();
 		if (it != m_cells.end()) {
 			for (auto& c : it->second.colliders) {
@@ -243,7 +301,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 				int fm = flag & mask;
 				if (fm != 0) {
 					auto shapeBounds = c->getStaticBounds();
-					if (lineBounds.intersect2D(shapeBounds)) {
+					if (lineBounds.intersect3D(shapeBounds)) {
 						const auto& t = c->getNode()->getWorldMatrix();
 						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)
 						/// TODO restore following code
@@ -263,6 +321,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 		P = P2;
 		i += id;
 		j += jd;
+		k += kd;
 	}
 
 	return out;

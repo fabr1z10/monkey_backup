@@ -12,6 +12,7 @@ struct Bounds {
 	bool isVoid() const;
 	void transform(const glm::mat4& m);
 	bool intersect2D(Bounds& other) const;
+	bool intersect3D(Bounds& other) const;
     void expandWith(const Bounds&);
     glm::vec3 getSize() const;
     Bounds intersection(const Bounds& other);

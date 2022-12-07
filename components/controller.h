@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include "../runners/collisionengine.h"
 #include "platform.h"
+#include "../model.h"
 /// a controller is a class that checks if node movements are valid
 
 #include <pybind11/pybind11.h>
@@ -19,6 +20,7 @@ public:
 	glm::vec3 getSize() const;
 protected:
 	void setDebugShape();
+	virtual std::shared_ptr<Model> getDebugModel() = 0;
 	Node* m_debugShape;
     void computeCoordinates();
 	glm::vec3 m_size;
@@ -58,6 +60,8 @@ public:
 	void resetPlatform();
 	bool isFalling(float);
 private:
+	std::shared_ptr<Model> getDebugModel() override;
+
 	struct CollisionDetails {
 		bool above, below;
 		bool left, right;

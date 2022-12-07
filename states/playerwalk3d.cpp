@@ -7,6 +7,7 @@ extern GLFWwindow* window;
 PlayerWalk3D::PlayerWalk3D(const std::string& id, const pybind11::kwargs& args) : Walk3D(id, args) {}
 
 void PlayerWalk3D::control() {
+	m_keys = 0u;
 	m_keys |= (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ? 0x01u : 0u);
 	m_keys |= (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS ? 0x02u : 0u);
 	m_keys |= (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ? 0x04 : 0u);

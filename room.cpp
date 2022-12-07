@@ -36,6 +36,7 @@ void Node::move(glm::vec3 delta) {
     m_modelMatrix[3][0] += sign(m_modelMatrix[0][0]) * delta.x;
     m_modelMatrix[3][1] += delta.y;
     m_modelMatrix[3][2] += delta.z;
+    std::cout << delta.y << "\n";
     m_worldMatrix = m_parent->getWorldMatrix() * m_modelMatrix;
     onMove.fire(this);
 }

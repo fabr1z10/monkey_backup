@@ -65,6 +65,9 @@ using namespace glm;
 #include "components/cleardepthbuffer.h"
 #include "states/foechase.h"
 #include "states/jumpattack.h"
+#include "shapes/shapes3d/aabb3d.h"
+#include "components/controller3d.h"
+#include "states/playerwalk3d.h"
 
 namespace py = pybind11;
 
@@ -221,7 +224,11 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<AABB, Shape, std::shared_ptr<AABB>>(m, "aabb")
         .def(py::init<float, float, float, float>());
 
-    py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
+	py::class_<AABB3D, Shape, std::shared_ptr<AABB3D>>(m, "aabb3d")
+		.def(py::init<float, float, float, float, float, float>());
+
+
+	py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")
         .def("add_shape", &CompoundShape::addShape)
         .def(py::init<>());
 
@@ -318,6 +325,9 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<Controller2D, Controller, std::shared_ptr<Controller2D>>(m, "controller_2d")
 		.def(py::init<py::kwargs&>());
 
+	py::class_<Controller3D, Controller, std::shared_ptr<Controller3D>>(m, "controller_3d")
+		.def(py::init<py::kwargs&>());
+
 	py::class_<StateMachine, Component, std::shared_ptr<StateMachine>>(m, "state_machine")
 		.def("add", &StateMachine::addState)
 		.def("set_initial_state", &StateMachine::setInitialState)
@@ -386,6 +396,9 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<PlayerWalk2D, State, std::shared_ptr<PlayerWalk2D>>(m, "walk_2d_player")
 		.def(py::init<const std::string&, py::kwargs&>());
 
+	py::class_<PlayerWalk3D, State, std::shared_ptr<PlayerWalk3D>>(m, "walk_3d_player")
+		.def(py::init<const std::string&, py::kwargs&>());
+
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
         .def(py::init<const std::string&, py::kwargs&>());
 
@@ -419,7 +432,7 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<CollisionEngine, Runner, std::shared_ptr<CollisionEngine>>(m, "collision_engine")
 		.def("add_response", &CollisionEngine::addResponse)
-		.def(py::init<float, float>());
+		.def(py::init<float, float, float>());
 
     py::class_<Scheduler, Runner, std::shared_ptr<Scheduler>>(m, "scheduler")
         .def("add", &Scheduler::add)

@@ -2,7 +2,7 @@
 #include "../shapes/convexpoly.h"
 #include "../util.h"
 
-RayCaster::RayCaster() {
+RayCaster2D::RayCaster2D() {
     m_functionMap[std::type_index(typeid(ConvexPoly))] = [&] (const glm::vec3& A, const glm::vec3& B, const Shape* s, const glm::mat4& t) {
         return rayCastPoly(A, B, s, t);
     };
@@ -27,7 +27,7 @@ RayCastHit RayCaster::raycast(glm::vec3 A, glm::vec3 B, const Shape* s, const gl
     return out;
 }
 
-void RayCaster::updateRaycastHit(RayCastHit& r, glm::vec2 ray, glm::vec2 line, float u, int si) {
+void RayCaster2D::updateRaycastHit(RayCastHit& r, glm::vec2 ray, glm::vec2 line, float u, int si) {
     r.collide = true;
     if (u < r.length) {
         r.length = u;
@@ -38,7 +38,7 @@ void RayCaster::updateRaycastHit(RayCastHit& r, glm::vec2 ray, glm::vec2 line, f
 }
 
 
-RayCastHit RayCaster::rayCastPoly(const glm::vec3& A, const glm::vec3& B, const Shape *s, const glm::mat4 &t) {
+RayCastHit RayCaster2D::rayCastPoly(const glm::vec3& A, const glm::vec3& B, const Shape *s, const glm::mat4 &t) {
     RayCastHit out;
     float u {};
     auto ray = glm::vec2(B - A);
