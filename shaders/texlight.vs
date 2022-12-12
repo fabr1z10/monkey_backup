@@ -21,6 +21,6 @@ void main()
     tex = vTexture;
     Normal = normalize(nMat * vNormal);
     //eye = - (model * view * vec4(vPosition, 1.0));
-    gl_Position = projection * model * view * vec4(vPosition, 1.0);
+    gl_Position = projection * view * model * vec4(vPosition, 1.0);
 }
 )"

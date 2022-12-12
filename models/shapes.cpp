@@ -3,6 +3,7 @@
 #include "../engine.h"
 #include <glm/gtx/transform.hpp>
 #include "../shapes/earcut.h"
+#include "../asset_manager.h"
 
 
 void Pixels::PixelRenderer::draw(Shader * s) {
@@ -127,5 +128,45 @@ RectModel::RectModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_CO
 
     m_elementSize = elements.size();
     m_size = m_elementSize;
+
+}
+
+
+TexturedRectModel::TexturedRectModel(const pybind11::kwargs& args) : Model() {
+	auto useNormals = dictget<bool>(args, "use_normals", false);
+	auto& am = AssetManager::instance();
+	auto texFile = args["tex"].cast<std::string>();
+
+	auto tex = am.getTex(texFile);
+	m_texId = tex->getTexId();
+
+	m_shaderType = useNormals ? ShaderType::SHADER_TEXTURE_LIGHT : ShaderType::SHADER_TEXTURE;
+	m_primitive = GL_TRIANGLES;
+	auto size = args["size"].cast<pybind11::array_t<float>>();
+	auto repeat = dictget<glm::vec2>(args, "repeat", glm::vec2(1.f, 1.f));
+	auto c = dictget<glm::vec4>(args, "color", glm::vec4(255.f))/255.f;
+	auto z = dictget<float>(args, "z", 0.f);
+
+	auto vertices = useNormals ? std::vector<float>({
+		0.f, 0.f, z, 0.f, repeat.y, 0.f, 0.f, 1.f,
+		size.at(0), 0.f, z, repeat.x, repeat.y, 0.f, 0.f, 1.f,
+  	    size.at(0), size.at(1), z, repeat.x, 0.f, 0.f, 0.f, 1.f,
+		0.f, size.at(1), z, 0.f, 0.f, 0.f, 0.f, 1.f}) : std::vector<float>({
+		0.f, 0.f, z, 0.f, repeat.y, c.r, c.g, c.b, c.a,
+		size.at(0), 0.f, z, repeat.x, repeat.y, c.r, c.g, c.b, c.a,
+		size.at(0), size.at(1), z, repeat.x, 0.f, c.r, c.g, c.b, c.a,
+		0.f, size.at(1), z, 0.f, 0.f, c.r, c.g, c.b, c.a});
+	auto elements = std::vector<unsigned>({0, 1, 2, 0, 2, 3});
+
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &m_ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements.size(), &elements[0], GL_STATIC_DRAW);
+
+	m_elementSize = elements.size();
+	m_size = m_elementSize;
 
 }

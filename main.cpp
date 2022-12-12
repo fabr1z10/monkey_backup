@@ -138,6 +138,7 @@ PYBIND11_MODULE(monkey, m) {
 		.def("set_camera", &Node::setCamera)
 		.def("set_position", &Node::setPosition)
 		.def("set_transform", &Node::setTransformation)
+		.def("set_transform", &Node::setTransformation)
 		.def("get_animation", &Node::getAnimation)
 
 		.def("set_animation", &Node::setAnimation)
@@ -191,6 +192,8 @@ PYBIND11_MODULE(monkey, m) {
         .def(py::init<const pybind11::kwargs&>());
     py::class_<RectModel, Model, std::shared_ptr<RectModel>>(mm, "rect")
         .def(py::init<const pybind11::kwargs&>());
+	py::class_<TexturedRectModel, Model, std::shared_ptr<TexturedRectModel>>(mm, "textured_rect")
+		.def(py::init<const pybind11::kwargs&>());
     py::class_<Pixels, Model, std::shared_ptr<Pixels>>(mm, "pixels")
         .def(py::init<const pybind11::kwargs&>());
 

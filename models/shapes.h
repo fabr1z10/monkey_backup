@@ -29,6 +29,13 @@ public:
     RectModel(const pybind11::kwargs& args);
 };
 
+class TexturedRectModel : public Model {
+public:
+	TexturedRectModel(const pybind11::kwargs& args);
+
+};
+
+
 class PolygonModel : public Model {
 public:
     PolygonModel(const std::vector<glm::vec2>& data);
