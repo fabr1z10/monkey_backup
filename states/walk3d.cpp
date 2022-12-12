@@ -55,7 +55,7 @@ void Walk3D::run(double dt) {
 
 	if (m_controller->grounded()) {
 		maxSpeed = m_maxSpeedGround;
-		if (m_up) {
+		if (m_keys & 0x10) {
 			m_dynamics->m_velocity.y = m_jumpVelocity;
 		} else {
 			m_dynamics->m_velocity.y = 0.0f;

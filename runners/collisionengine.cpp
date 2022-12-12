@@ -305,7 +305,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 						const auto& t = c->getNode()->getWorldMatrix();
 						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)
 						/// TODO restore following code
-						auto report = m_raycast->raycast(glm::vec3(P.x, P.y, 0.f), glm::vec3(P1.x, P1.y, 0.f), c->getShape().get(), c->getNode()->getWorldMatrix());
+						auto report = m_raycast->raycast(glm::vec3(P.x, P.y, P.z), glm::vec3(P1.x, P1.y, P1.z), c->getShape().get(), c->getNode()->getWorldMatrix());
 
                         // update output
 						if (report.collide && (!out.collide || out.length > report.length)) {
