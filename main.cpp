@@ -68,6 +68,9 @@ using namespace glm;
 #include "shapes/shapes3d/aabb3d.h"
 #include "components/controller3d.h"
 #include "states/playerwalk3d.h"
+#include "states/walk3d.h"
+#include "states/attack3d.h"
+#include "states/hit3d.h"
 
 namespace py = pybind11;
 
@@ -292,6 +295,12 @@ PYBIND11_MODULE(monkey, m) {
 		.def("flip", &Renderer::flipHorizontal)
 		.def(py::init<>());
 
+	py::class_<KeyPad, Component, std::shared_ptr<KeyPad>>(m, "keypad");
+	py::class_<UserKeyPad, KeyPad, std::shared_ptr<UserKeyPad>>(m, "user_keypad")
+		.def(py::init<const pybind11::kwargs&>());
+	py::class_<AIKeyPad, KeyPad, std::shared_ptr<AIKeyPad>>(m, "ai_keypad_3d")
+		.def(py::init<const pybind11::kwargs&>());
+
     py::class_<Shadow, Component, std::shared_ptr<Shadow>>(m, "shadow")
         .def(py::init<const pybind11::kwargs&>());
 
@@ -399,7 +408,7 @@ PYBIND11_MODULE(monkey, m) {
 	py::class_<PlayerWalk2D, State, std::shared_ptr<PlayerWalk2D>>(m, "walk_2d_player")
 		.def(py::init<const std::string&, py::kwargs&>());
 
-	py::class_<PlayerWalk3D, State, std::shared_ptr<PlayerWalk3D>>(m, "walk_3d_player")
+	py::class_<Walk3D, State, std::shared_ptr<Walk3D>>(m, "walk_3d")
 		.def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<FoeWalk2D, State, std::shared_ptr<FoeWalk2D>>(m, "walk_2d_foe")
@@ -412,6 +421,8 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Hit2D, State, std::shared_ptr<Hit2D>>(m, "hit")
         .def(py::init<const std::string&, py::kwargs&>());
+	py::class_<Hit3D, State, std::shared_ptr<Hit3D>>(m, "hit_3d")
+		.def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<JumpAttack, State, std::shared_ptr<JumpAttack>>(m, "jump_attack")
         .def(py::init<const std::string&, py::kwargs&>());
@@ -426,6 +437,8 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<Attack, State, std::shared_ptr<Attack>>(m, "attack")
         .def(py::init<const std::string&, py::kwargs&>());
 
+	py::class_<Attack3D, State, std::shared_ptr<Attack3D>>(m, "attack_3d")
+			.def(py::init<const std::string&, py::kwargs&>());
 
     py::class_<Car2D, State, std::shared_ptr<Car2D>>(m, "car_2d")
 		.def(py::init<const std::string&, py::kwargs&>());

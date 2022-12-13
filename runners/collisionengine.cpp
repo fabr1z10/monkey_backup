@@ -333,46 +333,48 @@ std::vector<ShapeCastHit> CollisionEngine::shapeCast (Shape* shape, const glm::m
     std::vector<ShapeCastHit> result;
     auto aabb = shape->getBounds();
     aabb.transform(transform);
-    float z = transform[3][2];
+    //float z = transform[3][2];
     auto loc = getLocation(aabb);
     for (int i = loc.first.x; i <= loc.second.x; ++i) {
         for (int j = loc.first.y; j <= loc.second.y; ++j) {
-            auto cell = m_cells.find(glm::vec3(i, j, 0));
-            if (cell != m_cells.end()) {
-                auto &colliders = cell->second.colliders;
-                for (auto &c : colliders) {
-                    if (!c->isActive()) {
-                        continue;
-                    }
-                    int flag = c->getCollisionFlag();
-                    int m = flag & mask;
-                    if (m == 0) {
-                        continue;
-                    }
-                    auto b = c->getStaticBounds();
-                    // perform a aabb testing
-                    if (!aabb.intersect2D(b)) {
-                        continue;
-                    }
-                    auto s = c->getShape();
-                    if (s != nullptr) {
-                        const auto &t = c->getNode()->getWorldMatrix();
-                        //auto s1 = s->transform(t);
-                        //auto s2 = shape->transform(transform);
-                        // bounding boxes intersect, so let's make a proper collision test
-                        auto report = m_intersector->intersect(shape, s.get(), transform, t);
-                        if (report.collide) {
-                            Bounds bb = aabb.intersection(b);
-                            ShapeCastHit res;
-                            res.report = report;
-                            res.report.direction = bb.getCenter();
-                            res.entity = c;
-                            result.push_back(res);
-                            if (onlyFirst)
-                                return result;
-                        }
-                    }
-                }
+        	for (int k = loc.first.z; k <= loc.second.z; ++k) {
+				auto cell = m_cells.find(glm::vec3(i, j, k));
+				if (cell != m_cells.end()) {
+					auto &colliders = cell->second.colliders;
+					for (auto &c : colliders) {
+						if (!c->isActive()) {
+							continue;
+						}
+						int flag = c->getCollisionFlag();
+						int m = flag & mask;
+						if (m == 0) {
+							continue;
+						}
+						auto b = c->getStaticBounds();
+						// perform a aabb testing
+						if (!aabb.intersect2D(b)) {
+							continue;
+						}
+						auto s = c->getShape();
+						if (s != nullptr) {
+							const auto &t = c->getNode()->getWorldMatrix();
+							//auto s1 = s->transform(t);
+							//auto s2 = shape->transform(transform);
+							// bounding boxes intersect, so let's make a proper collision test
+							auto report = m_intersector->intersect(shape, s.get(), transform, t);
+							if (report.collide) {
+								Bounds bb = aabb.intersection(b);
+								ShapeCastHit res;
+								res.report = report;
+								res.report.direction = bb.getCenter();
+								res.entity = c;
+								result.push_back(res);
+								if (onlyFirst)
+									return result;
+							}
+						}
+					}
+				}
             }
         }
     }

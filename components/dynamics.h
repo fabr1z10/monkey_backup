@@ -11,7 +11,7 @@ public:
 	}
 	void start() override {}
 	void update(double dt) {
-	    m_velocity += m_acceleration * static_cast<float>(dt);
+	    //m_velocity += m_acceleration * static_cast<float>(dt);
 	}
 
 	glm::vec3 m_velocity;

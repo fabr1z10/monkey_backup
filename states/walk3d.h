@@ -4,6 +4,7 @@
 #include "../components/controller3d.h"
 #include "../components/dynamics.h"
 #include "../components/renderer.h"
+#include "../components/keypad.h"
 
 class Node;
 
@@ -13,7 +14,7 @@ public:
 	void init(const pybind11::kwargs& args) override;
 	void setParent(StateMachine*) override;
 	void run(double) override;
-	virtual void control() = 0;
+	//virtual void control() = 0;
 protected:
 	float m_gravity;
 	float m_jumpHeight;
@@ -31,11 +32,14 @@ protected:
 	std::string m_idleAnim;
 	std::string m_walkAnim;
 	std::string m_jumpAnim;
-	unsigned m_keys;
+	// this goes in the kaypad component
+	//unsigned m_keys;
+	KeyPad* m_keypad;
 	bool m_left;
 	bool m_right;
 	bool m_up;
 	bool m_down;
 	bool m_jmp;
+	std::unordered_map<unsigned, std::string> m_extraKeys;
 };
 
