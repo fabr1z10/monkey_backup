@@ -1,6 +1,9 @@
 #include "keypad.h"
 #include "../pyhelper.h"
-#include <GLFW/glfw3.h>
+
+#include "../engine.h"
+
+#include "renderer.h"
 
 extern GLFWwindow* window;
 
@@ -9,7 +12,20 @@ KeyPad::KeyPad(const pybind11::kwargs& args) {
 	m_jumpKey = dictget<unsigned>(args, "jump_key", 0x10);
 }
 
-AIKeyPad::AIKeyPad(const pybind11::kwargs& args) : KeyPad(args) {}
+AIKeyPad::AIKeyPad(const pybind11::kwargs& args) : KeyPad(args) {
+    m_targetId = dictget<int>(args, "target", -1);
+
+
+}
+
+void AIKeyPad::start() {
+    if (m_targetId != -1) {
+        m_target = Engine::instance().getNode(m_targetId).get();
+        auto renderer = dynamic_cast<AnimatedRenderer*>(m_target->getComponent<Renderer>());
+        auto range = renderer->getAttackRange();
+        m_attackRange = glm::vec2(range.min.x, range.max.x);
+    }
+}
 
 UserKeyPad::UserKeyPad(const pybind11::kwargs& args) : KeyPad(args) {
 
@@ -43,6 +59,11 @@ void UserKeyPad::update(double dt) {
 
 void AIKeyPad::update(double dt) {
 	m_keys= 0u;
+    auto targetPos = m_target->getWorldPosition();
+    auto entityPos = m_node->getWorldPosition();
+    auto delta = targetPos - entityPos;
+    std::cout << "(" << delta.x << ", " << delta.z << ")\n";
+
 }
 
 std::type_index UserKeyPad::getType() {

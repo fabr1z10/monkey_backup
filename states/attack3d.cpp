@@ -11,6 +11,7 @@ extern GLFWwindow* window;
 Attack3D::Attack3D(const std::string& id, const pybind11::kwargs& args) : State(id, args), m_currentAnim(0) {
 	for (const auto& anim : args["anims"])
 		m_anims.push_back(anim.cast<std::string>());
+	m_jumpAnim = dictget<std::string>(args, "jump_anim", "");
 	//m_anims = args["anims"].cast<std::vector<std::string>>();
 	m_exitState = args["exit_state"].cast<std::string>();
 	m_maxSpeed = args["speed"].cast<float>();

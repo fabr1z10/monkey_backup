@@ -18,6 +18,8 @@ public:
 
 private:
 	float m_speed;
+	float m_verticalSpeed;
+	int m_mode;
 	std::string m_anim;
 	float m_actualSpeed;
 	Controller3D* m_controller;

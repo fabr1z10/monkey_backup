@@ -2,7 +2,7 @@
 
 #include "../component.h"
 #include <pybind11/pybind11.h>
-
+#include <glm/glm.hpp>
 
 class KeyPad : public Component {
 public:
@@ -111,6 +111,12 @@ private:
 class AIKeyPad : public KeyPad {
 public:
 	explicit AIKeyPad(const pybind11::kwargs& args);
+	void start() override;
 	void update(double) override;
 	std::type_index getType() override;
+private:
+    int m_targetId;
+    Node* m_target;
+    glm::vec2 m_attackRange;
+
 };
