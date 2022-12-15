@@ -54,6 +54,8 @@ public:
 
     std::pair<int, int> getDebugShape(const std::string& anim, int attack);
 private:
+    std::shared_ptr<Shape> getRect(int mode, int, int, int, int);
+
     void computeOffset();
     std::vector<JointInfo> m_jointInfos;
     std::vector<glm::mat4> m_invRestTransforms2;
@@ -73,6 +75,8 @@ private:
     std::unordered_map<std::string, std::vector<int>> m_animShapes;
     Bounds m_staticBounds;
     std::vector<std::pair<int, int>> m_shapeInfo;
+    float m_halfThickness;
+
 };
 
 inline const JointInfo & SkeletalModel::getJointInfo(int id) const {

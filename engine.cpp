@@ -16,16 +16,17 @@ Engine& getEngine() {
 
 Engine::Engine() : m_room(nullptr), m_nextId(0), m_pixelScaleFactor(1) {
 
-	m_shaderBuilders[0] = [&] () { add_shader<Shader>(ShaderType::SHADER_COLOR, color_vs, color_fs, "3f4f"); };
-	m_shaderBuilders[1] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs, "3f2f4f"); };
-    m_shaderBuilders[2] = [&] () { add_shader<Shader>(ShaderType::SHADER_SKELETAL, skeletal_vs, skeletal_fs, "3f2f3f"); };
-    m_shaderBuilders[3] = [&] () { add_shader<Shader>(ShaderType::SHADER_TEXTURE_PALETTE, tex_vs, tex_pal_fs, "3f2f4f"); };
+	m_shaderBuilders[0] = [&] () { return create_shader(ShaderType::SHADER_COLOR, color_vs, color_fs, "3f4f"); };
+	m_shaderBuilders[1] = [&] () { return create_shader(ShaderType::SHADER_TEXTURE, tex_vs, tex_fs, "3f2f4f"); };
+    m_shaderBuilders[2] = [&] () { return create_shader(ShaderType::SHADER_SKELETAL, skeletal_vs, skeletal_fs, "3f2f3f"); };
+    m_shaderBuilders[3] = [&] () { return create_shader(ShaderType::SHADER_TEXTURE_PALETTE, tex_vs, tex_pal_fs, "3f2f4f"); };
     // light shader
     m_shaderBuilders[4] = [&] () {
         auto lshader = std::make_shared<Shader>(ShaderType::SHADER_TEXTURE_LIGHT, tex_light_vs, tex_light_fs, "3f2f3f");
         lshader->addInitializer(std::make_shared<LightInitializer>());
         lshader->addPredraw(std::make_shared<LightPreDraw>());
-        addShader(lshader);
+        return lshader;
+        //addShader(lshader);
     };
 
     //m_shaderBuilders[4] = [&] () { add_shader<Shader>(); };
@@ -167,6 +168,8 @@ void Engine::start() {
                     // here it makes sense to
                     shader->use();
                     m_room->draw(shader.get());
+                    shader->done();
+
                 }
 
                 // frame buffer rendering start
@@ -281,9 +284,14 @@ void Engine::loadRoom() {
 }
 
 void Engine::loadShaders() {
-	auto shaders = m_game.attr("settings").attr("shaders").cast<std::vector<int>>();
+	auto shaders = m_game.attr("settings").attr("shaders").cast<pybind11::dict>();
 	for (auto sh : shaders) {
-		m_shaderBuilders[sh]();
+	    int shaderId = sh.first.cast<int>();
+	    auto flags = sh.second.cast<unsigned>();
+		auto shader = m_shaderBuilders[shaderId]();
+		shader->setFlags(flags);
+		//  modify here
+		addShader(shader);
 	}
 
     //m_blitShader = std::make_shared<Shader>(ShaderType::SHADER_TEXTURE,

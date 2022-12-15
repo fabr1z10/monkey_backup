@@ -66,15 +66,16 @@ private:
 	std::shared_ptr<Room> m_room;
 	std::vector<std::shared_ptr<Shader>> m_shaders;
     std::shared_ptr<Shader> m_blitShader;
-	template<typename T>
-	void add_shader(ShaderType type, const std::string& vertex, const std::string& fragment, const std::string& vertexFormat) {
-		auto shader = std::make_shared<T>(type, vertex, fragment, vertexFormat);
-		m_shaderTypeToIndex[type] = m_shaders.size();
-		m_shaders.push_back(shader);
+
+	std::shared_ptr<Shader> create_shader(ShaderType type, const std::string& vertex, const std::string& fragment, const std::string& vertexFormat) {
+		auto shader = std::make_shared<Shader>(type, vertex, fragment, vertexFormat);
+		return shader;
+		//m_shaderTypeToIndex[type] = m_shaders.size();
+		//m_shaders.push_back(shader);
 	}
 	void addShader(std::shared_ptr<Shader> shader);
 	std::unordered_map<ShaderType, int> m_shaderTypeToIndex;
-	std::unordered_map<int, std::function<void()>> m_shaderBuilders;
+	std::unordered_map<int, std::function<std::shared_ptr<Shader>()>> m_shaderBuilders;
 	double m_frameTime;
 	double m_timeLastUpdate;
 	std::unordered_set<KeyboardListener*> m_keyboardListeners;

@@ -87,7 +87,7 @@ void Walk3D::run(double dt) {
 	// acceleration along x axis
 	if (m_keypad->lor()) {
 		// left or right
-		a.x = m_acceleration; // (m_left ? -1.f : 1.f) * m_acceleration;
+		a.x = m_keypad->back() * m_acceleration; // (m_left ? -1.f : 1.f) * m_acceleration;
 	}
 	// acceleration along z axis
 	if (m_keypad->up()) {

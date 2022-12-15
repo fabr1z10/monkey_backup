@@ -47,7 +47,8 @@ public:
 	void preDraw(Node*);
 	void addInitializer(std::shared_ptr<ShaderInitializer>);
     void addPredraw(std::shared_ptr<ShaderPreDraw>);
-
+    void done();
+    void setFlags(unsigned flags);
 private:
 	GLuint m_programId;
 	GLuint m_vao;
@@ -57,6 +58,7 @@ private:
 	static std::unordered_map<char, std::pair<GLenum, size_t>> m_types;
 	std::vector<std::shared_ptr<ShaderInitializer>> m_initializers;
     std::vector<std::shared_ptr<ShaderPreDraw>> m_preDraw;
+    unsigned m_flags;
 };
 
 inline GLuint Shader::getProgId() const {

@@ -25,11 +25,17 @@ public:
 	bool uod() const;
 	bool flipHorizontal() const;
 	void update(double) override;
+	int back() const;
 protected:
 	bool m_fliph;
+	int m_back;
 	unsigned m_jumpKey;
 	unsigned m_keys;
 };
+
+inline int KeyPad::back() const {
+    return m_back;
+}
 
 inline bool KeyPad::check(unsigned int value) const {
 	return m_keys & value;
@@ -106,6 +112,7 @@ private:
 	unsigned m_btn3;
 	unsigned m_btn4;
 
+
 };
 
 class AIKeyPad : public KeyPad {
@@ -114,9 +121,12 @@ public:
 	void start() override;
 	void update(double) override;
 	std::type_index getType() override;
+
 private:
     int m_targetId;
     Node* m_target;
     glm::vec2 m_attackRange;
+    float m_targetDistance;
+    float m_attackProbability;
 
 };

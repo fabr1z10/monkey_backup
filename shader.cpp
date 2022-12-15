@@ -14,7 +14,7 @@ std::unordered_map<char, std::pair<GLenum, size_t>> Shader::m_types {
 
 
 Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string& fragmentCode,
-               const std::string& vertexFormat) : m_shaderType(type), m_stride(0) {
+               const std::string& vertexFormat) : m_shaderType(type), m_stride(0), m_flags(0u) {
 
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
@@ -92,6 +92,10 @@ Shader::Shader(ShaderType type, const std::string& vertexCode, const std::string
 
 Shader::~Shader() {
 	glDeleteProgram(m_programId);
+}
+
+void Shader::setFlags(unsigned int flags) {
+    m_flags = flags;
 }
 
 void Shader::use() {
@@ -184,4 +188,11 @@ void Shader::preDraw(Node * node) {
     for (const auto& p : m_preDraw) {
         p->init(this, node);
     }
+}
+
+void Shader::done() {
+    if (m_flags & 0x01u) {
+        glClear (GL_DEPTH_BUFFER_BIT);
+    }
+
 }

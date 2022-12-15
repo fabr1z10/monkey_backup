@@ -4,6 +4,7 @@
 #include "../engine.h"
 
 #include "renderer.h"
+#include "../random.h"
 
 extern GLFWwindow* window;
 
@@ -14,16 +15,17 @@ KeyPad::KeyPad(const pybind11::kwargs& args) {
 
 AIKeyPad::AIKeyPad(const pybind11::kwargs& args) : KeyPad(args) {
     m_targetId = dictget<int>(args, "target", -1);
-
+    m_attackProbability = 0.01;
 
 }
 
 void AIKeyPad::start() {
     if (m_targetId != -1) {
         m_target = Engine::instance().getNode(m_targetId).get();
-        auto renderer = dynamic_cast<AnimatedRenderer*>(m_target->getComponent<Renderer>());
+        auto renderer = dynamic_cast<AnimatedRenderer*>(m_node->getComponent<Renderer>());
         auto range = renderer->getAttackRange();
         m_attackRange = glm::vec2(range.min.x, range.max.x);
+        m_targetDistance = 0.5f * (m_attackRange.x + m_attackRange.y);
     }
 }
 
@@ -46,6 +48,7 @@ void KeyPad::update(double) {
 
 void UserKeyPad::update(double dt) {
 	m_keys = 0u;
+	m_back = 1;
 	m_keys |= (glfwGetKey(window, m_leftKey) == GLFW_PRESS ? 0x01u : 0u);
 	m_keys |= (glfwGetKey(window, m_rightKey) == GLFW_PRESS ? 0x02u : 0u);
 	m_keys |= (glfwGetKey(window, m_upKey) == GLFW_PRESS ? 0x04 : 0u);
@@ -57,12 +60,52 @@ void UserKeyPad::update(double dt) {
 	KeyPad::update(dt);
 }
 
+
+
 void AIKeyPad::update(double dt) {
 	m_keys= 0u;
+	m_back = 1;
     auto targetPos = m_target->getWorldPosition();
     auto entityPos = m_node->getWorldPosition();
+    m_fliph = targetPos.x < entityPos.x;
+
+    auto scale = m_node->getScale();
+    float scaledDistance = scale * m_targetDistance;
+    if (entityPos.x >= targetPos.x) {
+        targetPos.x += scaledDistance;
+    } else {
+        targetPos.x -= scaledDistance;
+    }
     auto delta = targetPos - entityPos;
+    delta.y = 0.f;
     std::cout << "(" << delta.x << ", " << delta.z << ")\n";
+    // if within range, stop
+    if (glm::length(delta) <= 0.1f) {
+        // attack or do nothing
+        float u = Random::instance().getUniformReal(0.0f, 1.0f);
+        if (u < m_attackProbability) {
+            // push random btn
+            m_keys |= 0x20;
+        }
+    } else {
+        if (fabs(delta.x) > 0.1f) {
+            if (delta.x > 0) {
+                m_keys |= 0x02u;
+                if (m_fliph) {
+                    m_back = -1;
+                }
+            } else {
+                m_keys |= 0x01u;
+                if (!m_fliph) {
+                    m_back = -1;
+                }
+            }
+        }
+        if (fabs(delta.z) > 0.1f) {
+            m_keys |= (delta.z > 0 ? 0x08u : 0x04u);
+        }
+    }
+
 
 }
 

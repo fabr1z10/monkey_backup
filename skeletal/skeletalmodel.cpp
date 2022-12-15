@@ -6,10 +6,17 @@
 #include "skeletalrenderer.h"
 #include "../shapes/aabb.h"
 #include "../shapes/compound.h"
+#include "../engine.h"
 #include <pybind11/stl.h>
+#include "../shapes/shapes3d/aabb3d.h"
 
 
 SkeletalModel::SkeletalModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_SKELETAL) {
+    // mode = 0 --> 2D, mode = 1 --> 3D
+    auto& engine = Engine::instance();
+    auto mode = pyget<int>(engine.getConfig().attr("settings"),"game_mode", 0);
+    m_halfThickness = (mode == 0) ? 0 : args["thickness"].cast<float>();
+
     for (const auto& j : args["joints"]) {
         auto dict = j.cast<pybind11::dict>();
         int id = m_jointInfos.size();
@@ -114,11 +121,12 @@ SkeletalModel::SkeletalModel(const pybind11::kwargs& args) : Model(ShaderType::S
             assert(f.size() % 4 == 0);
             std::shared_ptr<Shape > shape;
             if (f.size() == 4) {
-                shape = std::make_shared<AABB>(f[0], f[1], f[2], f[3]);
+                //getRect(mode, a[0], a[1], a[2], a[3]);
+                shape = getRect(mode, f[0], f[1], f[2], f[3]);
             } else {
                 auto s1 = std::make_shared<CompoundShape>();
                 for (size_t i = 0; i <f.size(); i+=4) {
-                    s1->addShape(std::make_shared<AABB>(f[i], f[i+1], f[i+2], f[i+3]));
+                    s1->addShape(getRect(mode, f[i], f[i+1], f[i+2], f[i+3]));
                 }
                 shape = s1;
             }
@@ -144,6 +152,15 @@ std::shared_ptr<Renderer> SkeletalModel::getRenderer() const {
     return std::make_shared<SkeletalRenderer>(m_defaultAnimation);
 }
 
+
+std::shared_ptr<Shape> SkeletalModel::getRect(int mode, int x0, int x1, int y0, int y1) {
+    if (mode == 0) {
+        return std::make_shared<AABB>(x0, x1, y0, y1);
+    } else {
+        return std::make_shared<AABB3D>(x0, x1, y0, y1, -m_halfThickness, m_halfThickness);
+    }
+
+}
 
 
 std::vector<glm::mat4> SkeletalModel::calculateCurrentPose(std::unordered_map<int, JointTransform>& pose) {
