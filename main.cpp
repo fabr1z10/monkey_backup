@@ -71,6 +71,7 @@ using namespace glm;
 #include "states/walk3d.h"
 #include "states/attack3d.h"
 #include "states/hit3d.h"
+#include "shapes/shapes3d/prism.h"
 
 namespace py = pybind11;
 
@@ -232,6 +233,9 @@ PYBIND11_MODULE(monkey, m) {
 
 	py::class_<AABB3D, Shape, std::shared_ptr<AABB3D>>(m, "aabb3d")
 		.def(py::init<float, float, float, float, float, float>());
+
+	py::class_<Prism, Shape, std::shared_ptr<Prism>>(m, "prism")
+        .def(py::init<const pybind11::kwargs&>());
 
 
 	py::class_<CompoundShape, Shape, std::shared_ptr<CompoundShape>>(m, "compound_shape")

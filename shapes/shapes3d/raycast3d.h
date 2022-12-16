@@ -8,4 +8,5 @@ public:
 	RayCaster3D();
 private:
 	RayCastHit raycastAABB(const glm::vec3& A, const glm::vec3& B, const Shape *s, const glm::mat4 &t);
+	RayCastHit raycastPrism(const glm::vec3& A, const glm::vec3& B, const Shape *s, const glm::mat4 &t);
 };

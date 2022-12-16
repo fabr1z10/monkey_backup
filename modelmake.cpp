@@ -9,6 +9,7 @@
 #include "pyhelper.h"
 #include "models/multi.h"
 #include "shapes/shapemodel.h"
+#include "shapes/shapes3d/prism.h"
 #include <cmath>
 
 ModelMaker::ModelMaker() {
@@ -19,6 +20,7 @@ ModelMaker::ModelMaker() {
     m_builders[std::type_index(typeid(CompoundShape))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeCompoundShape(s, args); };
     m_builders[std::type_index(typeid(AABB))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeAABB(s, args); };
 	m_builders[std::type_index(typeid(AABB3D))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makeAABB3D(s, args); };
+    m_builders[std::type_index(typeid(Prism))] = [&] (std::shared_ptr<Shape> s, const pybind11::kwargs& args) { return makePrism(s, args); };
 
 }
 
@@ -31,6 +33,22 @@ std::shared_ptr<Model> ModelMaker::makeCompoundShape(std::shared_ptr<Shape> s, c
     return model;
 }
 
+
+std::shared_ptr<Model> ModelMaker::makePrism(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
+    std::vector<float> vertices;
+    std::vector<unsigned> elements;
+    unsigned u{0};
+    auto color = dictget<glm::vec4>(args, "color", glm::vec4(1.0f));
+    auto* prism = static_cast<Prism*>(s.get());
+    const auto& points = prism->getPoints();
+    for (const auto& point : points) {
+        vertices.insert(vertices.end(), {point[0], 0.f, point[1], color.r, color.g, color.b, color.a});
+        elements.push_back(u++);
+    }
+
+    GLuint prim {GL_LINE_LOOP};
+    return std::make_shared<RawModel>(ShaderType::SHADER_COLOR, prim, vertices, elements);
+}
 
 std::shared_ptr<Model> ModelMaker::makeAABB3D(std::shared_ptr<Shape> s, const pybind11::kwargs &args) {
 	std::vector<float> vertices;
