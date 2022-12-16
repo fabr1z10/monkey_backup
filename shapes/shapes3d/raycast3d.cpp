@@ -41,10 +41,11 @@ RayCastHit RayCaster3D::raycastPrism(const glm::vec3 &A, const glm::vec3 &B, con
 	} else {
 		// vertical
 		float yPrism = t[3][1];
+
 		// check whether ray is intersecting surface
 		if ((B.y - yPrism) * (A.y - yPrism) <= 0.f) {
 			// find intersection point
-			auto t = -A.y / (B.y - A.y);
+			auto t = (yPrism - A.y) / (B.y - A.y);
 			glm::vec3 P = A + t * (B - A);
 			if (pnpoly(prism->getPoints(), glm::vec2(P.x, P.z))) {
 				// intersection
