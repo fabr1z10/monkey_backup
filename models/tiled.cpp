@@ -42,6 +42,15 @@ TiledModel::TiledModel(const pybind11::kwargs& args) : Model(ShaderType::SHADER_
     glm::vec2 tileSize(ts[0].cast<int>(), ts[1].cast<int>());
     auto& am = AssetManager::instance();
     auto tex = am.getTex(imgName);
+    if (tex->hasPalette()) {
+        m_shaderType = ShaderType::SHADER_TEXTURE_PALETTE;
+        m_paletteId = tex->getDefaultPaletteId();
+        auto palette = dictget<std::string>(args, "palette", "");
+        if (!palette.empty()) {
+            auto pal = am.getPalette(palette);
+            m_paletteId = pal->getTexId();
+        }
+    }
     float t1 = static_cast<float>(tileSize[0]) / tex->getWidth();
     float t2 = static_cast<float>(tileSize[1]) / tex->getHeight();
     m_texId = tex->getTexId();

@@ -1,5 +1,6 @@
 #include "tex.h"
 #include <iostream>
+#include <memory>
 
 #define cimg_use_jpeg
 #define cimg_use_png
@@ -8,6 +9,7 @@
 #include "CImg.h"
 #include "png.h"
 #include "zlib.h"
+#include "palette.h"
 
 
 using namespace cimg_library;
@@ -163,9 +165,18 @@ void Tex::load_png(const std::string &file) {
     int colors;
     png_get_PLTE(png_ptr, info_ptr, &pal, &colors);
     std::cout << " number of colors: " << colors << std::endl;
+    // store default palette
+    std::vector<unsigned> defaultPalette;
     for (size_t i= 0; i< colors; ++i) {
         std::cout << "color #" << i << ": " << (int) pal[i].red << ", " << (int) pal[i].green << ", " << (int) pal[i].blue << "\n";
+        defaultPalette.push_back(pal[i].red);
+        defaultPalette.push_back(pal[i].green);
+        defaultPalette.push_back(pal[i].blue);
+        defaultPalette.push_back(i == 0 ? 0 : 255);
     }
+    auto defpal = std::make_shared<Palette>(defaultPalette);
+    m_defaultPaletteId = defpal->getTexId();
+
     std::cout << "\n--- raw ---\n";
 //    for (int i = 0; i < imgHeight; ++i) {
 //        std::cout << "row " << i << "\n";
@@ -236,7 +247,7 @@ void Tex::load_generic(const std::string &file) {
 
 }
 
-Tex::Tex (const std::string& file) : m_palette(false) { //const std::string& filename, TexFilter filter) {
+Tex::Tex (const std::string& file) : m_palette(false), m_defaultPaletteId(GL_INVALID_VALUE) { //const std::string& filename, TexFilter filter) {
 	//std::string file = table.Get<std::string>("file");
 	TexFilter filter = nearest;
 	auto extension = file.substr(file.size() - 3);

@@ -54,6 +54,17 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
     m_primitive = GL_TRIANGLES;
     auto& am = AssetManager::instance();
     auto tex = am.getTex(sheetFile);
+
+    if (tex->hasPalette()) {
+        m_shaderType = ShaderType::SHADER_TEXTURE_PALETTE;
+        m_paletteId = tex->getDefaultPaletteId();
+        auto paletteName = node["palette"].as<std::string>("");
+        if (!paletteName.empty()) {
+            auto pal = am.getPalette(paletteName);
+            m_paletteId = pal->getTexId();
+        }
+    }
+
     float texw = tex->getWidth();
     float texh = tex->getHeight();
     m_texId = tex->getTexId();

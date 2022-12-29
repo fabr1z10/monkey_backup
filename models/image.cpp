@@ -26,7 +26,7 @@ Image::Image(const std::string& filename, const pybind11::kwargs& args) : Model(
         -a.x, -a.y, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f,
         -a.x + size.x, -a.y, 0.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f,
         -a.x + size.x, -a.y + size.y, 0.f, 1.f, 0.f, 1.f, 1.f, 1.f, 1.f,
-        -a.x, -a.y + size.y, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f
+        -a.x, -a.y + size.y, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f
     });
     auto elements = std::vector<unsigned>({0, 1, 2, 2, 3, 0});
 
