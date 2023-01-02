@@ -108,6 +108,7 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 		AnimInfo animInfo;
 		std::vector<FrameInfo> frameInfos;
 		animInfo.loop = anit->second["loop"].as<bool>(true);
+		//animInfo.loopFrame = anit->second["loop_frame"].as<int>(0);
 		int boxAnim = anit->second["box"].as<int>(-1);
 		animInfo.frameCount = 0;
 		int frameCount = 0;
@@ -115,7 +116,10 @@ Sprite::Sprite(const YAML::Node& node, const std::string& sheetFile) : Model(), 
 			FrameInfo frameInfo;
 			frameInfo.offset = indices.size();
             frameInfo.count = 0;
-
+            auto loopFrame = el["loop_frame"].as<bool>(false);
+            if (loopFrame) {
+                animInfo.loopFrame = frameCount;
+            }
 			frameInfo.ticks = el["ticks"].as<int>(defaultTicks);
 			int boxFrame = el["box"].as<int>(boxAnim);
 			bool fliph = el["fliph"].as<bool>(false);

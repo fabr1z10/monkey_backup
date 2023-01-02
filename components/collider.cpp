@@ -6,9 +6,22 @@
 #include "../pyfunc.h"
 #include "../node.h"
 
-Collider::Collider() : m_callbackHandle(-1), m_engine(nullptr), m_debugNode(nullptr) {
+Collider::Collider(int flag, int mask, int tag) : m_callbackHandle(-1), m_engine(nullptr), m_debugNode(nullptr), m_flag(flag), m_mask(mask), m_tag(tag) {
     //std::cout << "creating collider\n";
 }
+
+void Collider::setCollisionFlag(int flag) {
+    m_flag = flag;
+}
+
+void Collider::setCollisionMask(int mask) {
+    m_mask = mask;
+}
+
+void Collider::setCollisionTag(int tag) {
+    m_tag = tag;
+}
+
 
 void Collider::start() {
 	auto& engine = Engine::instance();
@@ -56,8 +69,7 @@ Collider::~Collider() {
 		m_node->onMove.unreg(m_callbackHandle);
 }
 
-SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask, int tag) : m_shape(shape), m_flag(flag),
- m_mask(mask), m_tag(tag) {
+SimpleCollider::SimpleCollider(std::shared_ptr<Shape> shape, int flag, int mask, int tag) : Collider(flag, mask, tag), m_shape(shape) {
 	m_staticBounds = m_shape->getBounds();
 }
 

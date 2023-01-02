@@ -9,3 +9,7 @@ std::type_index Component::getType() {
 bool Component::isActive() const {
 	return m_active;
 }
+
+void Component::setActive(bool active) {
+    m_active = active;
+}

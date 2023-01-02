@@ -72,6 +72,7 @@ using namespace glm;
 #include "states/attack3d.h"
 #include "states/hit3d.h"
 #include "shapes/shapes3d/prism.h"
+#include "states/bounce.h"
 
 namespace py = pybind11;
 
@@ -164,13 +165,14 @@ PYBIND11_MODULE(monkey, m) {
 		.def("get_children", &Node::getChildren)
 		.def("set_scale", &Node::setScale)
 		.def_property_readonly("scale", &Node::getScale)
-        .def_property_readonly("flip_x",&Node::getFlipX)
+        .def_property_readonly("flip_x",&Node::getFilpX)
 		.def_property_readonly("position", &Node::getPos)
 		.def_property_readonly("id", &Node::getId)
 		.def_property_readonly("x", &Node::getX)
 		.def_property_readonly("y", &Node::getY)
 		.def_property_readonly("get_move_time", &Node::getMoveTime)
 		.def("add", &Node::add)
+		.def("move_to", &Node::moveTo)
 	    .def("remove", &Node::remove);
 
 	/* models */
@@ -437,6 +439,10 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Idle, State, std::shared_ptr<Idle>>(m, "idle")
         .def(py::init<const std::string&, const std::string&, py::kwargs&>());
+
+    py::class_<Bounce, State, std::shared_ptr<Bounce>>(m, "bounce")
+        .def(py::init<const std::string&, const py::kwargs&>());
+
 
     py::class_<Attack, State, std::shared_ptr<Attack>>(m, "attack")
         .def(py::init<const std::string&, py::kwargs&>());

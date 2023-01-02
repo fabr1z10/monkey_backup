@@ -5,8 +5,8 @@
 #include "../runners/collisionengine.h"
 #include "../models/sprite.h"
 
-SpriteCollider::SpriteCollider(int flag, int mask, int tag, const pybind11::kwargs& args) : Collider(),
-m_sprite(nullptr), m_renderer(nullptr), m_flag(flag), m_mask(mask), m_tag(tag) {
+SpriteCollider::SpriteCollider(int flag, int mask, int tag, const pybind11::kwargs& args) : Collider(flag, mask, tag),
+m_sprite(nullptr), m_renderer(nullptr) {
     m_castMask = dictget<int>(args, "cast_mask", 0);
     m_castTag = dictget<int>(args, "cast_tag", 0);
 

@@ -17,6 +17,7 @@ public:
     void unregisterComponent(Controller2D*);
     void forceRemove(Controller2D*);
     void unregisterAll();
+    void setActive(bool) override;
     void move(Node*);
 private:
     std::unordered_set<Controller2D*> m_characters;

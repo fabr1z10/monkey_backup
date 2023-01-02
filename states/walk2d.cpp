@@ -114,5 +114,6 @@ void Walk2D::run(double dt) {
             m_animatedRenderer->setAnimation(m_jumpAnim);
 	    }
 
+
 	}
 }

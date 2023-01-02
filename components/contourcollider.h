@@ -10,7 +10,6 @@ public:
     int getCollisionTag() const override;
     int getCollisionFlag() const override;
     int getCollisionMask() const override;
-    void setCollisionFlag(int) override;
 private:
     void generateDebugMesh() override;
 
@@ -29,9 +28,6 @@ private:
     std::vector<float> walkPerimeter(int startX, int startY);
     //void generateDebugMesh() override;
     std::shared_ptr<Shape> m_shape;
-    int m_flag;
-    int m_mask;
-    int m_tag;
     int m_width;
     int m_height;
     int m_size;
@@ -59,9 +55,5 @@ inline int ContourCollider::getCollisionFlag() const {
 
 inline int ContourCollider::getCollisionMask() const {
     return m_mask;
-}
-
-inline void ContourCollider::setCollisionFlag(int flag) {
-    m_flag = flag;
 }
 

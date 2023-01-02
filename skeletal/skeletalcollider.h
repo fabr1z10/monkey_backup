@@ -11,13 +11,11 @@ public:
     int getCollisionFlag() const override;
     int getCollisionMask() const override;
     void start() override;
-    void setCollisionFlag(int) override;
+   //void setCollisionFlag(int) override;
 	void update(double) override;
 
 private:
-    int m_flag;
-    int m_mask;
-    int m_tag;
+
 	int m_castMask;
 	int m_castTag;
     SkeletalRenderer* m_renderer;
@@ -25,10 +23,7 @@ private:
     void generateDebugMesh() override;
 };
 
-inline void SkeletalCollider::setCollisionFlag(int flag) {
 
-    m_flag = flag;
-}
 
 class SkeletalColliderRenderer : public Renderer {
 public:

@@ -7,7 +7,8 @@ public:
     void control() override;
 
     void keyCallback(int key) override;
-
+private:
+    bool m_wasGroudned;
 };
 
 

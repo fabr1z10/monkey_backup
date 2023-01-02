@@ -8,7 +8,7 @@ class CollisionEngine;
 
 class Collider : public Component {
 public:
-	Collider();
+	Collider(int flag, int mask, int tag);
 	virtual ~Collider();
 	Bounds getStaticBounds() const;
 	glm::vec4 bounds() const;
@@ -17,7 +17,9 @@ public:
 	virtual int getCollisionTag() const = 0;
 	virtual int getCollisionFlag() const = 0;
 	virtual int getCollisionMask() const = 0;
-	virtual void setCollisionFlag(int) = 0;
+	void setCollisionFlag(int);
+	void setCollisionMask(int);
+	void setCollisionTag(int);
 	void start() override;
 protected:
 	virtual void generateDebugMesh() {}
@@ -25,6 +27,9 @@ protected:
 	Bounds m_staticBounds;
 	CollisionEngine* m_engine;
 	Node* m_debugNode;
+	int m_flag;
+	int m_mask;
+	int m_tag;
 };
 
 class SimpleCollider : public Collider {
@@ -34,14 +39,11 @@ public:
 	int getCollisionTag() const override;
 	int getCollisionFlag() const override;
 	int getCollisionMask() const override;
-    void setCollisionFlag(int) override;
 
 private:
 	void generateDebugMesh() override;
 	std::shared_ptr<Shape> m_shape;
-	int m_flag;
-	int m_mask;
-	int m_tag;
+
 };
 
 inline std::shared_ptr<Shape> SimpleCollider::getShape() {
@@ -60,7 +62,4 @@ inline int SimpleCollider::getCollisionMask() const {
 	return m_mask;
 }
 
-inline void SimpleCollider::setCollisionFlag(int flag) {
-    m_flag = flag;
-}
 

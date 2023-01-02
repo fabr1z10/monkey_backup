@@ -219,7 +219,11 @@ void Controller2D::verticalCollisions(glm::vec3& velocity, bool forced) {
 		auto rayOrigin = r0 + glm::vec3(i * m_verticalRaySpacing + dir_x * velocity.x, 0.f, 0.f) ;
 		int collMask = (directionY == -1 ? (m_maskDown) : m_maskUp);
 		RayCastHit hit = m_collisionEngine->rayCast(rayOrigin, glm::vec3(0.f, directionY, 0.f), rayLength, collMask);
+		bool ciao = m_details.below;
 		if (hit.collide) {
+		    if (!m_wasGnd) {
+		        std::cout << "figo\n";
+		    }
 		    atleast = true;
 			velocity.y = (hit.length - m_skinWidth) * directionY;
 			rayLength = hit.length;
@@ -331,4 +335,8 @@ bool Controller2D::isFalling(float dir) {
     }
     std::cout << "called false\n";
     return false;
+}
+
+void Controller2D::resetDetails() {
+    m_details.reset();
 }

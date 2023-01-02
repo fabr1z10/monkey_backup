@@ -83,6 +83,13 @@ void Node::setModelMatrix(glm::mat4 m) {
     onMove.fire(this);
 }
 
+void Node::notifyMove() {
+    onMove.fire(this);
+    for (const auto& child : m_children) {
+        child.second->notifyMove();
+    }
+}
+
 void Node::setFlipX(bool value) {
     //m_scaleMatrix[0][0] = (value ? -1.f : 1.f) * abs(m_scaleMatrix[0][0]);
 	//m_modelMatrix[0] = glm::vec4(value ? -1.0f : 1.0f, 0.f, 0.f, 0.f);
@@ -143,6 +150,15 @@ void Node::add(std::shared_ptr<Node> node) {
     if (engine.isRunning()) {
         node->start();
     }
+}
+
+void Node::moveTo(std::shared_ptr<Node> node) {
+    m_children.insert(std::make_pair(node->getId(), node));
+    node->getParent()->removeChild(node->getId());
+    node->setParent(this);
+
+
+
 }
 
 void Node::remove() {

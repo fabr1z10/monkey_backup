@@ -109,7 +109,7 @@ void CollisionEngine::update(double) {
 							collisionChecks++;
 							auto b1 = c1->getStaticBounds();
 							auto b2 = c2->getStaticBounds();
-							if (!b1.intersect2D(b2)) {
+							if (!aabbTest(b1, b2)) {
 								continue;
 							}
 
@@ -301,7 +301,7 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 				int fm = flag & mask;
 				if (fm != 0) {
 					auto shapeBounds = c->getStaticBounds();
-					if (lineBounds.intersect3D(shapeBounds)) {
+					if (aabbTest(lineBounds,shapeBounds)) {
 						const auto& t = c->getNode()->getWorldMatrix();
 						// if aabb intersect, then try to run proper intersection between the shapes (one of which is a seg)
 						/// TODO restore following code
@@ -329,6 +329,15 @@ RayCastHit CollisionEngine::rayCast(glm::vec3 rayOrigin, glm::vec3 rayDir, float
 
 }
 
+// returns true if bounds intersect
+bool CollisionEngine::aabbTest(const Bounds &b1, const Bounds &b2) {
+
+    return !(b1.min.x > b2.max.x || b1.max.x < b2.min.x ||
+             b1.min.y > b2.max.y || b1.max.y < b2.min.y ||
+            (!m_2d && (b1.min.z > b2.max.z || b1.max.z < b2.min.z)));
+
+}
+
 std::vector<ShapeCastHit> CollisionEngine::shapeCast (Shape* shape, const glm::mat4& transform, int mask, bool onlyFirst) {
     std::vector<ShapeCastHit> result;
     auto aabb = shape->getBounds();
@@ -352,7 +361,7 @@ std::vector<ShapeCastHit> CollisionEngine::shapeCast (Shape* shape, const glm::m
 						}
 						auto b = c->getStaticBounds();
 						// perform a aabb testing
-						if (!aabb.intersect2D(b)) {
+						if (!aabbTest(aabb, b)) {
 							continue;
 						}
 						auto s = c->getShape();

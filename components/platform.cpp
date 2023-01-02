@@ -21,6 +21,13 @@ void Platform::start() {
     m_platformWidth = m_node->getComponent<Collider>()->getStaticBounds().getSize().x;
 }
 
+void Platform::setActive(bool value) {
+    Component::setActive(value);
+    if (!value) {
+        unregisterAll();
+    }
+}
+
 void Platform::unregisterComponent(Controller2D* character) {
     //m_characters.erase(character);
     m_removeBuffer.push_back(character);
@@ -93,7 +100,9 @@ void Platform::move(Node* node) {
         for (const auto& c : m_characters) {
             // TODO Problem: What happens if moving the character send it to another platform?
             // this would trigger the unregister and so the vector will change while iterating
-
+            if (c->getNode()->getFilpX()) {
+                delta.x *= -1.f;
+            }
             c->move(delta, true);
 
         }

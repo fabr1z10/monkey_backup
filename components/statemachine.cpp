@@ -3,6 +3,7 @@
 #include "../engine.h"
 #include "../runners/scheduler.h"
 #include "../pyhelper.h"
+#include "collider.h"
 
 
 State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), m_scriptId(-1), m_current(false) {
@@ -16,6 +17,11 @@ State::State(const std::string& id, const pybind11::kwargs& kwargs) : m_id(id), 
             m_keyCallbacks.insert(std::make_pair(keyId, callback));
         }
     }
+
+    m_collisionFlag = dictget<int>(kwargs, "collision_flag", -1);
+    m_collisionMask = dictget<int>(kwargs, "collision_mask", -1);
+    m_collisionTag = dictget<int>(kwargs, "collision_tag", -1);
+    m_overrideCollision = m_collisionFlag != -1 || m_collisionMask != -1 || m_collisionTag != -1;
 
 
 }
@@ -40,12 +46,44 @@ void State::init(const pybind11::kwargs& args) {
     if (m_script) {
         m_scriptId = m_script(m_sm->getNode()->getId()).cast<long>();
     }
+
+    if (m_overrideCollision) {
+        auto* collider = m_sm->getNode()->getComponent<Collider>();
+        if (m_collisionFlag != -1) {
+            m_backupFlag = collider->getCollisionFlag();
+            collider->setCollisionFlag(m_collisionFlag);
+        }
+        if (m_collisionMask != -1) {
+            m_backupMask = collider->getCollisionMask();
+            collider->setCollisionMask(m_collisionMask);
+        }
+        if (m_collisionTag != -1) {
+            m_backupTag = collider->getCollisionTag();
+            collider->setCollisionTag(m_collisionTag);
+        }
+    }
+
+
+
 }
 
 void State::end() {
     m_current = false;
     if (m_scriptId != -1) {
         Engine::instance().getRoom()->getRunner<Scheduler>()->kill(m_scriptId);
+    }
+    if (m_overrideCollision) {
+        // restore previous collision data
+        auto* collider = m_sm->getNode()->getComponent<Collider>();
+        if (m_collisionFlag != -1) {
+            collider->setCollisionFlag(m_backupFlag);
+        }
+        if (m_collisionMask != -1) {
+            collider->setCollisionMask(m_backupMask);
+        }
+        if (m_collisionTag != -1) {
+            collider->setCollisionTag(m_backupTag);
+        }
     }
 }
 

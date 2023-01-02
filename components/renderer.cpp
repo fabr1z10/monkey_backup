@@ -151,7 +151,7 @@ void SpriteRenderer::draw(Shader * s) {
 		// increment frame. if this animation is
 		m_frame++;
 		if (m_frame >= m_animInfo->frameCount) {
-			m_frame = (m_animInfo->loop ? 0 : m_animInfo->frameCount - 1);
+			m_frame = (m_animInfo->loop ? m_animInfo->loopFrame : m_animInfo->frameCount - 1);
 			m_complete = true;
 		}
 		m_ticks = 0;

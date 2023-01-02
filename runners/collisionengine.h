@@ -44,6 +44,7 @@ public:
     void processCollisions(const std::vector<ShapeCastHit>&, Node*, int);
 
 protected:
+    bool aabbTest(const Bounds& b1, const Bounds& b2);
 	std::unordered_map<glm::ivec3, CollisionEngineCell> m_cells;
 	std::unordered_map<Collider*, ColliderInfo> m_colliderLocations;
 	void pushCollider(Collider* c, glm::ivec3 m, glm::ivec3 M);

@@ -8,8 +8,7 @@
 #include "../shapes/triangles.h"
 
 
-ContourCollider::ContourCollider(const std::string& file, float epsilon,  int flag, int mask, int tag, glm::vec2 anchor) : Collider(),
-    m_flag(flag), m_mask(mask), m_tag(tag) {
+ContourCollider::ContourCollider(const std::string& file, float epsilon,  int flag, int mask, int tag, glm::vec2 anchor) : Collider(flag, mask, tag) {
 
 
     m_data = Tex::getRaw(file, m_width, m_height);

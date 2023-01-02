@@ -13,6 +13,7 @@ public:
 	~Node();
 	long getId() const;
 	void add(std::shared_ptr<Node> node);
+	void moveTo(std::shared_ptr<Node> node);
 	void remove();
 	void setModel(std::shared_ptr<Model> model);
 	void setPosition(float x, float y, float z);
@@ -24,6 +25,7 @@ public:
 	bool active() const;
     const std::unordered_map<long, std::shared_ptr<Node>>& children() const;
     void start();
+    void notifyMove();
 	void removeChild(long);
 	void setFlipX(bool);
 	bool getFilpX() const;
@@ -114,6 +116,9 @@ inline int Node::getChildrenCount() const {
 
 inline void Node::setActive(bool active) {
 	m_active = active;
+	for (const auto& comp : m_components) {
+	    comp.second->setActive(active);
+	}
 }
 
 inline bool Node::active() const {

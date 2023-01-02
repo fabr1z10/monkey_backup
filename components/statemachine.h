@@ -25,7 +25,14 @@ protected:
 	long m_scriptId;
 	bool m_current;
     std::unordered_map<int, pybind11::function> m_keyCallbacks;
-
+    // override collision
+    int m_collisionFlag;
+    int m_collisionMask;
+    int m_collisionTag;
+    int m_backupFlag;
+    int m_backupMask;
+    int m_backupTag;
+    bool m_overrideCollision;
 };
 
 inline void State::setParent(StateMachine * sm) {

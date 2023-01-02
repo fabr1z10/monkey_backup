@@ -59,6 +59,7 @@ public:
 	void setPlatform(Platform*);
 	void resetPlatform();
 	bool isFalling(float);
+	void resetDetails();
 private:
 	std::shared_ptr<Model> getDebugModel() override;
 
