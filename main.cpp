@@ -73,6 +73,7 @@ using namespace glm;
 #include "states/hit3d.h"
 #include "shapes/shapes3d/prism.h"
 #include "states/bounce.h"
+#include "states/climb.h"
 
 namespace py = pybind11;
 
@@ -189,6 +190,8 @@ PYBIND11_MODULE(monkey, m) {
     py::class_<PolyMesh, Model, std::shared_ptr<PolyMesh>>(mm, "polymesh");
     py::class_<TiledModel, Model, std::shared_ptr<TiledModel>>(mm, "tiled")
         .def(py::init<const pybind11::kwargs&>());
+    py::class_<AnimatedTiledModel, Model, std::shared_ptr<AnimatedTiledModel>>(mm, "tiled_animated")
+            .def(py::init<const pybind11::kwargs&>());
     py::class_<Image, Model, std::shared_ptr<Image>>(mm, "image")
         .def(py::init<const std::string&, const pybind11::kwargs&>());
 	py::class_<Text, Model, std::shared_ptr<Text>>(mm, "text")
@@ -442,6 +445,9 @@ PYBIND11_MODULE(monkey, m) {
 
     py::class_<Bounce, State, std::shared_ptr<Bounce>>(m, "bounce")
         .def(py::init<const std::string&, const py::kwargs&>());
+
+    py::class_<Climb, State, std::shared_ptr<Climb>>(m, "climb")
+            .def(py::init<const std::string&, const py::kwargs&>());
 
 
     py::class_<Attack, State, std::shared_ptr<Attack>>(m, "attack")

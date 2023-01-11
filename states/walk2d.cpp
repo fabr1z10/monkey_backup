@@ -81,7 +81,7 @@ void Walk2D::run(double dt) {
 	} else {
 		// apply deceleration only if velocity above threshold
 		if (fabs(m_dynamics->m_velocity.x) > 0.1f) {
-			a.x = - m_acceleration;
+			a.x = - signf(m_dynamics->m_velocity.x) * m_acceleration;
 		} else {
 			a.x = 0.0f;
 			m_dynamics->m_velocity.x = 0.0f;
